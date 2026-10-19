@@ -43,7 +43,7 @@ internal fun SettingsScreen(count: Int, jobs: List<ImportJob>, settings: AppSett
             Text("默认关闭。开启后调用已配置的接口生成答案与步骤，解答需要核对，可能产生额外服务费用。", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         } }
         item { SettingsCard {
-            Text("Mathector 0.22.0 · 高中数学题集", fontWeight = FontWeight.SemiBold)
+            Text("Matheca 0.22.0 · 高中数学题集", fontWeight = FontWeight.SemiBold)
             Text("识别结果会保存为待校对草稿。PDF 每个文件最多 20 页，单个文件不超过 50 MB。", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
             Text("PDF 排版导出 · Word 正文可编辑，公式为图片。卸载前请使用“导出题库”保存完整 ZIP 备份。", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
         } }

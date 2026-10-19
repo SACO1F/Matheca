@@ -141,7 +141,7 @@ fun MathectorApp(model: AppViewModel) {
         val beginLibraryExport = {
             showLibraryBackup = false
             val date = java.text.SimpleDateFormat("yyyyMMdd-HHmmss", java.util.Locale.ROOT).format(java.util.Date())
-            exportLibrary.launch("Mathector题库-$date.zip")
+            exportLibrary.launch("Matheca题库-$date.zip")
         }
         val beginLibraryImport = {
             showLibraryBackup = false
@@ -309,7 +309,7 @@ private fun LibraryScreen(questions: List<Question>, job: ImportJob?, busy: Bool
     }
     LazyColumn(Modifier.testTag("library-list"), contentPadding = PaddingValues(start = 22.dp, end = 22.dp, top = 18.dp, bottom = 100.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         item { Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Row(verticalAlignment = Alignment.CenterVertically) { Box(Modifier.size(32.dp).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) { Text("√", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold, fontSize = 22.sp) }; Spacer(Modifier.width(10.dp)); Text("Mathector", fontWeight = FontWeight.Bold, fontSize = 18.sp) }
+            Row(verticalAlignment = Alignment.CenterVertically) { Box(Modifier.size(32.dp).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) { Text("√", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold, fontSize = 22.sp) }; Spacer(Modifier.width(10.dp)); Text("Matheca", fontWeight = FontWeight.Bold, fontSize = 18.sp) }
             Spacer(Modifier.weight(1f))
             FilledTonalButton(onClick = onBackup, modifier = Modifier.heightIn(min = 40.dp).testTag("library-backup-open"),
                 shape = RoundedCornerShape(50.dp), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)) {

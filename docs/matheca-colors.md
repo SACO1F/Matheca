@@ -4,9 +4,9 @@
 
 ## 来源与范围
 
-本次根据本机桌面 Matheca 的 `DESIGN.md`、`desktop/src/shared/color-themes.ts` 和 `desktop/src/renderer/workbench-theme.css` 提取实际配色。桌面默认石墨，另提供雾蓝、陶土、梅紫。Android 沿用相同名称、顺序和白天主色，不引入其他推荐色板。
+本次根据桌面 Matheca 的 `DESIGN.md`、`desktop/src/shared/color-themes.ts` 和 `desktop/src/renderer/workbench-theme.css` 提取实际配色。桌面默认石墨，另提供雾蓝、陶土、梅紫。Android 沿用相同名称、顺序和白天主色，不引入其他推荐色板。
 
-桌面当前定义的是浅色工作台。Android 黑夜模式的中性底色和强调色为本次适配，不能视作已存在的桌面黑夜规范。本次只修改 Android 项目。
+桌面当前定义的是浅色工作台。Android 黑夜模式的中性底色和强调色为本次适配，不能视作已存在的桌面黑夜规范。已合入远端的同仓库整合，保留桌面源文件，项目统一名称为 Matheca。
 
 ## 白天颜色
 

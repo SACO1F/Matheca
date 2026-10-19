@@ -1,0 +1,568 @@
+/* Secondary workspaces share the shell's spacing, controls and restrained palette. */
+.management-page {
+  --management-muted: #60718a;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  padding: 0 30px 22px;
+  font-size: 13px;
+}
+.management-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  padding: 0 0 18px;
+  flex-shrink: 0;
+}
+.management-toolbar p,
+.management-footnote {
+  font-size: 12px;
+  color: var(--management-muted);
+}
+.management-toolbar p > span {
+  margin: 0 7px;
+}
+.management-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.management-tools input,
+.history-toolbar input {
+  width: 250px;
+  font-size: 13px;
+  height: 36px;
+}
+.management-page button {
+  font-size: 12px;
+}
+.management-tools button {
+  height: 36px;
+  white-space: nowrap;
+}
+.management-empty {
+  display: flex;
+  min-height: 220px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  text-align: center;
+  padding: 32px 20px;
+}
+.management-empty h3 {
+  color: var(--text);
+  font-size: 16px;
+}
+.management-empty p {
+  color: var(--management-muted);
+  font-size: 13px;
+  max-width: 42ch;
+}
+.management-empty button {
+  margin-top: 8px;
+}
+.management-footnote {
+  margin-top: 14px;
+  flex-shrink: 0;
+}
+.knowledge-workbench {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 218px minmax(0, 1fr);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.knowledge-modules {
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding: 12px;
+  background: #f8faff;
+  border-right: 1px solid var(--line);
+}
+.module-list-heading {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 10px 16px;
+  color: var(--management-muted);
+  font-size: 12px;
+}
+.knowledge-modules button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  min-height: 38px;
+  border: 0;
+  background: transparent;
+  padding: 9px 10px;
+  border-radius: 8px;
+  margin: 2px 0;
+  text-align: left;
+  font-size: 13px;
+  gap: 12px;
+}
+.knowledge-modules button:hover {
+  background: #eef3fc;
+}
+.knowledge-modules button[aria-current="true"] {
+  color: var(--blue);
+  background: #e8efff;
+  font-weight: 600;
+}
+.module-point-count {
+  color: var(--management-muted);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+.knowledge-modules button[aria-current="true"] .module-point-count {
+  color: var(--blue);
+}
+.knowledge-detail {
+  padding: 24px 28px;
+  overflow-y: auto;
+  min-width: 0;
+  min-height: 0;
+  scrollbar-width: thin;
+  padding-bottom: 90px;
+}
+.knowledge-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 0 0 22px;
+}
+.knowledge-detail-heading h2 {
+  font-size: 20px;
+  letter-spacing: 0;
+}
+.knowledge-detail-heading p {
+  color: var(--management-muted);
+  font-size: 12px;
+  margin-top: 6px;
+}
+.knowledge-column-label {
+  color: var(--management-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.knowledge-point-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.knowledge-point-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 17px 0;
+  border-top: 1px solid var(--line);
+}
+.knowledge-point-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  overflow-wrap: anywhere;
+}
+.point-origin {
+  font-size: 11px;
+  padding: 3px 7px;
+  border-radius: 5px;
+  background: #f0eaff;
+  color: #7150a4;
+  white-space: nowrap;
+}
+.knowledge-question-count {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.knowledge-question-count small {
+  color: var(--management-muted);
+  font-size: 12px;
+}
+.knowledge-point-section > h3 {
+  padding: 18px 0 12px;
+  font-size: 13px;
+  color: var(--management-muted);
+}
+.knowledge-create {
+  background: #f8faff;
+  padding: 18px;
+  border-radius: 10px;
+  margin-bottom: 24px;
+}
+.knowledge-create-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.knowledge-create-title button {
+  padding: 3px 5px;
+  color: var(--management-muted);
+}
+.knowledge-create-fields {
+  display: grid;
+  grid-template-columns: minmax(130px, 0.85fr) minmax(150px, 1.5fr) auto;
+  align-items: end;
+  gap: 12px;
+}
+.knowledge-create-fields .field {
+  margin: 0;
+  min-width: 0;
+}
+.knowledge-create-fields .field > span {
+  color: var(--management-muted);
+  font-size: 12px;
+}
+.knowledge-create-fields input,
+.knowledge-create-fields .glide-trigger,
+.knowledge-create-fields > button {
+  height: 36px;
+  font-size: 12px;
+}
+.knowledge-create-fields .glide-select,
+.knowledge-create-fields .glide-trigger {
+  width: 100%;
+  min-width: 0;
+}
+.knowledge-create-fields .glide-trigger span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.knowledge-create > p {
+  font-size: 12px;
+  color: var(--management-muted);
+  margin-top: 12px;
+}
+.management-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.management-tabs button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 8px;
+  color: var(--management-muted);
+}
+.management-tabs button span {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.management-tabs button[aria-pressed="true"] {
+  color: var(--blue);
+  background: #edf3ff;
+  font-weight: 600;
+}
+.task-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding-bottom: 68px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.task-list .management-empty {
+  min-height: 100%;
+}
+.tasks-page .job-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 176px;
+  align-items: start;
+  gap: 24px;
+  padding: 24px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  margin: 0;
+}
+.tasks-page .job-card:last-child {
+  border-bottom: 0;
+}
+.tasks-page .job-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin-bottom: 14px;
+}
+.tasks-page .job-heading h3 {
+  font-size: 14px;
+}
+.tasks-page .job-heading time {
+  color: var(--management-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.tasks-page .job-result-count {
+  margin-left: auto;
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--management-muted);
+}
+.tasks-page .job-files {
+  margin: 0 0 12px;
+}
+.tasks-page .job-files li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 20px;
+  padding: 5px 0;
+  line-height: 1.6;
+}
+.tasks-page .job-file-name {
+  font-size: 14px;
+}
+.tasks-page .job-file-count {
+  align-self: center;
+  color: var(--management-muted);
+  font-size: 12px;
+}
+.tasks-page .job-message {
+  margin: 10px 0 0;
+  color: var(--management-muted);
+  font-size: 12px;
+}
+.tasks-page .job-card[data-job-status="failed"] .job-message,
+.tasks-page .job-card[data-job-status="partial"] .job-message {
+  color: #b53349;
+}
+.tasks-page .job-details {
+  margin: 0 0 12px;
+}
+.tasks-page .job-question-preview {
+  max-height: 150px;
+  overflow-y: auto;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.tasks-page .job-question-source {
+  color: var(--management-muted);
+  font-size: 12px;
+  margin-top: 10px;
+}
+.job-status-column {
+  border-left: 1px solid var(--line);
+  padding-left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-self: stretch;
+  min-width: 0;
+}
+.job-status-column .lattice-loader {
+  min-height: 25px;
+  align-self: flex-start;
+}
+.job-progress {
+  height: 4px;
+  background: var(--subtle);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 2px;
+}
+.job-progress > span {
+  display: block;
+  height: 100%;
+  background: var(--blue);
+  border-radius: inherit;
+  transition: width 240ms ease-out;
+}
+[data-job-status="complete"] .job-progress > span {
+  background: #16845b;
+}
+.job-progress-caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--management-muted);
+  font-variant-numeric: tabular-nums;
+}
+.job-status-column button {
+  align-self: flex-start;
+  height: 32px;
+  padding: 0 12px;
+  margin-top: 4px;
+}
+.history-column-head {
+  display: grid;
+  grid-template-columns: 94px minmax(0, 1fr) 68px;
+  gap: 12px;
+  padding: 12px 20px;
+  border-block: 1px solid var(--line);
+  color: var(--management-muted);
+  font-size: 12px;
+}
+.history-column-head > :last-child {
+  text-align: right;
+}
+.history-timeline {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding-bottom: 16px;
+}
+.history-day > header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  background: #f8faff;
+  padding: 13px 20px;
+}
+.history-day > header h2 {
+  font-size: 13px;
+  letter-spacing: 0;
+}
+.history-day > header span {
+  font-size: 12px;
+  color: var(--management-muted);
+}
+.history-day-count {
+  margin-left: auto;
+}
+.history-page .history-rows li {
+  display: grid;
+  grid-template-columns: 78px 4px minmax(0, 1fr) 68px;
+  align-items: start;
+  gap: 12px;
+  padding: 18px 20px;
+}
+.history-page .history-marker {
+  width: 4px;
+  height: 4px;
+  margin-top: 7px;
+  background: #a2aec0;
+}
+.history-page .history-marker.failed {
+  background: #bf3344;
+}
+.history-row-time {
+  font-size: 12px;
+  color: var(--management-muted);
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
+}
+.history-page .history-description b {
+  line-height: 20px;
+  font-weight: 500;
+}
+.history-page .history-description p {
+  color: var(--management-muted);
+  margin: 4px 0 0;
+  line-height: 1.65;
+}
+.history-page .history-status {
+  text-align: right;
+  line-height: 20px;
+  padding: 0;
+  color: var(--management-muted);
+}
+.history-page .history-status.failed {
+  color: #bf3344;
+}
+.history-page .history-status.done {
+  color: #237356;
+}
+.history-pagination {
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  flex-shrink: 0;
+  color: var(--management-muted);
+}
+.history-pagination > p {
+  margin-right: auto;
+  font-size: 12px;
+}
+.history-toolbar p {
+  color: var(--management-muted);
+}
+.history-timeline > .hint,
+.history-timeline > [role="alert"] {
+  padding: 24px 20px;
+}
+@container workspace (max-width: 1000px) {
+  .management-page {
+    padding-inline: 20px;
+  }
+  .knowledge-workbench {
+    grid-template-columns: 180px minmax(0, 1fr);
+  }
+  .knowledge-detail {
+    padding: 20px;
+    padding-bottom: 90px;
+  }
+  .tasks-page .job-card {
+    gap: 18px;
+    padding: 20px;
+    grid-template-columns: minmax(0, 1fr) 156px;
+  }
+  .job-status-column {
+    padding-left: 18px;
+  }
+  .tasks-page .job-files li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+}
+@container workspace (max-width: 760px) {
+  .management-toolbar {
+    align-items: flex-start;
+  }
+  .management-tools {
+    width: 100%;
+  }
+  .management-tools input {
+    flex: 1;
+    min-width: 0;
+  }
+  .knowledge-workbench {
+    grid-template-columns: 155px minmax(0, 1fr);
+  }
+  .knowledge-modules {
+    padding: 8px;
+  }
+  .knowledge-create-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .knowledge-create-fields > button {
+    justify-self: start;
+  }
+  .task-resume-hint {
+    display: none;
+  }
+  .history-pagination {
+    flex-wrap: wrap;
+  }
+  .history-pagination > p {
+    width: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .job-progress > span {
+    transition: none;
+  }
+}

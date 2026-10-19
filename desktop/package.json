@@ -1,0 +1,73 @@
+{
+  "name": "matheca-desktop",
+  "productName": "Matheca",
+  "version": "0.1.0",
+  "description": "Matheca 高中数学题库 Windows 桌面版",
+  "author": "SACO1F",
+  "private": true,
+  "main": ".vite/build/main.cjs",
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make --platform win32 --arch x64",
+    "make:portable": "node scripts/portable.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "node scripts/e2e.mjs",
+    "test:ui": "node scripts/expanded-ui.mjs",
+    "verify": "npm run typecheck && npm test",
+    "rebuild": "electron-rebuild -f -w better-sqlite3",
+    "test:integration": "node scripts/integration.mjs",
+    "test:portable": "node scripts/validate-portable.mjs",
+    "test:portable:full": "node scripts/validate-portable.mjs --suite full",
+    "format:check": "prettier --check src tests \"scripts/*.{ts,mjs}\" *.ts *.html *.json",
+    "format": "prettier --write src tests scripts/*.{ts,mjs} *.ts *.html *.json"
+  },
+  "dependencies": {
+    "better-sqlite3": "13.0.3",
+    "docx": "9.9.0",
+    "electron-squirrel-startup": "^1.0.1",
+    "heic-convert": "2.1.0",
+    "katex": "^0.16.25",
+    "lossless-json": "4.3.1",
+    "pdfjs-dist": "6.4.299",
+    "qrcode": "1.5.4",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "yauzl": "^3.2.0",
+    "yazl": "^3.3.1"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "8.0.1",
+    "@electron-forge/maker-base": "^8.0.1",
+    "@electron-forge/maker-squirrel": "8.0.1",
+    "@electron-forge/plugin-vite": "8.0.1",
+    "@electron/rebuild": "^4.0.1",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/electron-squirrel-startup": "^1.0.2",
+    "@types/katex": "^0.16.7",
+    "@types/node": "^24.10.0",
+    "@types/qrcode": "1.5.6",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@types/yauzl": "^2.10.3",
+    "@types/yazl": "^3.3.0",
+    "@vitejs/plugin-react": "^5.1.0",
+    "electron": "44.7.0",
+    "playwright": "^1.56.0",
+    "prettier": "^3.9.9",
+    "typescript": "^5.9.3",
+    "vite": "8.3.4",
+    "vitest": "^4.0.0"
+  },
+  "engines": {
+    "node": "^22 || ^24 || >=26"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SACO1F/Matheca.git",
+    "directory": "desktop"
+  },
+  "homepage": "https://github.com/SACO1F/Matheca"
+}

@@ -99,6 +99,19 @@ class MathecaAppearanceTest {
         } finally { prefs.edit().clear().commit() }
     }
 
+    @Test fun unifiedBackupFormatAlsoAcceptsLegacyMathectorManifests() {
+        val q = Question(title = "兼容性验证", body = "求函数的单调区间。", reviewed = true)
+        val data = LibraryBackupData(listOf(q), emptyList(), emptyList(), emptyList(), emptyMap(), emptySet(), 0)
+        val manifest = org.json.JSONObject(String(LibraryBackupCodec.encode(data), Charsets.UTF_8))
+        assertEquals("MathecaLibraryBackup", manifest.getString("format"))
+        assertEquals(q.body, LibraryBackupCodec.decode(manifest.toString()).questions.single().body)
+        manifest.put("format", "MathectorLibraryBackup")
+        val legacy = LibraryBackupCodec.decode(manifest.toString()).questions.single()
+        assertEquals(q.id, legacy.id)
+        assertEquals(q.body, legacy.body)
+        assertTrue(legacy.reviewed)
+    }
+
     @Test fun settingsAndLibraryRenderAllFourAccentsInBothModes() {
         val original = app.settings.state.value
         val q = Question(title = "函数与单调性", body = "已知函数 \\(f(x)=x^2-2x\\)，求其单调区间。", grade = "高一", difficulty = "基础", knowledge = "函数单调性", reviewed = true)

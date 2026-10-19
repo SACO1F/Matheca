@@ -1,0 +1,3 @@
+* text=auto eol=lf
+# Generated notices preserve the upstream license text, including its whitespace.
+THIRD_PARTY_NOTICES.txt -whitespace

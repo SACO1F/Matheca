@@ -32,8 +32,8 @@ internal object LibraryBackupCodec {
 
     fun decode(text: String): LibraryBackupData {
         val root = JSONObject(text)
-        require(root.string("format") == BackupPolicy.FORMAT) { "请选择 Mathector 导出的题库备份 ZIP 文件" }
-        require(root.integer("version") == BackupPolicy.VERSION) { "此备份版本暂不支持，请更新 Mathector 后重试" }
+        require(root.string("format") in listOf(BackupPolicy.FORMAT, "MathectorLibraryBackup")) { "请选择 Matheca 导出的题库备份 ZIP 文件" }
+        require(root.integer("version") == BackupPolicy.VERSION) { "此备份版本暂不支持，请更新 Matheca 后重试" }
         val sources = mutableMapOf<String, String>()
         val solutions = mutableSetOf<String>()
         val questions = root.array("questions", BackupPolicy.MAX_QUESTIONS).map { q ->

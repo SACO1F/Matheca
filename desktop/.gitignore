@@ -1,0 +1,9 @@
+node_modules/
+.vite/
+out/
+build-out/
+test-output/
+coverage/
+public/pdfjs/
+*.log
+releases/

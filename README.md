@@ -1,12 +1,47 @@
-# Mathector
+# Matheca
 
-一款面向高中数学的原生 Android 题集 App。把拍照、相册图片或 PDF 中的题目识别为可校对的题干，按知识点整理，组合成题集，再导出练习文档。
+面向高中数学备课的题库工具，包含 **Windows 桌面版** 与 **Android App**。两端在同一个仓库中开发和维护：整理题目、识别与校对、按知识点分类、选题组卷，再导出练习文档。
 
-**当前版本：0.22.0 · 最低 Android 8.0 · 中文界面**
+| 平台 | 工程 | 当前版本 | 使用与构建 |
+| --- | --- | --- | --- |
+| Windows x64 | [desktop/](desktop/) · Electron / React / TypeScript | 0.1.0 | [桌面版说明](desktop/README.md) |
+| Android 8.0+ | [app/](app/) · Kotlin / Jetpack Compose | 0.22.0 | [下方 Android 说明](#android-安装与快速开始) |
 
-[下载 Android APK](https://github.com/SACO1F/Mathector/releases/download/v0.22.0/Mathector-0.22.0-debug.apk) · [版本说明与校验文件](https://github.com/SACO1F/Mathector/releases/tag/v0.22.0) · [题库备份说明](docs/library-backup.md) · [开发与验证历史](docs/development-history.md)
+**下载：[Windows 便携版 ZIP](https://github.com/SACO1F/Matheca/releases/download/matheca-2026.10.19/Matheca-win32-x64-0.1.0.zip) · [Android APK](https://github.com/SACO1F/Matheca/releases/download/android-v0.22.0/Matheca-android-0.22.0-debug.apk) · [Windows 发布与校验](https://github.com/SACO1F/Matheca/releases/tag/matheca-2026.10.19) · [Android 发布与校验](https://github.com/SACO1F/Matheca/releases/tag/android-v0.22.0)**
 
-## 安装与快速开始
+Windows 版请完整解压后运行 `Matheca.exe`，保留 DLL 和 `resources/`。Android 版目前提供 Debug 签名构建。两个平台分别存储本地数据；同仓库管理不等于跨设备实时同步。手机浏览器扫码上传到电脑的入口属于桌面版，不依赖 Android App。
+
+## 仓库结构
+
+```text
+Matheca/
+├─ app/                  Android App、资源、Room schema 和测试
+├─ desktop/              Windows 桌面源码、打包脚本和测试
+├─ gradle/               Android Gradle Wrapper
+├─ docs/                 共享产品、备份、发布和验证文档
+├─ PRODUCT.md            产品范围与约束
+└─ DESIGN.md             桌面界面规范与主题色
+```
+
+[同仓库开发说明](docs/PROJECT_STRUCTURE.md) · [当前桌面验证记录](desktop/docs/CURRENT_TEST_REPORT.md) · [历史 Android 发布](docs/releases/)
+
+## Windows 快速开始
+
+桌面版包含本地题库、来源原图校对、图片选项、题集、PDF / Word 导出、联网识别和 AI 解题任务。支持手机扫码上传、四套强调色、手动录题保存确认，以及确认校对后返回来源列表。当前桌面设置中的 ZIP 导入面向 Windows 题库，Android 备份实际互导尚未开放。
+
+在安装 Node.js 24 和 npm 的 Windows 环境运行：
+
+```powershell
+cd desktop
+npm ci
+npm run verify
+npm run make:portable
+npm run test:portable
+```
+
+完整应用目录、ZIP 和校验文件位于 `desktop/releases/v版本号/构建时间/`，最新本机路径见 `desktop/releases/latest.txt`。构建产物不提交到 Git，通过同一仓库的 Releases 下载。
+
+## Android 安装与快速开始
 
 1. 下载并安装 APK。当前提供 Debug 构建；0.22.0 与上一版签名相同，可以覆盖安装并保留本地数据。
 2. 首次打开可点击“先用 3 道示例题体验”，或使用右下角加号手动录入题目。
@@ -147,7 +182,7 @@ adb -s emulator-5554 shell am instrument -w -e class com.mathector.app.LibraryBa
 
 ## 最新验证范围
 
-0.22.0 于 **2026-10-19** 完成 APK 与测试包构建，**41 项单元测试**通过，Lint 为 **0 错误、18 项警告**。本次分批通过 **7 个相关设备场景**，包含四种配色 × 两种明暗模式、偏好持久化、菜单与选题关闭、题干和 AI 解答公式、题集悬浮按钮，以及大字号与横屏下的外观选项。
+0.22.0 于 **2026-10-19** 完成 APK 与测试包构建，**41 项单元测试**通过，Lint 为 **0 错误、18 项警告**。本次通过 **9 个相关设备场景**，包含四种配色 × 两种明暗模式、偏好持久化、菜单与选题关闭、题干和 AI 解答公式、题集悬浮按钮，大字号与横屏下的外观选项，以及新旧备份格式兼容和完整题库恢复。
 
 最终矩阵检查等待 KaTeX 字体、DOM 颜色与 WebView 实际绘制完成后收集截图。约 375 dp 视口、2.0 倍字号、系统动画关闭时，配色选择可通过滚动完整露出并避开底部导航；检查后恢复模拟器设置。APK v2 签名与上一版相同。详细范围及校验值见 [0.22.0 发布说明](docs/releases/0.22.0.md)，备份能力的上一轮验证见 [0.21.0 发布说明](docs/releases/0.21.0.md)。
 尚未验证真实服务商的识别准确率。复杂公式、跨栏与跨页拆题需要人工校对，几何图目前保留来源整页；Android 8.0、厂商真机、平板、拍摄质量与性能矩阵仍需扩大验证。DOCX 已验证结构与公式图片，尚未完成 Word／WPS 编辑与打印验证。

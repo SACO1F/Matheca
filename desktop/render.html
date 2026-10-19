@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'none'"
+    />
+    <title>Matheca 文档处理</title>
+  </head>
+  <body>
+    <div id="document"></div>
+    <script type="module" src="/src/renderer/render-engine.ts"></script>
+  </body>
+</html>

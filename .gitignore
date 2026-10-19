@@ -16,3 +16,21 @@ tmp/
 *.jks
 *.keystore
 *.hprof
+
+# Local assistant state and superseded design explorations.
+/.workbuddy-ai/
+/design-review/
+/design-system/
+/.impeccable/review/
+/.impeccable/build/
+
+# Local validation journals reference ignored machine-specific evidence.
+/docs/*_2026-10-*.md
+
+# Local data and credentials are never source assets.
+*.sqlite
+*.sqlite-*
+*.db
+*.db-*
+*.pem
+*.key

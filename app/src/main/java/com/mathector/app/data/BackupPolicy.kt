@@ -1,7 +1,7 @@
 package com.mathector.app.data
 
 object BackupPolicy {
-    const val FORMAT = "MathectorLibraryBackup"
+    const val FORMAT = "MathecaLibraryBackup"
     const val VERSION = 1
     const val MAX_ARCHIVE_BYTES = 512L * 1024 * 1024
     const val MAX_MANIFEST_BYTES = 32L * 1024 * 1024
