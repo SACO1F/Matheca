@@ -44,9 +44,9 @@ import kotlinx.coroutines.launch
     val knowledgeOptions = listOf<String?>(null) + KnowledgeCatalog.points.filter { it in points } +
         if(available.any { KnowledgeCatalog.decode(it.knowledge).isEmpty() }) listOf("") else emptyList()
     val dark = MaterialTheme.colorScheme.background.luminance() < .5f
-    val gradeColor = if(dark) Color(0xFF9AB7FF) else Color(0xFF285DCF)
-    val knowledgeColor = if(dark) Color(0xFFCFB2FF) else Color(0xFF7653BE)
-    val difficultyColor = if(dark) Color(0xFFFFC78C) else Color(0xFF986015)
+    val gradeColor = MaterialTheme.colorScheme.primary
+    val knowledgeColor = MaterialTheme.colorScheme.primary
+    val difficultyColor = LocalMathecaPalette.current.warning
     val reset = { query = ""; grade = null; knowledge = null; difficulty = null }
     val windowHeight = LocalWindowInfo.current.containerSize.height
     val viewport = with(LocalDensity.current) { windowHeight.toDp() } * .88f

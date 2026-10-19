@@ -68,10 +68,6 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.util.UUID
 
-private val Blue = Color(0xFF3269E8)
-private val Ink = Color(0xFF172339)
-private val Soft = Color(0xFFF3F5F9)
-private val Muted = Color(0xFF798497)
 private val CardShape = RoundedCornerShape(24.dp)
 
 private data class CollectionExportRequest(val collection: QuestionCollection, val ordered: List<Question>, val word: Boolean, val paper: PaperSettings)
@@ -88,9 +84,7 @@ fun MathectorApp(model: AppViewModel) {
             WindowCompat.getInsetsController(window, view).apply { isAppearanceLightStatusBars = !dark; isAppearanceLightNavigationBars = !dark }
         }
     }
-    val colors = if (dark) darkColorScheme(primary = Color(0xFF9AB7FF), secondary = Color(0xFF9AB7FF), secondaryContainer = Color(0xFF263656), onSecondaryContainer = Color(0xFFC5D6FF), background = Color(0xFF10151F), surface = Color(0xFF1C2330), onSurface = Color(0xFFE9EEF7))
-        else lightColorScheme(primary = Blue, secondary = Blue, secondaryContainer = Color(0xFFE6EDFF), onSecondaryContainer = Blue, background = Soft, surface = Color.White, onSurface = Ink)
-    MaterialTheme(colorScheme = colors, typography = Typography()) {
+    MathecaTheme(settings.accent, dark) {
         val questions by model.questions.collectAsStateWithLifecycle()
         val collections by model.collections.collectAsStateWithLifecycle()
         val items by model.items.collectAsStateWithLifecycle()
@@ -163,7 +157,7 @@ fun MathectorApp(model: AppViewModel) {
             }
         }
         LaunchedEffect(notice) { notice?.let { snackbar.showSnackbar(it); model.clearNotice() } }
-        if (showCamera) { CameraScreen(onClose = { showCamera = false }, onCaptured = { showCamera = false; model.importUris(listOf(it)) }, onError = model::message); return@MaterialTheme }
+        if (showCamera) { CameraScreen(onClose = { showCamera = false }, onCaptured = { showCamera = false; model.importUris(listOf(it)) }, onError = model::message); return@MathecaTheme }
         BackHandler(enabled = previewFile != null || editorId != null || collectionId != null || tab != 0) {
             when { previewFile != null -> previewFile = null; editorId != null -> editorId = null; collectionId != null -> collectionId = null; else -> tab = 0 }
         }
@@ -217,9 +211,9 @@ fun MathectorApp(model: AppViewModel) {
         if (showAdd) ModalBottomSheet(onDismissRequest = { showAdd = false }, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true), containerColor = MaterialTheme.colorScheme.surface) {
             Column(Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 24.dp).padding(bottom = 28.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text("收录一道好题", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                Text("识别后对照原图校对，再归入题库", color = Muted); Spacer(Modifier.height(8.dp))
+                Text("识别后对照原图校对，再归入题库", color = MaterialTheme.colorScheme.onSurfaceVariant); Spacer(Modifier.height(8.dp))
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) { Text("导入后自动解题", fontWeight = FontWeight.SemiBold); Text("默认关闭 · 开启后生成答案和步骤", fontSize = 12.sp, color = Muted) }
+                    Column(Modifier.weight(1f)) { Text("导入后自动解题", fontWeight = FontWeight.SemiBold); Text("默认关闭 · 开启后生成答案和步骤", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                     Switch(settings.autoSolveImports, model::setAutoSolveImports, Modifier.testTag("auto-solve-import"))
                 }
                 if (!settings.recognitionReady) {
@@ -262,7 +256,7 @@ fun MathectorApp(model: AppViewModel) {
 
 @Composable
 private fun GlassPanel(state: HazeState, modifier: Modifier, dark: Boolean, content: @Composable () -> Unit) {
-    val tint = if (dark) Color(0xFF1B2435) else Color.White
+    val tint = MaterialTheme.colorScheme.surface
     val background = MaterialTheme.colorScheme.background
     Box(modifier.clip(RoundedCornerShape(50.dp)).hazeEffect(state) {
         backgroundColor = background
@@ -293,7 +287,7 @@ private fun NavItem(label: String, id: String, icon: ImageVector, selected: Bool
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
     val scale by animateFloatAsState(if(pressed) .95f else 1f, spring(dampingRatio = .78f, stiffness = 450f), label = "navigation-press")
-    val tint by animateColorAsState(if(selected) MaterialTheme.colorScheme.primary else Muted, tween(180), label = "navigation-tint")
+    val tint by animateColorAsState(if(selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant, tween(180), label = "navigation-tint")
     Column(modifier.height(48.dp).scale(scale).clip(RoundedCornerShape(30.dp))
         .selectable(selected, interactionSource = interaction, indication = null, role = Role.Tab, onClick = onClick).testTag("nav-$id")
         .padding(vertical = 5.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
@@ -315,15 +309,15 @@ private fun LibraryScreen(questions: List<Question>, job: ImportJob?, busy: Bool
     }
     LazyColumn(Modifier.testTag("library-list"), contentPadding = PaddingValues(start = 22.dp, end = 22.dp, top = 18.dp, bottom = 100.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         item { Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Row(verticalAlignment = Alignment.CenterVertically) { Box(Modifier.size(32.dp).clip(RoundedCornerShape(10.dp)).background(Blue), contentAlignment = Alignment.Center) { Text("√", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 22.sp) }; Spacer(Modifier.width(10.dp)); Text("Mathector", fontWeight = FontWeight.Bold, fontSize = 18.sp) }
+            Row(verticalAlignment = Alignment.CenterVertically) { Box(Modifier.size(32.dp).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) { Text("√", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold, fontSize = 22.sp) }; Spacer(Modifier.width(10.dp)); Text("Mathector", fontWeight = FontWeight.Bold, fontSize = 18.sp) }
             Spacer(Modifier.weight(1f))
             FilledTonalButton(onClick = onBackup, modifier = Modifier.heightIn(min = 40.dp).testTag("library-backup-open"),
                 shape = RoundedCornerShape(50.dp), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)) {
                 Icon(Icons.Rounded.ImportExport, null, Modifier.size(16.dp)); Spacer(Modifier.width(5.dp)); Text("题库备份", fontSize = 12.sp)
             }
         } }
-        item { Text("收录 · 整理 · 再练一次", color = Muted, fontSize = 14.sp) }
-        item { Row(Modifier.fillMaxWidth().testTag("library-statistics").clip(RoundedCornerShape(20.dp)).background(Brush.linearGradient(listOf(Blue, Color(0xFF4D85EF)))).padding(horizontal = 12.dp, vertical = 12.dp)) {
+        item { Text("收录 · 整理 · 再练一次", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp) }
+        item { Row(Modifier.fillMaxWidth().testTag("library-statistics").clip(RoundedCornerShape(20.dp)).background(MaterialTheme.colorScheme.surfaceContainerLow).border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(20.dp)).padding(horizontal = 12.dp, vertical = 12.dp)) {
             Stat("${questions.size}", "收录题目", "total", Modifier.weight(1f)); Stat("${questions.count { !it.reviewed }}", "待校对", "pending", Modifier.weight(1f)); Stat("${questions.count { it.favorite }}", "收藏", "favorite", Modifier.weight(1f))
         } }
         if (busy || job != null) item { Surface(shape = RoundedCornerShape(40.dp), color = MaterialTheme.colorScheme.surface) {
@@ -355,16 +349,16 @@ private fun LibraryScreen(questions: List<Question>, job: ImportJob?, busy: Bool
                 LibraryQuestionMenu(q, onFavorite = { onFavorite(q) }, onAdd = { onAddToCollection(q.id) })
             }, extraLabels = buildList { if(q.example) add("示例"); if(q.favorite) add("已收藏") })
         }
-        item { Text("识别结果待校对 · 保留原图与公式", color = Muted, fontSize = 11.sp, modifier = Modifier.fillMaxWidth()) }
+        item { Text("识别结果待校对 · 保留原图与公式", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp, modifier = Modifier.fillMaxWidth()) }
     }
 }
 
 @Composable private fun Stat(value: String, label: String, id: String, modifier: Modifier) {
     Column(modifier.testTag("library-stat-$id"), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Text(value, Modifier.fillMaxWidth().testTag("library-stat-$id-number"), fontSize = 24.sp, lineHeight = 28.sp, fontWeight = FontWeight.Bold,
-            color = Color.White, textAlign = TextAlign.Center, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            color = MaterialTheme.colorScheme.onSurface, textAlign = TextAlign.Center, maxLines = 1, overflow = TextOverflow.Ellipsis)
         Text(label, Modifier.fillMaxWidth().testTag("library-stat-$id-label"), fontSize = 11.sp, lineHeight = 14.sp,
-            color = Color.White.copy(alpha = .85f), textAlign = TextAlign.Center)
+            color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
     }
 }
 
@@ -388,15 +382,15 @@ private fun LibraryQuestionMenu(question: Question, onFavorite: () -> Unit, onAd
 @Composable private fun EmptyCard(title: String, subtitle: String, action: String, onAction: () -> Unit) {
     Surface(shape = CardShape, color = MaterialTheme.colorScheme.surface, modifier = Modifier.fillMaxWidth()) { Column(Modifier.padding(30.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Icon(Icons.Rounded.AutoStories, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(38.dp))
-        Text(title, fontWeight = FontWeight.SemiBold); Text(subtitle, color = Muted, fontSize = 13.sp); Button(onClick = onAction) { Text(action) }
+        Text(title, fontWeight = FontWeight.SemiBold); Text(subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp); Button(onClick = onAction) { Text(action) }
     } }
 }
 
 @Composable private fun ActionRow(icon: ImageVector, title: String, subtitle: String, onClick: () -> Unit) {
     Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).clickable(onClick = onClick).padding(vertical = 14.dp, horizontal = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(48.dp).clip(RoundedCornerShape(15.dp)).background(Blue.copy(alpha = .09f)), contentAlignment = Alignment.Center) { Icon(icon, null, tint = MaterialTheme.colorScheme.primary) }
-        Column(Modifier.weight(1f).padding(start = 14.dp)) { Text(title, fontWeight = FontWeight.SemiBold); Text(subtitle, color = Muted, fontSize = 12.sp) }
-        Icon(Icons.Rounded.ChevronRight, null, tint = Muted)
+        Box(Modifier.size(48.dp).clip(RoundedCornerShape(15.dp)).background(MaterialTheme.colorScheme.primary.copy(alpha = .09f)), contentAlignment = Alignment.Center) { Icon(icon, null, tint = MaterialTheme.colorScheme.primary) }
+        Column(Modifier.weight(1f).padding(start = 14.dp)) { Text(title, fontWeight = FontWeight.SemiBold); Text(subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp) }
+        Icon(Icons.Rounded.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -412,7 +406,7 @@ private fun CollectionsScreen(collections: List<QuestionCollection>, items: List
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text("我的题集", Modifier.testTag("collections-title"), fontSize = 30.sp, fontWeight = FontWeight.Bold)
                     Text("把知识连起来，把好题留在一起", Modifier.testTag("collections-subtitle"),
-                        color = Muted, fontSize = 13.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 }
                 CreateCollectionButton(onCreate)
             }
@@ -426,7 +420,7 @@ private fun CollectionsScreen(collections: List<QuestionCollection>, items: List
                     Icon(Icons.Rounded.FolderOpen, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(32.dp))
                     Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
                         Text(collection.title, fontSize = 17.sp, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                        Text("$count 道题", Modifier.testTag("collection-description-${collection.id}"), fontSize = 12.sp, color = Muted)
+                        Text("$count 道题", Modifier.testTag("collection-description-${collection.id}"), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     CollectionExportMenu(collection.id, count > 0 && exportingId == null, exportingId == collection.id) { onExport(collection, it) }
                     Spacer(Modifier.width(6.dp))
@@ -454,7 +448,7 @@ private fun CollectionsScreen(collections: List<QuestionCollection>, items: List
         .border(1.dp, colors.primary.copy(alpha = .12f), shape).testTag("collections-create"), shape = shape,
         contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp), interactionSource = interaction,
         colors = ButtonDefaults.filledTonalButtonColors(containerColor = colors.primary.copy(alpha = if(dark) .14f else .10f),
-            contentColor = if(dark) colors.primary else Color(0xFF285DCF))) {
+            contentColor = colors.primary)) {
         Icon(Icons.Rounded.Add, "创建题集", Modifier.size(18.dp))
         Spacer(Modifier.width(6.dp))
         Text("创建", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
@@ -477,7 +471,7 @@ private fun CollectionDetail(collection: QuestionCollection, ordered: List<Quest
             }
             LazyColumn(Modifier.weight(1f).fillMaxWidth().hazeSource(buttonHaze).testTag("collection-detail"),
                 contentPadding = PaddingValues(22.dp, 12.dp, 22.dp, 92.dp + bottomInset), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                item { Text("${ordered.size} 道题 · 调整顺序后生成练习文档", color = Muted) }
+                item { Text("${ordered.size} 道题 · 调整顺序后生成练习文档", color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 itemsIndexed(ordered, key = { _, q -> q.id }) { index, q ->
                     QuestionSummaryCard(q, "collection", onClick = { onEdit(q) }, trailing = {
                         CollectionQuestionMenu(q.id, index, ordered.size, onMove, onRemove)
@@ -526,11 +520,12 @@ private fun CollectionDetail(collection: QuestionCollection, ordered: List<Quest
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
     val scale by animateFloatAsState(if(pressed) .94f else 1f, spring(dampingRatio = .78f, stiffness = 420f), label = "glass-action-press")
-    val tint = Blue.copy(alpha = .96f)
-    val foreground = Color.White
+    val action = MaterialTheme.colorScheme.primary
+    val tint = action.copy(alpha = .96f)
+    val foreground = MaterialTheme.colorScheme.onPrimary
     val backdrop = MaterialTheme.colorScheme.background
     Box(modifier.scale(scale)
-        .shadow(8.dp, shape, ambientColor = Blue.copy(alpha = .08f), spotColor = Blue.copy(alpha = .12f))
+        .shadow(8.dp, shape, ambientColor = action.copy(alpha = .08f), spotColor = action.copy(alpha = .12f))
         .clip(shape).hazeEffect(state) {
             backgroundColor = backdrop
             blurRadius = 24.dp
@@ -587,10 +582,10 @@ private fun QuestionEditor(question: Question, dark: Boolean, solutionState: and
                 Column(Modifier.padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) { Text("原始来源", fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f)); TextButton(onClick = { showOriginal = !showOriginal }) { Text(if(showOriginal) "收起" else "展开") } }
                     if(showOriginal) AsyncImage(model = File(question.sourcePath), contentDescription = "原题图像，校对时保留公式与图形", modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp))
-                    Text(question.sourceLabel, fontSize = 11.sp, color = Muted)
+                    Text(question.sourceLabel, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             } }
-            item { Text("请对照原图校对识别结果与分类。你的修改会自动保存为草稿。", color = Muted, fontSize = 12.sp) }
+            item { Text("请对照原图校对识别结果与分类。你的修改会自动保存为草稿。", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp) }
             item { OutlinedTextField(title, { title = it }, label = { Text("题目标题") }, modifier = Modifier.fillMaxWidth().testTag("question-title-input"), shape = RoundedCornerShape(16.dp)) }
             item { OutlinedTextField(body, { body = it }, label = { Text("题干与子题") }, supportingText = { Text("多个小题各占一行，可用（1）（2）标记；公式用 \\(…\\) 或 \\[…\\] 写入题干。") }, modifier = Modifier.fillMaxWidth().testTag("question-body-input"), minLines = 5, shape = RoundedCornerShape(16.dp)) }
             if(body.isNotBlank()) item { Surface(shape = CardShape, color = MaterialTheme.colorScheme.surface) {

@@ -32,6 +32,7 @@ class AppViewModel(private val application: MathectorApplication) : ViewModel() 
             .mapNotNull { info -> info.tags.firstOrNull { it.startsWith("solution-") }?.removePrefix("solution-")?.let { it to info.state } }.toMap()
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
     fun setTheme(mode: ThemeMode) = viewModelScope.launch(Dispatchers.IO) { runCatching { application.settings.setTheme(mode) }.onFailure { message(it.message ?: "主题保存失败") } }
+    fun setAccent(accent: AccentTheme) = viewModelScope.launch(Dispatchers.IO) { runCatching { application.settings.setAccent(accent) }.onFailure { message(it.message ?: "配色保存失败") } }
     fun setAutoSolveImports(enabled: Boolean) = viewModelScope.launch(Dispatchers.IO) { runCatching { application.settings.setAutoSolveImports(enabled) }.onFailure { message("自动解题设置保存失败") } }
     fun saveApi(address: String, model: String, key: String, done: () -> Unit) = viewModelScope.launch {
         try {

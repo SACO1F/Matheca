@@ -2,13 +2,13 @@
 
 一款面向高中数学的原生 Android 题集 App。把拍照、相册图片或 PDF 中的题目识别为可校对的题干，按知识点整理，组合成题集，再导出练习文档。
 
-**当前版本：0.21.0 · 最低 Android 8.0 · 中文界面**
+**当前版本：0.22.0 · 最低 Android 8.0 · 中文界面**
 
-[下载 Android APK](https://github.com/SACO1F/Mathector/releases/download/v0.21.0/Mathector-0.21.0-debug.apk) · [版本说明与校验文件](https://github.com/SACO1F/Mathector/releases/tag/v0.21.0) · [题库备份说明](docs/library-backup.md) · [开发与验证历史](docs/development-history.md)
+[下载 Android APK](https://github.com/SACO1F/Mathector/releases/download/v0.22.0/Mathector-0.22.0-debug.apk) · [版本说明与校验文件](https://github.com/SACO1F/Mathector/releases/tag/v0.22.0) · [题库备份说明](docs/library-backup.md) · [开发与验证历史](docs/development-history.md)
 
 ## 安装与快速开始
 
-1. 下载并安装 APK。当前提供 Debug 构建；0.21.0 与上一版签名相同，可以覆盖安装并保留本地数据。
+1. 下载并安装 APK。当前提供 Debug 构建；0.22.0 与上一版签名相同，可以覆盖安装并保留本地数据。
 2. 首次打开可点击“先用 3 道示例题体验”，或使用右下角加号手动录入题目。
 3. 需要图片或 PDF 识别时，在“我的 → 题目识别与接口”填写接口地址、API Key、支持图片输入的模型名，保存后点击“测试图片识别”。
 4. 拍照、选择相册图片或导入图片／PDF；识别完成后打开待校对题目，对照原图修改题干和分类，明确确认已校对。
@@ -28,20 +28,27 @@
 | 公式与解题 | 本地 KaTeX 显示题干和 AI 解答中的 LaTeX；独立公式校对预览；可选自动解题及手动生成、取消、重试 |
 | 文档导出 | A4 PDF 和 DOCX，支持试卷主标题、考试说明、考试时间、满分及选择题选项排版 |
 | 题库备份 | 完整 ZIP 导出与合并恢复，保留题目、可用原图、解答、自定义知识点、题集顺序与文档设置 |
-| 外观动效 | 白天／黑夜／跟随系统主题，蓝色点缀、玻璃悬浮导航、滑动切换、按压回弹和圆角弹窗；题集与校对／录入顶部固定 |
+| 外观动效 | 与桌面 Matheca 对齐的石墨／雾蓝／陶土／梅紫，独立白天／黑夜／跟随系统模式、玻璃悬浮导航、滑动切换、按压回弹和圆角弹窗；题集与校对／录入顶部固定 |
 
 ## 界面预览
 
-以下截图来自 0.21.0，使用应用示例和临时测试题目。
+以下截图来自 0.22.0，使用应用示例和临时测试题目。
 
 | 白天题库 | 黑夜题库 |
 | --- | --- |
-| <img src="docs/screenshots/library-compact-light-0.21.0.png" width="260" alt="白天题库：紧凑统计卡片与备份入口"> | <img src="docs/screenshots/library-compact-dark-0.21.0.png" width="260" alt="黑夜题库：数字和中文居中对齐"> |
+| <img src="docs/screenshots/library-graphite-light-0.22.0.png" width="260" alt="白天题库：紧凑统计卡片与备份入口"> | <img src="docs/screenshots/library-graphite-dark-0.22.0.png" width="260" alt="黑夜题库：数字和中文居中对齐"> |
 
-| 我的页面 | 题库备份窗口 |
+| 白天外观设置 | 黑夜外观设置 |
 | --- | --- |
-| <img src="docs/screenshots/backup-settings-0.21.0.png" width="260" alt="我的页面中的题库导入与导出"> | <img src="docs/screenshots/backup-dialog-dark-0.21.0.png" width="260" alt="黑夜主题的圆角题库备份窗口"> |
+| <img src="docs/screenshots/appearance-light-0.22.0.png" width="260" alt="白天外观设置：石墨、雾蓝、陶土、梅紫"> | <img src="docs/screenshots/appearance-dark-0.22.0.png" width="260" alt="黑夜外观设置：明暗模式与配色独立选择"> |
 
+## 与桌面 Matheca 一致的配色
+
+进入“我的 → 外观”，分别选择明暗模式和配色。默认石墨，另有雾蓝、陶土、梅紫；选择立即生效并本地保存。原来没有配色偏好的安装也默认石墨，保留之前的明暗模式。
+
+白天使用桌面相同的灰白背景、中性卡片与正文色，强调色用于主操作、选中和焦点。黑夜使用对应的深灰底与浅强调色；年级和知识点标签保持中性，已校对、警告与错误保留独立状态色。统计卡片取消亮蓝渐变，数字与中文继续紧凑居中。手机端保留现有悬浮导航、圆角和回弹动效。
+
+详细颜色、桌面来源与黑夜适配见 [配色规范](docs/matheca-colors.md)。
 ## 配置识别接口
 
 目前接入 **OpenAI 兼容的 Chat Completions 视觉协议**。服务商、地址、API Key 和模型名由用户自行填写，模型必须支持图片输入。第三方服务是否兼容，请通过内置图片测试验证。
@@ -140,10 +147,9 @@ adb -s emulator-5554 shell am instrument -w -e class com.mathector.app.LibraryBa
 
 ## 最新验证范围
 
-0.21.0 于 **2026-10-08** 完成构建，**39 项单元测试**通过，Lint 为 **0 错误、20 项既有警告**。设备测试覆盖 **7 个独立场景**，两轮共执行 8 项检查，全部通过。
+0.22.0 于 **2026-10-19** 完成 APK 与测试包构建，**41 项单元测试**通过，Lint 为 **0 错误、18 项警告**。本次分批通过 **7 个相关设备场景**，包含四种配色 × 两种明暗模式、偏好持久化、菜单与选题关闭、题干和 AI 解答公式、题集悬浮按钮，以及大字号与横屏下的外观选项。
 
-覆盖独立空数据库模拟重装、原图与解答恢复、题集顺序和文档设置、合并与重复导入、取消、损坏文件拒绝、恢复失败回滚、空库及缺失原图，以及两种主题的统计卡片高度、等宽和居中。文件选择合约使用受控 URI 与返回值，未验证实际云盘服务。APK 签名及发布文件校验通过，详见 [0.21.0 发布说明](docs/releases/0.21.0.md)。
-
+最终矩阵检查等待 KaTeX 字体、DOM 颜色与 WebView 实际绘制完成后收集截图。约 375 dp 视口、2.0 倍字号、系统动画关闭时，配色选择可通过滚动完整露出并避开底部导航；检查后恢复模拟器设置。APK v2 签名与上一版相同。详细范围及校验值见 [0.22.0 发布说明](docs/releases/0.22.0.md)，备份能力的上一轮验证见 [0.21.0 发布说明](docs/releases/0.21.0.md)。
 尚未验证真实服务商的识别准确率。复杂公式、跨栏与跨页拆题需要人工校对，几何图目前保留来源整页；Android 8.0、厂商真机、平板、拍摄质量与性能矩阵仍需扩大验证。DOCX 已验证结构与公式图片，尚未完成 Word／WPS 编辑与打印验证。
 
 ## 代码与文档导航
@@ -160,6 +166,7 @@ adb -s emulator-5554 shell am instrument -w -e class com.mathector.app.LibraryBa
 | [文档导出](app/src/main/java/com/mathector/app/data/DocumentExporter.kt) | 试卷首页、正文公式与选项布局 |
 | [单元测试](app/src/test/java/com/mathector/app/) / [设备测试](app/src/androidTest/java/com/mathector/app/) | 数据、迁移、界面与导出验证 |
 | [产品方案](docs/product-plan.md) / [备份说明](docs/library-backup.md) | 产品进度、备份流程与格式限制 |
+| [配色规范](docs/matheca-colors.md) | 桌面颜色契约与 Android 黑夜适配 |
 | [版本记录](docs/releases/) / [开发历史](docs/development-history.md) | 发布说明、历史改动与验证证据 |
 
 仓库包含源码、Gradle Wrapper、数据库 schema、测试和公开示例截图。本机配置、密钥、构建缓存、临时题库备份和验证产物不提交；APK 与校验文件通过 GitHub Release 提供。

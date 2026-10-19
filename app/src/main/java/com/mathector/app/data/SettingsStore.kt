@@ -15,6 +15,7 @@ import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
 enum class ThemeMode(val label: String) { SYSTEM("跟随系统"), LIGHT("白天"), DARK("黑夜") }
+enum class AccentTheme(val label: String) { GRAPHITE("石墨"), BLUE("雾蓝"), CLAY("陶土"), PLUM("梅紫") }
 
 data class AppSettings(
     val theme: ThemeMode = ThemeMode.SYSTEM,
@@ -22,6 +23,7 @@ data class AppSettings(
     val model: String = "",
     val hasApiKey: Boolean = false,
     val autoSolveImports: Boolean = false,
+    val accent: AccentTheme = AccentTheme.GRAPHITE,
 ) {
     val recognitionReady: Boolean get() = address.isNotBlank() && model.isNotBlank() && hasApiKey
 }
@@ -60,6 +62,7 @@ class SettingsStore(context: Context, name: String = "mathector-settings", priva
         address = preferences.getString("address", "").orEmpty(), model = preferences.getString("model", "").orEmpty(),
         hasApiKey = preferences.contains("encryptedKey"),
         autoSolveImports = preferences.getBoolean("autoSolveImports", false),
+        accent = AccentTheme.entries.find { it.name == preferences.getString("accent", null) } ?: AccentTheme.GRAPHITE,
     )
 
     @Synchronized fun setTheme(theme: ThemeMode) {
@@ -69,6 +72,11 @@ class SettingsStore(context: Context, name: String = "mathector-settings", priva
 
     @Synchronized fun setAutoSolveImports(enabled: Boolean) {
         check(preferences.edit().putBoolean("autoSolveImports", enabled).commit()) { "自动解题设置保存失败" }
+        mutable.value = readSettings()
+    }
+
+    @Synchronized fun setAccent(accent: AccentTheme) {
+        check(preferences.edit().putString("accent", accent.name).commit()) { "配色设置保存失败" }
         mutable.value = readSettings()
     }
 

@@ -9,7 +9,7 @@ internal object LibraryBackupCodec {
         BackupPolicy.validateReferences(data.questions, data.collections, data.items)
         require(data.customPoints.size <= BackupPolicy.MAX_CUSTOM_POINTS) { "自定义知识点超过 5,000 个，无法备份" }
         val manifest = JSONObject().put("format", BackupPolicy.FORMAT).put("version", BackupPolicy.VERSION)
-            .put("createdAt", System.currentTimeMillis()).put("appVersion", "0.21.0")
+            .put("createdAt", System.currentTimeMillis()).put("appVersion", "0.22.0")
             .put("questions", JSONArray().apply { data.questions.forEach { q -> put(JSONObject()
                 .put("id", q.id).put("title", q.title).put("body", q.body).put("latex", q.latex)
                 .put("grade", q.grade).put("kind", q.kind).put("difficulty", q.difficulty).put("knowledge", q.knowledge)

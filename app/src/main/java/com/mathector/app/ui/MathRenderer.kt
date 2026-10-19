@@ -37,9 +37,9 @@ fun richMathHtml(text: String, dark: Boolean = false, fontSize: Float = 14f, pre
     return """
         <!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
         <link rel="stylesheet" href="${ASSET_ORIGIN}katex/katex.min.css"><script src="${ASSET_ORIGIN}katex/katex.min.js"></script>
-        <style>html,body{margin:0;padding:0;background:transparent;color:${if(dark) "#edf1f8" else "#182539"};font-family:sans-serif;font-size:${fontSize}px}
+        <style>html,body{margin:0;padding:0;background:transparent;color:${if(dark) "#e8e8e8" else "#262626"};font-family:sans-serif;font-size:${fontSize}px}
         #content{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.8;padding:3px 0;${if(preview) "max-height:98px;overflow:hidden;" else ""}}
-        .formula{white-space:normal}.display{display:block;margin:8px 0;overflow-x:auto}.katex{font-size:1.05em}.katex-display{margin:0} .katex-error{color:#b44343}
+        .formula{white-space:normal}.display{display:block;margin:8px 0;overflow-x:auto}.katex{font-size:1.05em}.katex-display{margin:0} .katex-error{color:${if(dark) "#f3a7b6" else "#a23245"}}
         </style></head><body><div id="content">$body</div><script>
         document.querySelectorAll('.formula').forEach(function(node){var source=node.textContent;try{katex.render(source,node,{displayMode:node.dataset.display==='true',throwOnError:true,trust:false,maxExpand:300,maxSize:12});}catch(e){node.textContent='[公式需校对] '+source;node.classList.add('katex-error');}});
         var last=0;function measure(){var h=Math.ceil(document.getElementById('content').getBoundingClientRect().height);if(h!==last){last=h;if(window.ContentHeight)window.ContentHeight.ready(h);}}
@@ -80,7 +80,7 @@ fun mathHtml(latex: String, dark: Boolean = false): String = """
 <!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="${ASSET_ORIGIN}katex/katex.min.css">
 <script src="${ASSET_ORIGIN}katex/katex.min.js"></script>
-<style>body{margin:0;padding:18px 12px;background:transparent;color:${if(dark) "#edf1f8" else "#182539"};font-size:21px}#math{overflow-x:auto;padding:4px 0}.katex-display{margin:0}</style></head>
+<style>body{margin:0;padding:18px 12px;background:transparent;color:${if(dark) "#e8e8e8" else "#262626"};font-size:21px}#math{overflow-x:auto;padding:4px 0}.katex-display{margin:0}</style></head>
 <body><textarea id="source" style="display:none">${TextUtils.htmlEncode(latex)}</textarea><div id="math"></div>
 <script>var valid=true;try{katex.render(document.getElementById('source').value,document.getElementById('math'),{displayMode:true,throwOnError:true,trust:false,maxExpand:300,maxSize:12});}catch(e){valid=false;document.getElementById('math').textContent='公式格式需校对：'+document.getElementById('source').value;}
 document.fonts.ready.then(function(){var node=document.getElementById('math');if(window.Snapshot)window.Snapshot.ready(valid && node.scrollWidth <= node.clientWidth+2 ? Math.ceil(document.body.scrollHeight) : -1);});</script></body></html>

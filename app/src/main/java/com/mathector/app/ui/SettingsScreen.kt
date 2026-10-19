@@ -32,18 +32,7 @@ internal fun SettingsScreen(count: Int, jobs: List<ImportJob>, settings: AppSett
             Text("我的", fontSize = 30.sp, fontWeight = FontWeight.Bold)
             Text("已保存 $count 道题 · 资料保存在本机", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
         } }
-        item { SettingsCard {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Icon(Icons.Rounded.Contrast, null, tint = MaterialTheme.colorScheme.primary)
-                Text("黑白模式", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-            }
-            Text("白天与黑夜，自由切换", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                ThemeMode.entries.forEach { mode ->
-                    FilterChip(selected = settings.theme == mode, onClick = { model.setTheme(mode) }, label = { Text(mode.label, fontSize = 12.sp) }, modifier = Modifier.testTag("theme-${mode.name}"))
-                }
-            }
-        } }
+        item { AppearanceSettings(settings, model::setTheme, model::setAccent) }
         item { LibraryBackupCard(onExportLibrary, onImportLibrary) }
         item { ApiConfiguration(settings, testing, result, model) }
         item { SettingsCard {
@@ -54,7 +43,7 @@ internal fun SettingsScreen(count: Int, jobs: List<ImportJob>, settings: AppSett
             Text("默认关闭。开启后调用已配置的接口生成答案与步骤，解答需要核对，可能产生额外服务费用。", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         } }
         item { SettingsCard {
-            Text("Mathector 0.21.0 · 高中数学题集", fontWeight = FontWeight.SemiBold)
+            Text("Mathector 0.22.0 · 高中数学题集", fontWeight = FontWeight.SemiBold)
             Text("识别结果会保存为待校对草稿。PDF 每个文件最多 20 页，单个文件不超过 50 MB。", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
             Text("PDF 排版导出 · Word 正文可编辑，公式为图片。卸载前请使用“导出题库”保存完整 ZIP 备份。", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
         } }

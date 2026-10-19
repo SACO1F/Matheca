@@ -47,17 +47,17 @@ import com.mathector.app.data.*
     val scale by animateFloatAsState(if(pressed) .98f else 1f,
         spring(dampingRatio = .74f, stiffness = 450f), label = "question-press")
     val fill by animateColorAsState(
-        if(selected == true) MaterialTheme.colorScheme.primary.copy(alpha = .08f) else MaterialTheme.colorScheme.surface,
+        if(selected == true) MaterialTheme.colorScheme.secondaryContainer else LocalMathecaPalette.current.card,
         tween(160), label = "question-fill")
     val shape = RoundedCornerShape(19.dp)
     val dark = MaterialTheme.colorScheme.background.luminance() < .5f
     val neutral = MaterialTheme.colorScheme.onSurfaceVariant
-    val gradeColor = if(dark) Color(0xFF9AB7FF) else Color(0xFF285DCF)
-    val knowledgeColor = if(dark) Color(0xFFCFB2FF) else Color(0xFF7653BE)
+    val gradeColor = LocalMathecaPalette.current.tagInk
+    val knowledgeColor = LocalMathecaPalette.current.tagInk
     val click = if(selected == null) Modifier.clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick)
         else Modifier.toggleable(selected, interactionSource = interaction, indication = null, role = Role.Checkbox, onValueChange = { onClick() })
     Column(Modifier.fillMaxWidth().scale(scale).clip(shape).background(fill)
-        .border(1.dp, if(selected == true) MaterialTheme.colorScheme.primary.copy(alpha = .6f) else MaterialTheme.colorScheme.onSurface.copy(alpha = .08f), shape)
+        .border(1.dp, if(selected == true) MaterialTheme.colorScheme.primary.copy(alpha = .6f) else MaterialTheme.colorScheme.outlineVariant, shape)
         .then(click).testTag("$tagPrefix-question-${question.id}").padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             FlowRow(Modifier.weight(1f).testTag("$tagPrefix-tags-${question.id}"),
@@ -66,9 +66,9 @@ import com.mathector.app.data.*
                 MetadataTag(grade.ifBlank { "未设置年级" }, if(grade.isBlank()) neutral else gradeColor, Modifier.testTag("$tagPrefix-grade-${question.id}"))
                 val difficulty = question.displayDifficulty()
                 val color = when(difficulty) {
-                    "基础" -> if(dark) Color(0xFF8ED8B6) else Color(0xFF1D7652)
-                    "进阶" -> if(dark) Color(0xFFFFC78C) else Color(0xFF986015)
-                    "挑战" -> if(dark) Color(0xFFFFABA6) else Color(0xFFB3413C)
+                    "基础" -> LocalMathecaPalette.current.success
+                    "进阶" -> LocalMathecaPalette.current.warning
+                    "挑战" -> MaterialTheme.colorScheme.error
                     else -> neutral
                 }
                 MetadataTag(difficulty, color, Modifier.testTag("$tagPrefix-difficulty-${question.id}"))
@@ -94,17 +94,16 @@ import com.mathector.app.data.*
 }
 
 @Composable internal fun QuestionReviewBadge(reviewed: Boolean, modifier: Modifier = Modifier) {
-    val dark = MaterialTheme.colorScheme.background.luminance() < .5f
     val label = if(reviewed) "已校对" else "待校对"
     val tint = if(reviewed) {
-        if(dark) Color(0xFF8ED8B6) else Color(0xFF1D7652)
+        LocalMathecaPalette.current.success
     } else {
-        if(dark) Color(0xFFFFC78C) else Color(0xFF986015)
+        LocalMathecaPalette.current.warning
     }
     MetadataTag(label, tint, modifier.semantics { contentDescription = "校对状态：$label" })
 }
 
 @Composable private fun MetadataTag(value: String, tint: Color, modifier: Modifier = Modifier) {
-    Text(value, modifier.clip(RoundedCornerShape(6.dp)).background(tint.copy(alpha = .11f)).padding(horizontal = 6.dp, vertical = 3.dp),
+    Text(value, modifier.clip(RoundedCornerShape(6.dp)).background(if(tint == LocalMathecaPalette.current.tagInk) LocalMathecaPalette.current.tagSurface else tint.copy(alpha = .11f)).padding(horizontal = 6.dp, vertical = 3.dp),
         color = tint, fontSize = 11.sp, fontWeight = FontWeight.Medium)
 }

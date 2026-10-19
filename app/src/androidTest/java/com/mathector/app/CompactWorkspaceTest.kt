@@ -106,7 +106,7 @@ class CompactWorkspaceTest {
         } finally { app.settings.setTheme(original); runBlocking { dao.deleteCollection(collection.id); dao.deleteCollection(empty.id); dao.deleteQuestion(first.id); dao.deleteQuestion(second.id) } }
     }
 
-    @Test fun compactPaperSettingsPersistAndFloatingAddUsesBlueWithWhiteText() {
+    @Test fun compactPaperSettingsPersistAndFloatingAddFollowsAppearance() {
         val suffix = UUID.randomUUID().toString().take(6)
         val question = Question(id = "compact-panel-$suffix", title = "函数练习-$suffix", body = "求函数的最大值。", reviewed = true)
         val collection = QuestionCollection(title = "紧凑设置-$suffix")
@@ -135,14 +135,15 @@ class CompactWorkspaceTest {
                 app.settings.setTheme(theme)
                 val pixels = compose.onNodeWithTag("collection-add-floating").captureToImage().toPixelMap()
                 val color = pixels[pixels.width / 2, (pixels.height * .15f).toInt()]
-                assertTrue("Glass keeps a blue tint in $theme", color.blue > color.red + .08f && color.blue > color.green + .035f)
+                val expected = com.mathector.app.ui.mathecaPalette(app.settings.state.value.accent, theme == ThemeMode.DARK).scheme
+                assertTrue("Glass follows the selected accent in $theme", kotlin.math.abs(color.red - expected.primary.red) < .06f && kotlin.math.abs(color.green - expected.primary.green) < .06f && kotlin.math.abs(color.blue - expected.primary.blue) < .06f)
                 val layouts = mutableListOf<TextLayoutResult>()
                 compose.onNode(hasText("添加题目") and hasAnyAncestor(hasTestTag("collection-add-floating")), useUnmergedTree = true)
                     .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
                 val text = layouts.single().layoutInput.style.color
                 val contrast = (maxOf(color.luminance(), text.luminance()) + .05f) / (minOf(color.luminance(), text.luminance()) + .05f)
                 assertTrue("The glass label stays readable in $theme", contrast >= 4.5f)
-                assertTrue("Add label uses white text in $theme", text.red > .98f && text.green > .98f && text.blue > .98f)
+                assertEquals("Add label uses the contrasting theme foreground in $theme", expected.onPrimary, text)
             }
             snapshot("paper-compact-dark-0.18.0.png")
             compose.onNodeWithTag("collection-add-floating").performClick()

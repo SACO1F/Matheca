@@ -66,7 +66,7 @@ internal fun RoundedPopupMenu(
         modifier = modifier.width(width).heightIn(max = 360.dp),
         offset = offset,
         shape = RoundedCornerShape(24.dp),
-        containerColor = if(MaterialTheme.colorScheme.background.luminance() < .5f) Color(0xFF334463) else Color(0xFFE4EDFF),
+        containerColor = LocalMathecaPalette.current.menu,
         tonalElevation = 0.dp,
         shadowElevation = 0.dp,
         border = null,
@@ -86,7 +86,7 @@ internal fun RoundedMenuItem(
     selectionColor: Color? = null
 ) {
     val colors = MaterialTheme.colorScheme
-    val selectedTint = selectionColor ?: if(colors.background.luminance() < .5f) colors.primary else Color(0xFF285DCF)
+    val selectedTint = selectionColor ?: colors.primary
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
     val scale by animateFloatAsState(if (pressed) .98f else 1f, spring(dampingRatio = .8f, stiffness = 500f), label = "menu-press")
