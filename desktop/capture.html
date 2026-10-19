@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'"
+    />
+    <title>Matheca 截图导入</title>
+  </head>
+  <body>
+    <img id="screen" alt="屏幕截图" draggable="false" />
+    <div id="shade"></div>
+    <div id="selection" hidden><span id="dimensions"></span></div>
+    <div id="capture-help" role="status">
+      拖动框选题目 · Enter 确认 · Esc 取消
+    </div>
+    <div id="capture-actions" hidden>
+      <button id="reset">重新框选</button><button id="cancel">取消</button
+      ><button id="confirm">识别此截图</button>
+    </div>
+    <script type="module" src="/src/renderer/capture.ts"></script>
+  </body>
+</html>

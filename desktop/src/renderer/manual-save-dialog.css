@@ -1,0 +1,43 @@
+.manual-save-dialog {
+  width: min(440px, calc(100vw - 48px));
+  max-height: calc(100vh - 48px);
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--text);
+  background: var(--panel);
+  box-shadow: 0 16px 48px #0000001f;
+  overflow: auto;
+  animation: none;
+  transition: none;
+}
+.manual-save-dialog::backdrop {
+  background: #00000038;
+}
+.manual-save-content {
+  padding: 24px 24px 20px;
+}
+.manual-save-content h2 {
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 0;
+}
+.manual-save-content p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+.manual-save-dialog footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--line);
+}
+.manual-save-dialog footer button {
+  min-height: 36px;
+  padding: 0 16px;
+  font-size: 13px;
+}

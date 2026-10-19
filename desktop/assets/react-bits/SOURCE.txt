@@ -1,0 +1,7 @@
+React Bits BranchedMenu by David Haz
+https://reactbits.dev/c/micro/branched-menu
+https://github.com/DavidHDev/react-bits
+Source supplied by the user on 2026-10-11 (JavaScript + CSS variant).
+Adapted to TypeScript, controlled knowledge filtering, variable row heights and keyboard navigation.
+Demo icons and Hugeicons imports omitted: knowledge rows are text-only.
+Licence: MIT + Commons Clause License Condition v1.0 (LICENSE.txt).

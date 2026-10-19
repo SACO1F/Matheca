@@ -1,0 +1,89 @@
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+  user-select: none;
+  cursor: crosshair;
+}
+#screen {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+#shade {
+  position: absolute;
+  inset: 0;
+  background: #13203566;
+  pointer-events: none;
+}
+#selection {
+  position: absolute;
+  outline: 2px solid #2967e9;
+  box-shadow: 0 0 0 99999px #13203566;
+  pointer-events: none;
+}
+#dimensions {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  background: #26334b;
+  color: white;
+  border-radius: 4px;
+  padding: 4px 7px;
+  white-space: nowrap;
+  font-size: 11px;
+}
+#capture-help {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #26334b;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  pointer-events: none;
+}
+#capture-actions {
+  position: absolute;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px #13203533;
+  cursor: default;
+}
+#capture-actions[hidden],
+#selection[hidden],
+#shade[hidden] {
+  display: none;
+}
+button {
+  font: inherit;
+  font-size: 12px;
+  padding: 8px 12px;
+  border: 1px solid #e5eaf2;
+  border-radius: 7px;
+  background: white;
+  color: #26334b;
+  cursor: pointer;
+}
+button:hover {
+  background: #f0f5ff;
+}
+button:focus-visible {
+  outline: 2px solid #2967e9;
+  outline-offset: 2px;
+}
+#confirm {
+  background: #2967e9;
+  border-color: #2967e9;
+  color: white;
+}

@@ -98,7 +98,7 @@ class LibraryBackupService(private val context: Context, private val database: M
                 val entries = zip.entries().asSequence().toList()
                 require(entries.size <= BackupPolicy.MAX_QUESTIONS + 1 && entries.map { it.name }.distinct().size == entries.size) { "备份压缩包包含重复或过多文件" }
                 require(entries.all { !it.isDirectory && BackupPolicy.allowedEntry(it.name) }) { "备份压缩包包含无效文件路径" }
-                val manifest = zip.getEntry("manifest.json") ?: error("请选择 Mathector 导出的题库备份 ZIP 文件")
+                val manifest = zip.getEntry("manifest.json") ?: error("请选择 Matheca 导出的题库备份 ZIP 文件")
                 require(manifest.size in 0..BackupPolicy.MAX_MANIFEST_BYTES) { "备份文字数据超过 32 MB" }
                 var textBytes: ByteArray
                 java.io.ByteArrayOutputStream().use { buffer ->

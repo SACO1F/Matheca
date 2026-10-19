@@ -1,0 +1,8 @@
+Ant Design official iconfont collection: https://www.iconfont.cn/collections/detail?cid=9402
+Official SVG source: https://github.com/ant-design/ant-design-icons/tree/7f2516ac91226d2b41f93b35cb5197c8d94f7189/packages/icons-svg/svg/outlined
+Retrieved: 2026-10-11
+License: MIT (see LICENSE.txt)
+Icons: database, folder-open, bulb, file-done, setting, menu-fold, menu-unfold
+Selected icons: filled/database, filled/folder-open, filled/bulb, filled/file-text, filled/setting at the same source revision.
+
+Quick action icons: outlined/upload, file-add, folder-add, swap, camera, plus at the same pinned revision. Iconfont collection API confirmed HTTP 200 on 2026-10-11.

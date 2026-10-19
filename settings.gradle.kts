@@ -6,5 +6,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "Mathector"
+rootProject.name = "Matheca"
 include(":app")

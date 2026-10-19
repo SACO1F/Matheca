@@ -1,0 +1,542 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-18T06:57:02.446848+00:00",
+  "title": "Design System: Matheca",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "primary",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(26% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(49% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(72% 0.0000 89.88)",
+          "oklch(84% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "primary-hover": {
+        "role": "primary",
+        "displayName": "primary hover",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(26% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(49% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(72% 0.0000 89.88)",
+          "oklch(84% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "shell": {
+        "role": "neutral",
+        "displayName": "shell",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(26% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(49% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(72% 0.0000 89.88)",
+          "oklch(84% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "panel",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(26% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(49% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(72% 0.0000 89.88)",
+          "oklch(84% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "subtle": {
+        "role": "neutral",
+        "displayName": "subtle",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(26% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(49% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(72% 0.0000 89.88)",
+          "oklch(84% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "text": {
+        "role": "neutral",
+        "displayName": "text",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(26% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(49% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(72% 0.0000 89.88)",
+          "oklch(84% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "muted",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(26% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(49% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(72% 0.0000 89.88)",
+          "oklch(84% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "line",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(26% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(49% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(72% 0.0000 89.88)",
+          "oklch(84% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "hover": {
+        "role": "neutral",
+        "displayName": "hover",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(26% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(49% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(72% 0.0000 89.88)",
+          "oklch(84% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "selected": {
+        "role": "neutral",
+        "displayName": "selected",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(26% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(49% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(72% 0.0000 89.88)",
+          "oklch(84% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "paper-muted": {
+        "role": "neutral",
+        "displayName": "paper muted",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(26% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(49% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(72% 0.0000 89.88)",
+          "oklch(84% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "focus": {
+        "role": "neutral",
+        "displayName": "focus",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(26% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(49% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(72% 0.0000 89.88)",
+          "oklch(84% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "card": {
+        "role": "neutral",
+        "displayName": "card",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(26% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(49% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(72% 0.0000 89.88)",
+          "oklch(84% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "card-line": {
+        "role": "neutral",
+        "displayName": "card line",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(26% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(49% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(72% 0.0000 89.88)",
+          "oklch(84% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "card-hover-line": {
+        "role": "neutral",
+        "displayName": "card hover line",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(26% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(49% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(72% 0.0000 89.88)",
+          "oklch(84% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "card-active-line": {
+        "role": "neutral",
+        "displayName": "card active line",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(26% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(49% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(72% 0.0000 89.88)",
+          "oklch(84% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "tag-text": {
+        "role": "neutral",
+        "displayName": "tag text",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(26% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(49% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(72% 0.0000 89.88)",
+          "oklch(84% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "warning-ink": {
+        "role": "neutral",
+        "displayName": "warning ink",
+        "tonalRamp": [
+          "oklch(15% 0.0987 77.06)",
+          "oklch(26% 0.0987 77.06)",
+          "oklch(38% 0.0987 77.06)",
+          "oklch(49% 0.0987 77.06)",
+          "oklch(61% 0.0987 77.06)",
+          "oklch(72% 0.0987 77.06)",
+          "oklch(84% 0.0987 77.06)",
+          "oklch(95% 0.0987 77.06)"
+        ]
+      },
+      "warning-surface": {
+        "role": "neutral",
+        "displayName": "warning surface",
+        "tonalRamp": [
+          "oklch(15% 0.0221 89.79)",
+          "oklch(26% 0.0221 89.79)",
+          "oklch(38% 0.0221 89.79)",
+          "oklch(49% 0.0221 89.79)",
+          "oklch(61% 0.0221 89.79)",
+          "oklch(72% 0.0221 89.79)",
+          "oklch(84% 0.0221 89.79)",
+          "oklch(95% 0.0221 89.79)"
+        ]
+      },
+      "error-ink": {
+        "role": "neutral",
+        "displayName": "error ink",
+        "tonalRamp": [
+          "oklch(15% 0.1469 14.64)",
+          "oklch(26% 0.1469 14.64)",
+          "oklch(38% 0.1469 14.64)",
+          "oklch(49% 0.1469 14.64)",
+          "oklch(61% 0.1469 14.64)",
+          "oklch(72% 0.1469 14.64)",
+          "oklch(84% 0.1469 14.64)",
+          "oklch(95% 0.1469 14.64)"
+        ]
+      },
+      "error-surface": {
+        "role": "neutral",
+        "displayName": "error surface",
+        "tonalRamp": [
+          "oklch(15% 0.0167 3.65)",
+          "oklch(26% 0.0167 3.65)",
+          "oklch(38% 0.0167 3.65)",
+          "oklch(49% 0.0167 3.65)",
+          "oklch(61% 0.0167 3.65)",
+          "oklch(72% 0.0167 3.65)",
+          "oklch(84% 0.0167 3.65)",
+          "oklch(95% 0.0167 3.65)"
+        ]
+      },
+      "danger": {
+        "role": "neutral",
+        "displayName": "danger",
+        "tonalRamp": [
+          "oklch(15% 0.1725 16.14)",
+          "oklch(26% 0.1725 16.14)",
+          "oklch(38% 0.1725 16.14)",
+          "oklch(49% 0.1725 16.14)",
+          "oklch(61% 0.1725 16.14)",
+          "oklch(72% 0.1725 16.14)",
+          "oklch(84% 0.1725 16.14)",
+          "oklch(95% 0.1725 16.14)"
+        ]
+      },
+      "success-ink": {
+        "role": "neutral",
+        "displayName": "success ink",
+        "tonalRamp": [
+          "oklch(15% 0.0732 159.85)",
+          "oklch(26% 0.0732 159.85)",
+          "oklch(38% 0.0732 159.85)",
+          "oklch(49% 0.0732 159.85)",
+          "oklch(61% 0.0732 159.85)",
+          "oklch(72% 0.0732 159.85)",
+          "oklch(84% 0.0732 159.85)",
+          "oklch(95% 0.0732 159.85)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Page heading",
+        "purpose": "Main page titles; compact workspace reduces to22px."
+      },
+      "body": {
+        "displayName": "Generic question text",
+        "purpose": "Generic and collection question content. Inherited masonry specificity still yields13px; this drift is not a universal preferred token."
+      },
+      "label": {
+        "displayName": "Supporting label",
+        "purpose": "Metadata and supporting headings; retained small UI is not an accessibility certification."
+      }
+    },
+    "shadows": [
+      {
+        "name": "shared-floating",
+        "value": "0 8px 28px #0000000a",
+        "purpose": "Shared ambient layer."
+      },
+      {
+        "name": "filter-menu",
+        "value": "0 8px 24px #00000014",
+        "purpose": "Floating filter options."
+      },
+      {
+        "name": "floating-add",
+        "value": "0 6px 20px #00000016",
+        "purpose": "Dark add control."
+      }
+    ],
+    "motion": [
+      {
+        "name": "button-background",
+        "value": "150ms",
+        "purpose": "Button background state change."
+      },
+      {
+        "name": "button-press",
+        "value": "120ms",
+        "purpose": "Button press translation."
+      },
+      {
+        "name": "rail-state",
+        "value": "180ms ease",
+        "purpose": "Navigation color and background."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "0.01ms",
+        "purpose": "Theme override when prefers-reduced-motion: reduce."
+      },
+      {
+        "name": "editor-reveal",
+        "value": "none",
+        "purpose": "Question editors open, switch and close immediately; no WAAPI or CSS reveal transition, no delayed close. Library cards keep a fixed 760px width."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact-workspace-container",
+        "value": "800px"
+      },
+      {
+        "name": "compact-height",
+        "value": "760px"
+      },
+      {
+        "name": "editor-layout",
+        "value": "1250px"
+      }
+    ],
+    "colorThemes": {
+      "default": "GRAPHITE",
+      "appearanceMode": "LIGHT",
+      "attribute": "data-color-theme",
+      "variants": [
+        {
+          "id": "GRAPHITE",
+          "displayName": "石墨",
+          "tokens": {
+            "primary": "primary",
+            "hover": "primary-hover",
+            "soft": "selected",
+            "focus": "focus"
+          }
+        },
+        {
+          "id": "BLUE",
+          "displayName": "雾蓝",
+          "tokens": {
+            "primary": "blue-primary",
+            "hover": "blue-hover",
+            "soft": "blue-soft",
+            "focus": "blue-focus"
+          }
+        },
+        {
+          "id": "CLAY",
+          "displayName": "陶土",
+          "tokens": {
+            "primary": "clay-primary",
+            "hover": "clay-hover",
+            "soft": "clay-soft",
+            "focus": "clay-focus"
+          }
+        },
+        {
+          "id": "PLUM",
+          "displayName": "梅紫",
+          "tokens": {
+            "primary": "plum-primary",
+            "hover": "plum-hover",
+            "soft": "plum-soft",
+            "focus": "plum-focus"
+          }
+        }
+      ],
+      "persistence": "Immediate independent save; API drafts preserved; API save preserves accent; invalid stored IDs fall back to GRAPHITE.",
+      "evidence": "desktop/test-output/color-themes-1792306215566/EVIDENCE.md",
+      "review": "Independent manual review: ship. Engine context and detector 0.1.14 downloads failed; no automatic detector ran."
+    }
+  },
+  "components": [
+    {
+      "name": "Primary action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Current accent primary action with visible keyboard focus; Graphite by default.",
+      "html": "<button class=\"ds-primary\">保存</button>",
+      "css": ".ds-primary{font-family:\"Segoe UI\",\"Microsoft YaHei\",sans-serif;padding:9px 14px;border:1px solid var(--blue,#252525);border-radius:8px;background:var(--blue,#252525);color:white;cursor:pointer;transition:background .15s,transform .12s}.ds-primary:hover{background:var(--primary-hover,#404040);border-color:var(--primary-hover,#404040)}.ds-primary:active{transform:translateY(1px)}.ds-primary:disabled{opacity:.5;cursor:default}.ds-primary:focus-visible,.ds-secondary:focus-visible,.ds-input:focus-visible,.ds-nav button:focus-visible,.ds-tag:focus-visible,.ds-card:focus-visible{outline:2px solid var(--focus,#555555);outline-offset:3px}@media(prefers-reduced-motion:reduce){.ds-primary,.ds-secondary,.ds-input,.ds-nav button,.ds-tag,.ds-card{transition-duration:0.01ms!important;animation-duration:0.01ms!important}}"
+    },
+    {
+      "name": "Secondary action",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Quiet secondary action.",
+      "html": "<button class=\"ds-secondary\">取消</button>",
+      "css": ".ds-secondary{font-family:\"Segoe UI\",\"Microsoft YaHei\",sans-serif;padding:9px 14px;border:1px solid var(--line,#e6e6e6);border-radius:8px;background:var(--panel,#fff);color:var(--text,#262626);cursor:pointer;transition:background .15s,transform .12s}.ds-secondary:hover{background:var(--hover,#eee)}.ds-secondary:active{transform:translateY(1px)}.ds-secondary:disabled{opacity:.5;cursor:default}.ds-primary:focus-visible,.ds-secondary:focus-visible,.ds-input:focus-visible,.ds-nav button:focus-visible,.ds-tag:focus-visible,.ds-card:focus-visible{outline:2px solid var(--focus,#555555);outline-offset:3px}@media(prefers-reduced-motion:reduce){.ds-primary,.ds-secondary,.ds-input,.ds-nav button,.ds-tag,.ds-card{transition-duration:0.01ms!important;animation-duration:0.01ms!important}}"
+    },
+    {
+      "name": "Text field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Neutral field with a stronger focused border.",
+      "html": "<input class=\"ds-input\" aria-label=\"搜索题目\" placeholder=\"搜索题目\">",
+      "css": ".ds-input{font-family:\"Segoe UI\",\"Microsoft YaHei\",sans-serif;padding:10px 12px;border:1px solid var(--line,#e6e6e6);border-radius:8px;background:var(--panel,#fff);color:var(--text,#262626);caret-color:var(--text,#262626)}.ds-input::placeholder{color:var(--muted,#696969);opacity:1}.ds-input:focus{border-color:var(--focus,#555555);box-shadow:none}.ds-primary:focus-visible,.ds-secondary:focus-visible,.ds-input:focus-visible,.ds-nav button:focus-visible,.ds-tag:focus-visible,.ds-card:focus-visible{outline:2px solid var(--focus,#555555);outline-offset:3px}@media(prefers-reduced-motion:reduce){.ds-primary,.ds-secondary,.ds-input,.ds-nav button,.ds-tag,.ds-card{transition-duration:0.01ms!important;animation-duration:0.01ms!important}}"
+    },
+    {
+      "name": "Icon rail item",
+      "kind": "nav",
+      "refersTo": "navigation-item",
+      "description": "A selected rail control, with real inline vector icon.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"工作区\"><button aria-label=\"题库\" aria-current=\"page\"><svg width=\"19\" height=\"19\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\"><path d=\"M4 5h16v15H4zM8 2v6M16 2v6M8 12h8M8 16h5\"/></svg></button></nav>",
+      "css": ".ds-nav{width:52px;padding:10px 8px 12px;background:var(--bg,#f5f5f5)}.ds-nav button{display:grid;place-items:center;width:36px;height:36px;padding:0;border:0;border-radius:10px;color:var(--muted,#696969);background:transparent;cursor:pointer;transition:background 180ms ease,color 180ms ease}.ds-nav button:hover,.ds-nav button[aria-current=page]{background:var(--accent-soft,#e8e8e8);color:var(--accent-ink,#252525)}.ds-nav button:active{transform:translateY(1px)}.ds-primary:focus-visible,.ds-secondary:focus-visible,.ds-input:focus-visible,.ds-nav button:focus-visible,.ds-tag:focus-visible,.ds-card:focus-visible{outline:2px solid var(--focus,#555555);outline-offset:3px}@media(prefers-reduced-motion:reduce){.ds-primary,.ds-secondary,.ds-input,.ds-nav button,.ds-tag,.ds-card{transition-duration:0.01ms!important;animation-duration:0.01ms!important}}"
+    },
+    {
+      "name": "Neutral tag",
+      "kind": "chip",
+      "refersTo": "tag-neutral",
+      "description": "Interactive grade or knowledge tag; retained compact text is observed density.",
+      "html": "<button class=\"ds-tag\">函数</button>",
+      "css": ".ds-tag{font-family:\"Segoe UI\",\"Microsoft YaHei\",sans-serif;padding:3px 7px;font-size:10px;line-height:1.4;border:0;border-radius:5px;background:#ededed;color:#565656;cursor:pointer}.ds-tag:hover,.ds-tag:active{background:#dedede;color:var(--text,#262626)}.ds-primary:focus-visible,.ds-secondary:focus-visible,.ds-input:focus-visible,.ds-nav button:focus-visible,.ds-tag:focus-visible,.ds-card:focus-visible{outline:2px solid var(--focus,#555555);outline-offset:3px}@media(prefers-reduced-motion:reduce){.ds-primary,.ds-secondary,.ds-input,.ds-nav button,.ds-tag,.ds-card{transition-duration:0.01ms!important;animation-duration:0.01ms!important}}"
+    },
+    {
+      "name": "Question content card",
+      "kind": "card",
+      "refersTo": "question-card",
+      "description": "Generic question text; library masonry retains the documented13px specificity exception.",
+      "html": "<article class=\"ds-card\" tabindex=\"0\"><div class=\"ds-card-heading\">例题 01</div><div class=\"ds-card-content\">已知函数，求其定义域。</div><div class=\"ds-card-footer\">数学 · 函数</div></article>",
+      "css": ".ds-card{font-family:\"Segoe UI\",\"Microsoft YaHei\",sans-serif;color:var(--text,#262626);background:#fafafa;border:1px solid #ededed;border-radius:14px;box-shadow:none}.ds-card:hover{background:#f7f7f7;border-color:#d7d7d7}.ds-card:active{background:#f7f7f7;border-color:#a3a3a3}.ds-card-heading{padding:15px 20px 0;color:var(--muted,#696969);font-size:11px;font-weight:500}.ds-card-content{padding:18px 20px;font-size:15px;font-weight:500;line-height:1.85}.ds-card-footer{padding:0 16px 13px 20px;color:var(--muted,#696969);font-size:12px}.ds-primary:focus-visible,.ds-secondary:focus-visible,.ds-input:focus-visible,.ds-nav button:focus-visible,.ds-tag:focus-visible,.ds-card:focus-visible{outline:2px solid var(--focus,#555555);outline-offset:3px}@media(prefers-reduced-motion:reduce){.ds-primary,.ds-secondary,.ds-input,.ds-nav button,.ds-tag,.ds-card{transition-duration:0.01ms!important;animation-duration:0.01ms!important}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Quiet Mathematics Workspace",
+    "overview": "A neutral gray shell holds a clear white work area. Soft question surfaces, graphite or restrained colored primary controls, quiet secondary tools and coherent spacing let mathematics lead. This supports sustained teacher work organizing questions, assembling collections and exporting exercises.\n\nThe user chose simplicity and harmonious composition, citing Codex as a quality reference. Matheca retains its own name and mathematics workflow. The previous paper-white and green identity and three generic direction prototypes were explicitly rejected. Local interface fonts and existing local KaTeX assets keep the workspace self-contained.",
+    "keyCharacteristics": [
+      "Neutral reading surfaces with optional restrained accents and independent semantic warning and error colors.",
+      "Content-first question cards and quiet repeated actions.",
+      "Compact icon navigation and consistent curved controls.",
+      "Flat resting surfaces, soft elevation for floating layers."
+    ],
+    "rules": [
+      {
+        "name": "The Restrained Accent Rule",
+        "body": "Indicate selection with the chosen soft fill, accent ink and border changes; keep ordinary reading surfaces neutral and preserve semantic state colors.",
+        "section": "colors"
+      },
+      {
+        "name": "The Content Leads Rule",
+        "body": "Preserve hierarchy between question text and repeated metadata; avoid decorative English kickers and ornamental lettermarks.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Rest Rule",
+        "body": "Keep resting content surfaces flat; use ambient elevation to explain floating placement.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** use the neutral shell, white workspace and soft question surfaces together.",
+      "**Do** preserve content hierarchy, visible keyboard focus and reduced-motion behavior.",
+      "**Do** use semantic color for actual warnings, errors, destructive actions and success states.",
+      "**Do** verify wide and compact desktop windows with real mathematics and populated collections."
+    ],
+    "donts": [
+      "**Don't** restore the rejected paper-white and green identity or generic direction prototypes.",
+      "**Don't** introduce decorative English kickers, ornamental lettermarks or decorative selection bars unrelated to the chosen accent.",
+      "**Don't** apply the question-grid width limit to editing or collection-setting panes.",
+      "**Don't** claim an exact Codex clone, automated detector extraction or full accessibility certification from this visual record."
+    ]
+  }
+}

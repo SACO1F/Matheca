@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Matheca · 手机拍照导入</title>
+    <style>
+      :root {
+        font:
+          16px/1.6 system-ui,
+          -apple-system,
+          "Segoe UI",
+          sans-serif;
+        color: #262626;
+        background: #f5f5f5;
+        color-scheme: light;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+      }
+      main {
+        max-width: 620px;
+        margin: auto;
+        padding: 28px 20px 130px;
+      }
+      header {
+        margin-bottom: 28px;
+      }
+      header p {
+        font-size: 13px;
+        color: #696969;
+        margin: 0 0 12px;
+      }
+      h1 {
+        font-size: 25px;
+        line-height: 1.35;
+        margin: 0 0 10px;
+        font-weight: 650;
+      }
+      p {
+        margin: 0;
+      }
+      button {
+        font: inherit;
+        min-height: 46px;
+        border: 1px solid #dedede;
+        border-radius: 10px;
+        padding: 10px 14px;
+        background: #fff;
+        color: #262626;
+        cursor: pointer;
+      }
+      button:active {
+        background: #e8e8e8;
+      }
+      button:focus-visible {
+        outline: 2px solid #555;
+        outline-offset: 3px;
+      }
+      button:disabled {
+        opacity: 0.45;
+        cursor: default;
+      }
+      .primary {
+        background: #252525;
+        border-color: #252525;
+        color: #fff;
+      }
+      .primary:active {
+        background: #444;
+      }
+      .hint {
+        font-size: 13px;
+        color: #696969;
+      }
+      .pickers {
+        display: flex;
+        gap: 12px;
+        margin: 24px 0;
+      }
+      .pickers button {
+        flex: 1;
+      }
+      .status {
+        padding: 15px 16px;
+        border-radius: 12px;
+        background: #eaeaea;
+        font-size: 14px;
+        margin-bottom: 20px;
+      }
+      .status.error {
+        background: #fff0f1;
+        color: #a02b3b;
+      }
+      .empty {
+        padding: 38px 20px;
+        text-align: center;
+        border: 1px dashed #d4d4d4;
+        border-radius: 14px;
+      }
+      .empty p {
+        margin-top: 8px;
+      }
+      .photos {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .photo {
+        background: #fff;
+        border: 1px solid #e6e6e6;
+        border-radius: 14px;
+        padding: 14px;
+        display: grid;
+        grid-template-columns: 76px minmax(0, 1fr);
+        gap: 14px;
+      }
+      .photo img {
+        width: 76px;
+        height: 96px;
+        object-fit: cover;
+        border-radius: 7px;
+        background: #eee;
+      }
+      .name {
+        font-size: 14px;
+        overflow-wrap: anywhere;
+        font-weight: 500;
+      }
+      .photo .hint {
+        margin-top: 4px;
+      }
+      .tools {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+      }
+      .tools button {
+        padding: 6px 10px;
+        font-size: 12px;
+        min-height: 44px;
+      }
+      .tools .remove {
+        color: #a32d3f;
+      }
+      .progress {
+        height: 4px;
+        background: #ededed;
+        border-radius: 3px;
+        margin-top: 9px;
+        overflow: hidden;
+      }
+      .progress span {
+        height: 100%;
+        display: block;
+        background: #444;
+        width: 0;
+      }
+      .bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #dedede;
+        padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+      .bar > div {
+        font-size: 13px;
+      }
+      .bar button {
+        min-width: 128px;
+      }
+      .footnote {
+        margin-top: 24px;
+        font-size: 12px;
+        color: #696969;
+      }
+      input[type="file"] {
+        display: none;
+      }
+      .refresh {
+        margin-top: 12px;
+        font-size: 13px;
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          scroll-behavior: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p>Matheca</p>
+        <h1>把纸上的题目，送到电脑。</h1>
+        <p class="hint">
+          连续拍摄或选择相册照片，确认顺序后发送。识别将在电脑上由你确认开始。
+        </p>
+      </header>
+      <div id="connection" class="status" role="status">正在连接电脑…</div>
+      <div class="pickers">
+        <button id="camera">拍一张</button
+        ><button id="album">从相册选择</button>
+      </div>
+      <input
+        id="camera-file"
+        type="file"
+        accept="image/*"
+        capture="environment"
+      />
+      <input id="album-file" type="file" accept="image/*" multiple />
+      <p id="message" class="status error" role="alert" hidden></p>
+      <div id="photos" class="photos"></div>
+      <p class="footnote">
+        每批最多 20 张，单张最多 50 MB，合计最多 200
+        MB。原图传到当前电脑；后续识别使用电脑配置的接口。未发送的照片只保留在当前页面，关闭页面前请先发送。
+      </p>
+      <button id="reconnect" class="refresh">重新检查连接</button>
+    </main>
+    <div class="bar">
+      <div>
+        <span id="count">0 张待发送</span>
+        <p id="received" class="hint">等待电脑连接</p>
+      </div>
+      <button id="send" class="primary" disabled>发送到电脑</button>
+    </div>
+    <script>
+      (() => {
+        const $ = (id) => document.getElementById(id);
+        const fragment = new URLSearchParams(location.hash.slice(1));
+        let token =
+          fragment.get("pair") ||
+          sessionStorage.getItem("matheca-pair") ||
+          "";
+        if (fragment.has("pair")) {
+          sessionStorage.setItem("matheca-pair", token);
+          history.replaceState(null, "", location.pathname);
+        }
+        let photos = [],
+          sending = false,
+          ready = false,
+          checking = false,
+          received = 0,
+          imported = 0;
+        const label = (text, className) => {
+          const node = document.createElement("p");
+          node.textContent = text;
+          if (className) node.className = className;
+          return node;
+        };
+        function error(text) {
+          $("message").textContent = text;
+          $("message").hidden = !text;
+        }
+        function id() {
+          return [...crypto.getRandomValues(new Uint8Array(16))]
+            .map((n) => n.toString(16).padStart(2, "0"))
+            .join("");
+        }
+        function render() {
+          const list = $("photos");
+          list.replaceChildren();
+          if (!photos.length) {
+            const empty = document.createElement("div");
+            empty.className = "empty";
+            empty.append(
+              label("还没有待发送的照片"),
+              label("可以先拍一张试试，也可以一次选择多张。", "hint"),
+            );
+            list.append(empty);
+          }
+          photos.forEach((photo, index) => {
+            const card = document.createElement("section");
+            card.className = "photo";
+            card.dataset.id = photo.id;
+            const image = document.createElement("img");
+            image.src = photo.url;
+            image.loading = "lazy";
+            image.decoding = "async";
+            image.alt = "第 " + (index + 1) + " 张照片预览";
+            image.onerror = () => {
+              image.alt = "此格式无法预览，可发送后在电脑检查";
+            };
+            const copy = document.createElement("div");
+            copy.append(label(index + 1 + ". " + photo.file.name, "name"));
+            copy.append(
+              label(
+                photo.status === "sent"
+                  ? "已发送到电脑"
+                  : photo.status === "sending"
+                    ? "发送中 " + photo.progress + "%"
+                    : photo.status === "error"
+                      ? photo.error
+                      : (photo.file.size / 1024 / 1024).toFixed(1) + " MB",
+                "hint progress-label",
+              ),
+            );
+            const progress = document.createElement("div");
+            progress.className = "progress";
+            const fill = document.createElement("span");
+            fill.style.width = photo.progress + "%";
+            progress.append(fill);
+            copy.append(progress);
+            const tools = document.createElement("div");
+            tools.className = "tools";
+            const button = (text, fn, disabled = false) => {
+              const b = document.createElement("button");
+              b.textContent = text;
+              b.disabled = disabled;
+              b.onclick = fn;
+              tools.append(b);
+              return b;
+            };
+            const locked = sending || photo.status === "sent";
+            button(
+              "上移",
+              () => {
+                [photos[index - 1], photos[index]] = [
+                  photos[index],
+                  photos[index - 1],
+                ];
+                render();
+              },
+              locked || index === 0 || photos[index - 1]?.status === "sent",
+            );
+            button(
+              "下移",
+              () => {
+                [photos[index + 1], photos[index]] = [
+                  photos[index],
+                  photos[index + 1],
+                ];
+                render();
+              },
+              locked ||
+                index === photos.length - 1 ||
+                photos[index + 1]?.status === "sent",
+            );
+            button(
+              "移除",
+              () => {
+                URL.revokeObjectURL(photo.url);
+                photos = photos.filter((p) => p !== photo);
+                render();
+              },
+              locked,
+            ).className = "remove";
+            if (photo.status === "error")
+              button("重试", () => send([photo]), sending || !ready);
+            copy.append(tools);
+            card.append(image, copy);
+            list.append(card);
+          });
+          updateControls();
+        }
+        function updateControls() {
+          const pending = photos.filter((p) => p.status !== "sent").length;
+          $("count").textContent = pending + " 张待发送";
+          $("send").textContent = sending ? "正在发送…" : "发送到电脑";
+          $("send").disabled = sending || !ready || !pending;
+          $("camera").disabled = sending || !ready;
+          $("album").disabled = sending || !ready;
+        }
+        async function check() {
+          if (checking || sending) return;
+          const wasReady = ready;
+          checking = true;
+          try {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 7000);
+            let response;
+            try {
+              response = await fetch("/api/state", {
+                headers: { Authorization: "Bearer " + token },
+                signal: controller.signal,
+                cache: "no-store",
+              });
+            } finally {
+              clearTimeout(timer);
+            }
+            const data = await response.json();
+            if (!response.ok) throw Error(data.error || "连接失效，请重新扫码");
+            ready = !data.importing;
+            received = data.files.length;
+            if (data.imported > imported) {
+              photos
+                .filter((photo) => photo.status === "sent")
+                .forEach((photo) => URL.revokeObjectURL(photo.url));
+              photos = photos.filter((photo) => photo.status !== "sent");
+              render();
+            }
+            imported = data.imported;
+            $("connection").className = "status";
+            $("connection").textContent = data.importing
+              ? "电脑正在提交识别，请稍后继续拍摄。"
+              : "已连接电脑 · 可以连续拍摄";
+            $("received").textContent =
+              "电脑待识别 " +
+              received +
+              " 张" +
+              (imported ? " · 已提交 " + imported + " 张" : "");
+          } catch (e) {
+            ready = false;
+            $("connection").className = "status error";
+            $("connection").textContent =
+              "无法连接电脑：" +
+              e.message +
+              "。请保持同一 Wi-Fi，或在电脑重新开启接收后扫码。";
+          } finally {
+            checking = false;
+            if (wasReady !== ready) render();
+            else updateControls();
+          }
+        }
+        function add(files) {
+          error("");
+          let problem = "";
+          for (const file of files) {
+            if (
+              photos.filter((p) => p.status !== "sent").length + received >=
+              20
+            ) {
+              problem = "每批最多 20 张，请先发送并在电脑开始识别。";
+              break;
+            }
+            if (!file.size || file.size > 50 * 1024 * 1024) {
+              problem = "照片为空或超过 50 MB：" + file.name;
+              continue;
+            }
+            if (
+              !/\.(jpe?g|png|webp|heic|heif)$/i.test(file.name) &&
+              !/^image\/(jpeg|png|webp|heic|heif)$/.test(file.type)
+            ) {
+              problem = "请选择支持的图片：" + file.name;
+              continue;
+            }
+            if (
+              photos
+                .filter((p) => p.status !== "sent")
+                .reduce((n, p) => n + p.file.size, 0) +
+                file.size >
+              200 * 1024 * 1024
+            ) {
+              problem = "待发送照片合计超过 200 MB，请分批。";
+              break;
+            }
+            photos.push({
+              id: id(),
+              file,
+              url: URL.createObjectURL(file),
+              status: "queued",
+              progress: 0,
+              error: "",
+            });
+          }
+          error(problem);
+          render();
+        }
+        function upload(photo) {
+          return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "/api/upload");
+            xhr.timeout = 90000;
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+            xhr.setRequestHeader("Content-Type", "application/octet-stream");
+            xhr.setRequestHeader("X-Upload-Id", photo.id);
+            xhr.setRequestHeader(
+              "X-File-Name",
+              encodeURIComponent(photo.file.name),
+            );
+            xhr.upload.onprogress = (e) => {
+              if (e.lengthComputable) {
+                photo.progress = Math.round((e.loaded / e.total) * 100);
+                const card = document.querySelector(
+                  '[data-id="' + photo.id + '"]',
+                );
+                if (card) {
+                  card.querySelector(".progress span").style.width =
+                    photo.progress + "%";
+                  card.querySelector(".progress-label").textContent =
+                    "发送中 " + photo.progress + "%";
+                }
+              }
+            };
+            xhr.onload = () => {
+              let result = {};
+              try {
+                result = JSON.parse(xhr.responseText);
+              } catch {}
+              xhr.status >= 200 && xhr.status < 300
+                ? resolve(result)
+                : reject(Error(result.error || "发送失败，请重试"));
+            };
+            xhr.onerror = () => reject(Error("网络中断，请保持此页面并重试"));
+            xhr.ontimeout = () => reject(Error("发送超时，请重试"));
+            xhr.onabort = () => reject(Error("发送已取消"));
+            xhr.send(photo.file);
+          });
+        }
+        async function send(batch = photos.filter((p) => p.status !== "sent")) {
+          if (sending || !ready) return;
+          sending = true;
+          error("");
+          for (const photo of batch) {
+            photo.status = "sending";
+            photo.progress = 0;
+            render();
+            try {
+              await upload(photo);
+              photo.status = "sent";
+              photo.progress = 100;
+              received++;
+            } catch (e) {
+              photo.status = "error";
+              photo.error = e.message;
+              error(e.message);
+              break;
+            }
+            render();
+          }
+          sending = false;
+          render();
+          void check();
+        }
+        $("camera").onclick = () => $("camera-file").click();
+        $("album").onclick = () => $("album-file").click();
+        for (const key of ["camera-file", "album-file"])
+          $(key).onchange = (e) => {
+            add([...e.target.files]);
+            e.target.value = "";
+          };
+        $("send").onclick = () => send();
+        $("reconnect").onclick = () => check();
+        window.addEventListener("beforeunload", (e) => {
+          if (sending || photos.some((p) => p.status !== "sent")) {
+            e.preventDefault();
+            e.returnValue = "";
+          }
+        });
+        render();
+        void check();
+        setInterval(() => {
+          if (!document.hidden) void check();
+        }, 2500);
+      })();
+    </script>
+  </body>
+</html>
