@@ -1,6 +1,6 @@
 # Matheca 同仓库开发说明
 
-项目统一使用 Matheca 名称，GitHub 仓库为 `SACO1F/Matheca`。原仓库提交、Android 历史版本与发布文件继续保留。
+项目统一使用 Matheca 名称，GitHub 仓库为 `SACO1F/Matheca`。Windows 与 Android 的当前产品版本统一为 v0.1.0；Git 提交历史保留。
 
 ## 平台与边界
 
@@ -13,11 +13,11 @@
 | 测试 | `app/src/test/`、`app/src/androidTest/` | `desktop/tests/`、`desktop/scripts/` |
 | 交付 | APK | 完整 Windows x64 便携目录、ZIP |
 
-同仓库便于统一命名、追踪问题和发布，但不会让两端自动同步数据库或拥有完全相同的功能。桌面手机扫码上传通过局域网浏览器完成，不依赖 Android App。桌面当前 ZIP 导入入口面向 Windows 题库，不将格式兼容测试描述为已验证 Android 与桌面互导。
+同仓库便于统一命名、追踪问题和发布，但不会让两端自动同步数据库或拥有完全相同的功能。桌面手机扫码上传通过局域网浏览器完成，不依赖 Android App。Android App 与桌面使用桌面标准 ZIP 手动交换题目与题集，接收前预览并确认冲突；本地完整备份使用各自对应的备份入口。
 
 ## 构建
 
-Android：使用 JDK 17+、Android SDK 37，在根目录运行：
+Android：使用 Android Studio 内置 JBR、Android SDK 37，在根目录运行：
 
 ```powershell
 .\gradlew.bat :app:assembleDebug :app:testDebugUnitTest
