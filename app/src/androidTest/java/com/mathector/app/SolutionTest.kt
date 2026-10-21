@@ -40,7 +40,7 @@ class SolutionTest {
             legacy.execSQL("INSERT INTO collection_items VALUES ('collection','old',0)")
             legacy.version = 3
         }
-        val migrated = Room.databaseBuilder(app, MathectorDatabase::class.java, name).addMigrations(MathectorDatabase.MIGRATION_3_4).build()
+        val migrated = Room.databaseBuilder(app, MathectorDatabase::class.java, name).addMigrations(MathectorDatabase.MIGRATION_3_4, MathectorDatabase.MIGRATION_4_5, MathectorDatabase.MIGRATION_5_9, MathectorDatabase.MIGRATION_5_9, MathectorDatabase.MIGRATION_6_9, MathectorDatabase.MIGRATION_7_9).build()
         try {
             val saved = migrated.dao().question(old.id)!!
             assertEquals("已知函数 x²。\n（1）求导。\n（2）证明单调性。", saved.body)
@@ -73,7 +73,7 @@ class SolutionTest {
             legacy.execSQL("INSERT INTO questions (id,title,body,latex,grade,kind,difficulty,knowledge,sourcePath,sourceLabel,reviewed,favorite,example,createdAt,autoSolve,solution,solutionLatex,solutionFingerprint,solutionError) VALUES (?,?,?,'','高二','解答题','基础','','','手动录入',1,1,0,1,0,?,'',?,'')", arrayOf(old.id, old.title, old.body, old.solution, old.contentFingerprint()))
             legacy.version = 2
         }
-        val migrated = Room.databaseBuilder(app, MathectorDatabase::class.java, name).addMigrations(MathectorDatabase.MIGRATION_2_3, MathectorDatabase.MIGRATION_3_4).build()
+        val migrated = Room.databaseBuilder(app, MathectorDatabase::class.java, name).addMigrations(MathectorDatabase.MIGRATION_2_3, MathectorDatabase.MIGRATION_3_4, MathectorDatabase.MIGRATION_4_5, MathectorDatabase.MIGRATION_5_9, MathectorDatabase.MIGRATION_5_9, MathectorDatabase.MIGRATION_6_9, MathectorDatabase.MIGRATION_7_9).build()
         try {
             val saved = migrated.dao().question(old.id)!!
             assertEquals("导数题", saved.title); assertEquals("已知函数 x²。\n求导。", saved.body)
@@ -169,7 +169,7 @@ class SolutionTest {
             legacy.execSQL("INSERT INTO collection_items VALUES ('collection', 'old', 0)")
             legacy.version = 1
         } finally { legacy.close() }
-        val migrated = Room.databaseBuilder(app, MathectorDatabase::class.java, name).addMigrations(MathectorDatabase.MIGRATION_1_2, MathectorDatabase.MIGRATION_2_3, MathectorDatabase.MIGRATION_3_4).build()
+        val migrated = Room.databaseBuilder(app, MathectorDatabase::class.java, name).addMigrations(MathectorDatabase.MIGRATION_1_2, MathectorDatabase.MIGRATION_2_3, MathectorDatabase.MIGRATION_3_4, MathectorDatabase.MIGRATION_4_5, MathectorDatabase.MIGRATION_5_9, MathectorDatabase.MIGRATION_5_9, MathectorDatabase.MIGRATION_6_9, MathectorDatabase.MIGRATION_7_9).build()
         try {
             val q = migrated.dao().question("old")!!
             assertEquals("旧题保留", q.title); assertEquals("原始题干\n求解。", q.body); assertTrue(q.favorite); assertTrue(q.reviewed)

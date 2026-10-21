@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Matheca · 手机拍照导入</title>
+    <title>Matheca · 手机联动</title>
     <style>
       :root {
         font:
@@ -191,6 +191,41 @@
         margin-top: 12px;
         font-size: 13px;
       }
+      .activity {
+        margin-top: 28px;
+        border-top: 1px solid #e6e6e6;
+        padding-top: 20px;
+      }
+      h2 {
+        font-size: 18px;
+        margin: 0 0 12px;
+        font-weight: 600;
+      }
+      .activity p + p {
+        margin-top: 8px;
+      }
+      .download {
+        padding: 16px 0;
+        border-bottom: 1px solid #e6e6e6;
+        overflow-wrap: anywhere;
+      }
+      .download button,
+      .download a {
+        margin-top: 10px;
+      }
+      .download a[hidden] {
+        display: none;
+      }
+      .download a {
+        display: inline-block;
+        color: #315a86;
+        text-underline-offset: 3px;
+        padding: 10px 0;
+      }
+      ::selection {
+        background: #dedede;
+        color: #262626;
+      }
       .sr-only {
         position: absolute;
         width: 1px;
@@ -208,10 +243,9 @@
   <body>
     <main>
       <header>
-        <p>Matheca</p>
-        <h1>把纸上的题目，送到电脑。</h1>
+        <h1>Matheca 手机联动</h1>
         <p class="hint">
-          连续拍摄或选择相册照片，确认顺序后发送。识别将在电脑上由你确认开始。
+          拍照传到电脑，再把整理好的练习带走。识别由电脑确认开始。
         </p>
       </header>
       <div id="connection" class="status" role="status">正在连接电脑…</div>
@@ -232,6 +266,24 @@
         每批最多 20 张，单张最多 50 MB，合计最多 200
         MB。原图传到当前电脑；后续识别使用电脑配置的接口。未发送的照片只保留在当前页面，关闭页面前请先发送。
       </p>
+      <section class="activity" aria-labelledby="inbox-title">
+        <h2 id="inbox-title">电脑已接收</h2>
+        <div id="on-computer" class="hint">
+          连接后显示已接收照片，刷新页面也可查看。
+        </div>
+      </section>
+      <section class="activity" aria-labelledby="tasks-title">
+        <h2 id="tasks-title">本次识别</h2>
+        <div id="tasks" class="hint">尚未提交识别，请在电脑确认。</div>
+      </section>
+      <section class="activity" aria-labelledby="downloads-title">
+        <h2 id="downloads-title">电脑发来的文件</h2>
+        <p class="hint">
+          在电脑导出 PDF／Word 后选择“发送到手机”。每份最多 100
+          MB，结束连接后链接失效。
+        </p>
+        <div id="downloads"></div>
+      </section>
       <button id="reconnect" class="refresh">重新检查连接</button>
     </main>
     <div class="bar">
@@ -246,13 +298,19 @@
         const $ = (id) => document.getElementById(id);
         const fragment = new URLSearchParams(location.hash.slice(1));
         let token =
-          fragment.get("pair") ||
-          sessionStorage.getItem("matheca-pair") ||
-          "";
+          fragment.get("pair") || sessionStorage.getItem("matheca-pair") || "";
         if (fragment.has("pair")) {
           sessionStorage.setItem("matheca-pair", token);
           history.replaceState(null, "", location.pathname);
         }
+        const deviceKey = "matheca-device-" + token;
+        const device = sessionStorage.getItem(deviceKey) || id();
+        sessionStorage.setItem(deviceKey, device);
+        const headers = {
+          Authorization: "Bearer " + token,
+          "X-Device-Id": device,
+        };
+        const downloads = new Map();
         let photos = [],
           sending = false,
           ready = false,
@@ -388,7 +446,7 @@
             let response;
             try {
               response = await fetch("/api/state", {
-                headers: { Authorization: "Bearer " + token },
+                headers,
                 signal: controller.signal,
                 cache: "no-store",
               });
@@ -397,7 +455,64 @@
             }
             const data = await response.json();
             if (!response.ok) throw Error(data.error || "连接失效，请重新扫码");
+            if (!data.approved) {
+              ready = false;
+              $("connection").className = "status";
+              $("connection").textContent =
+                "请在电脑确认连接 · 核对码 " + data.code;
+              return;
+            }
             ready = !data.importing;
+            const receipts = new Set(
+              (data.receipts || []).map((item) => item.uploadId),
+            );
+            let updated = false;
+            for (const photo of photos) {
+              if (receipts.has(photo.id) && photo.status !== "sent") {
+                photo.status = "sent";
+                photo.progress = 100;
+                updated = true;
+              }
+            }
+            if (updated) render();
+            $("on-computer").replaceChildren();
+            if (!data.files.length)
+              $("on-computer").textContent =
+                "没有待识别照片。已提交的批次见下方。";
+            for (const file of data.files)
+              $("on-computer").append(
+                label(file.name + " · 已接收，等待电脑确认"),
+              );
+            $("tasks").replaceChildren();
+            const statuses = {
+              queued: "等待识别",
+              processing: "正在识别",
+              complete: "识别完成",
+              partial: "部分完成，请在电脑重试",
+              failed: "识别失败，请在电脑重试",
+              paused: "已暂停，请在电脑继续",
+              unavailable: "任务记录不可用，请在电脑查看",
+            };
+            if (!data.tasks.length)
+              $("tasks").textContent = "尚未提交识别，请在电脑确认。";
+            data.tasks.forEach((task, index) =>
+              $("tasks").append(
+                label(
+                  "第 " +
+                    (index + 1) +
+                    " 批 · " +
+                    task.photos +
+                    " 张 · " +
+                    (statuses[task.status] || "请在电脑查看") +
+                    "（" +
+                    task.completed +
+                    "/" +
+                    task.total +
+                    "）",
+                ),
+              ),
+            );
+            for (const transfer of data.transfers) showDownload(transfer);
             received = data.files.length;
             if (data.imported > imported) {
               photos
@@ -418,6 +533,8 @@
               (imported ? " · 已提交 " + imported + " 张" : "");
           } catch (e) {
             ready = false;
+            $("on-computer").textContent = "连接不可用，重新连接后查看。";
+            $("tasks").textContent = "连接不可用，任务以电脑显示为准。";
             $("connection").className = "status error";
             $("connection").textContent =
               "无法连接电脑：" +
@@ -473,12 +590,73 @@
           error(problem);
           render();
         }
+        function showDownload(transfer) {
+          if (downloads.has(transfer.id)) return;
+          const row = document.createElement("div");
+          row.className = "download";
+          row.append(label(transfer.name, "name"));
+          const state = label(
+            (transfer.size / 1024 / 1024).toFixed(1) + " MB · 可下载",
+            "hint",
+          );
+          const button = document.createElement("button");
+          button.textContent = "下载文件";
+          const link = document.createElement("a");
+          link.hidden = true;
+          link.download = transfer.name;
+          link.textContent = "保存／打开文件";
+          row.append(state, button, link);
+          $("downloads").append(row);
+          downloads.set(transfer.id, { row });
+          button.onclick = () => {
+            button.disabled = true;
+            state.textContent = "正在连接…";
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", "/api/download/" + transfer.id);
+            xhr.responseType = "blob";
+            xhr.timeout = 120000;
+            for (const [key, value] of Object.entries(headers))
+              xhr.setRequestHeader(key, value);
+            xhr.onprogress = (event) => {
+              state.textContent = event.lengthComputable
+                ? "正在下载 " +
+                  Math.round((event.loaded / event.total) * 100) +
+                  "%"
+                : "正在下载…";
+            };
+            const fail = () => {
+              button.disabled = false;
+              button.textContent = "重试下载";
+              state.textContent =
+                "下载失败，请检查连接后重试；连接结束后需重新发送。";
+            };
+            xhr.onerror = fail;
+            xhr.ontimeout = fail;
+            xhr.onabort = fail;
+            xhr.onload = () => {
+              if (xhr.status !== 200) {
+                fail();
+                return;
+              }
+              if (link.href.startsWith("blob:")) URL.revokeObjectURL(link.href);
+              link.href = URL.createObjectURL(xhr.response);
+              link.hidden = false;
+              button.disabled = false;
+              button.textContent = "重新下载";
+              state.textContent =
+                "已传到浏览器，请点“保存／打开文件”，再通过系统分享。";
+              link.click();
+            };
+            xhr.send();
+          };
+        }
         function upload(photo) {
           return new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
             xhr.open("POST", "/api/upload");
             xhr.timeout = 90000;
             xhr.setRequestHeader("Authorization", "Bearer " + token);
+            xhr.setRequestHeader("X-Device-Id", device);
             xhr.setRequestHeader("Content-Type", "application/octet-stream");
             xhr.setRequestHeader("X-Upload-Id", photo.id);
             xhr.setRequestHeader(

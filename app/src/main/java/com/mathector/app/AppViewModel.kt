@@ -22,6 +22,63 @@ class AppViewModel(private val application: MathectorApplication) : ViewModel() 
     val busy = MutableStateFlow(false)
     val backupProgress = MutableStateFlow<String?>(null)
     val pendingBackup = MutableStateFlow<PreparedLibraryBackup?>(null)
+    val desktopLink = DesktopLinkService(application)
+    init { desktopLink.inventoryProvider = { backupService.exchangeInventory() } }
+    val desktopBusy = MutableStateFlow(false)
+    val desktopError = MutableStateFlow<String?>(null)
+    val desktopPreview = MutableStateFlow<PreparedLibraryBackup?>(null)
+    val desktopAssessment = MutableStateFlow<ExchangeAssessment?>(null)
+    private fun desktopTask(action: suspend () -> Unit) {
+        if(desktopBusy.value) return
+        desktopBusy.value = true; desktopError.value = null
+        viewModelScope.launch { try { action() } catch(cancel: CancellationException) { throw cancel } catch(error: Exception) { desktopError.value = error.message ?: "操作失败，请重试" } finally { desktopBusy.value = false } }
+    }
+    fun desktopConnect(link: String) = desktopTask {
+        val parsed=DesktopConnection.parse(link)
+        val saved=desktopLink.savedDesktops.value.find { it.base==parsed.base && it.credential==parsed.token }
+        if(saved!=null) desktopLink.reconnect(saved.id) else desktopLink.connect(link)
+    }
+    fun desktopReconnect(id: String) = desktopTask { desktopLink.reconnect(id) }
+    fun desktopRemember() = desktopTask { desktopLink.remember(); message("已保存电脑，下次开启电脑手机联动后可再次连接") }
+    fun desktopForget(id: String) = desktopTask { desktopLink.forget(id) }
+    fun desktopPoll(refreshInventory: Boolean = false) { if(desktopBusy.value) return; viewModelScope.launch { runCatching { desktopLink.poll(refreshInventory) }.onSuccess { desktopError.value = null }.onFailure { desktopError.value = it.message ?: "电脑连接中断，请重新扫码" } } }
+    fun desktopPhotos(uris: List<Uri>) = desktopTask { desktopLink.addPhotos(uris); message("照片已保存到本机待传队列") }
+    fun desktopQueueSelection(questionIds: Set<String>, collectionIds: Set<String>, changedOnly: Boolean = false) = desktopTask {
+        require(questionIds.isNotEmpty() || collectionIds.isNotEmpty()) { "请先选择题目或题集" }
+        val chosen=if(changedOnly) backupService.changedSelection(questionIds,collectionIds,desktopLink.remoteInventory()) else questionIds to collectionIds
+        require(chosen.first.isNotEmpty() || chosen.second.isNotEmpty()) { "所选资料与电脑一致，无需发送" }
+        backupService.createArchive(chosen.first, chosen.second).use { archive -> desktopLink.addLibrary(archive.file, "题库资料-${java.text.SimpleDateFormat("MMdd-HHmmss", java.util.Locale.ROOT).format(java.util.Date())}.zip") }
+        message("已保存到待传队列，可离线保留后再连接电脑发送")
+    }
+    fun desktopExportSelection(uri: Uri, questionIds: Set<String>, collectionIds: Set<String>) = desktopTask {
+        require(questionIds.isNotEmpty() || collectionIds.isNotEmpty()) { "请先选择题目或题集" }
+        backupService.createArchive(questionIds, collectionIds).use { archive ->
+            withContext(Dispatchers.IO) {
+                val output = application.contentResolver.openOutputStream(uri, "wt") ?: error("无法保存到所选位置")
+                output.use { target -> archive.file.inputStream().use { it.copyTo(target) } }
+            }
+        }
+        message("已导出桌面标准 ZIP，可在电脑的题库备份中导入")
+    }
+    fun desktopSend() = desktopTask { desktopLink.send() }
+    fun desktopRemove(id: String) = desktopTask { desktopLink.remove(id) }
+    fun desktopMove(id: String, delta: Int) = desktopTask { desktopLink.move(id, delta) }
+    fun desktopDownload(id: String, size: Long) = desktopTask {
+        val file = desktopLink.downloadLibrary(id, size)
+        try {
+            val prepared = backupService.prepare(file.inputStream())
+            try { val assessment = backupService.assess(prepared); desktopPreview.value?.close(); desktopPreview.value = prepared; desktopAssessment.value = assessment }
+            catch(error: Throwable) { prepared.close(); throw error }
+        } finally { file.delete() }
+    }
+    fun desktopDismiss() { if(!desktopBusy.value) { desktopPreview.value?.close(); desktopPreview.value = null; desktopAssessment.value = null } }
+    fun desktopRestore(policy: String) = desktopTask {
+        val pending = desktopPreview.value ?: error("请先预览资料")
+        val assessment = desktopAssessment.value ?: error("请重新预览")
+        backupService.restore(pending, policy, assessment.version)
+        runCatching { desktopLink.poll(true) }
+        pending.close(); desktopPreview.value = null; desktopAssessment.value = null; message("资料已接收，未触发识别或解题")
+    }
     private val backupService by lazy { LibraryBackupService(application, application.database, application.knowledge) }
     private var backupJob: Job? = null
     val settings = application.settings.state
@@ -81,8 +138,12 @@ class AppViewModel(private val application: MathectorApplication) : ViewModel() 
     }
     fun exportLibrary(uri: Uri) = backupTask("正在打包并保存题库…") {
         val summary = backupService.exportTo(uri)
+        val missing = listOfNotNull(
+            if(summary.missingImages > 0) "${summary.missingImages} 道题的原图" else null,
+            if(summary.missingFigures > 0) "${summary.missingFigures} 张题目图片" else null).joinToString("、")
         message("已备份 ${summary.questions} 道题、${summary.collections} 个题集" +
-            if(summary.missingImages > 0) "；${summary.missingImages} 道题的原图已缺失，题干已保留" else "，请保留这份 ZIP 文件")
+            (if(summary.figures > 0) "、${summary.figures} 张题目图片" else "") +
+            if(missing.isNotEmpty()) "；$missing 已缺失，题干已保留" else "，请保留这份 ZIP 文件")
     }
     fun inspectLibrary(uri: Uri) = backupTask("正在检查题库备份与原图…") {
         pendingBackup.value?.close()
@@ -101,19 +162,26 @@ class AppViewModel(private val application: MathectorApplication) : ViewModel() 
             } finally { if(pendingBackup.value === pending) pendingBackup.value = null; pending.close() }
         }
     }
-    override fun onCleared() { pendingBackup.value?.close(); super.onCleared() }
+    override fun onCleared() { desktopLink.disconnect(); desktopPreview.value?.close(); pendingBackup.value?.close(); super.onCleared() }
     fun save(question: Question, done: () -> Unit) = viewModelScope.launch { persistEdit(question); done() }
     private suspend fun persistEdit(question: Question, scheduleAuto: Boolean = true): Question {
         var previous: Question? = null
         val saved = application.database.withTransaction {
             previous = dao.question(question.id)
             val old = previous
-            val current = KnowledgeCatalog.normalize(question)
+            var current = KnowledgeCatalog.normalize(question)
+            if(old != null && (old.figures != current.figures || old.optionFigures != current.optionFigures) &&
+                QuestionFigures.decode(current.figures).isEmpty() && OptionFigures.names(current.optionFigures).isEmpty()) {
+                current = current.copy(figuresJson = "[]", figureWidthsJson = "[]", figurePlacementsJson = "[]")
+            }
             val same = old != null && old.contentFingerprint() == current.contentFingerprint()
             val edited = current.copy(solution = if(same) old!!.solution else "", solutionLatex = if(same) old!!.solutionLatex else "",
                 solutionFingerprint = if(same) old!!.solutionFingerprint else "", solutionError = if(same) old!!.solutionError else "")
             dao.save(edited); edited
         }
+        val removedFigures = (QuestionFigures.decode(previous?.figures.orEmpty()) + OptionFigures.names(previous?.optionFigures.orEmpty()))
+            .filter { it !in QuestionFigures.decode(saved.figures) && it !in OptionFigures.names(saved.optionFigures) }
+        if (removedFigures.isNotEmpty()) QuestionFigures.delete(application, removedFigures)
         val contentChanged = previous?.contentFingerprint() != saved.contentFingerprint()
         if (previous?.autoSolve == true && !saved.autoSolve || contentChanged) SolutionScheduler.cancel(application, saved.id)
         if (scheduleAuto && saved.autoSolve && (previous?.autoSolve != true || contentChanged) && (saved.body.isNotBlank() || saved.latex.isNotBlank())) enqueueSolution(saved)
@@ -129,7 +197,13 @@ class AppViewModel(private val application: MathectorApplication) : ViewModel() 
     fun requestSolution(question: Question) = viewModelScope.launch { enqueueSolution(persistEdit(question, scheduleAuto = false)) }
     fun cancelSolution(id: String) { SolutionScheduler.cancel(application, id) }
     fun toggleFavorite(question: Question) = viewModelScope.launch { dao.save(question.copy(favorite = !question.favorite)) }
-    fun delete(id: String, done: () -> Unit) = viewModelScope.launch { SolutionScheduler.cancel(application, id); dao.deleteQuestion(id); done() }
+    fun delete(id: String, done: () -> Unit) = viewModelScope.launch {
+        SolutionScheduler.cancel(application, id)
+        val figures = (QuestionFigures.decode(dao.question(id)?.figures.orEmpty()) + OptionFigures.names(dao.question(id)?.optionFigures.orEmpty())).distinct()
+        dao.deleteQuestion(id)
+        QuestionFigures.delete(application, figures)
+        done()
+    }
     fun createCollection(title: String) = viewModelScope.launch { if (title.isNotBlank()) dao.save(QuestionCollection(title = title.trim(), paperTitle = title.trim().take(80))) }
     suspend fun savePaperSettings(id: String, settings: PaperSettings) {
         val paper = settings.validated()
@@ -146,6 +220,18 @@ class AppViewModel(private val application: MathectorApplication) : ViewModel() 
     }
     fun remove(collectionId: String, questionId: String) = viewModelScope.launch { dao.remove(collectionId, questionId) }
     fun move(collectionId: String, questionId: String, delta: Int) = viewModelScope.launch { dao.move(collectionId, questionId, delta) }
+    fun updateItemLayout(collectionId: String, questionId: String, space: Int, newPage: Boolean) = viewModelScope.launch {
+        runCatching { application.database.withTransaction {
+            dao.setItemLayout(collectionId, questionId, space, newPage)
+            val c = dao.backupCollections().find { it.id == collectionId } ?: return@withTransaction
+            val layout = org.json.JSONObject(c.questionLayoutJson)
+            val value = org.json.JSONObject()
+            if(space >= 0) value.put("answerSpaceMm", space)
+            if(newPage) value.put("pageBreakBefore", true)
+            if(value.length() > 0) layout.put(questionId, value) else layout.remove(questionId)
+            dao.save(c.copy(questionLayoutJson = layout.toString()))
+        } }.onFailure { message("解答空间保存失败") }
+    }
     fun deleteCollection(id: String) = viewModelScope.launch { dao.deleteCollection(id) }
     fun examples() = viewModelScope.launch {
         listOf(

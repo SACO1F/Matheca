@@ -10,11 +10,11 @@ android {
         applicationId = "com.mathector.app"
         minSdk = 26
         targetSdk = 37
-        versionCode = 22
-        versionName = "0.22.0"
+        versionCode = 29
+        versionName = "0.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-    buildFeatures { compose = true }
+    buildFeatures { compose = true; buildConfig = true }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -41,6 +41,7 @@ dependencies {
     implementation("androidx.camera:camera-view:1.5.3")
     implementation("io.coil-kt:coil-compose:2.7.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.google.zxing:core:3.5.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     implementation("dev.chrisbanes.haze:haze:1.7.2")
     implementation("androidx.webkit:webkit:1.15.0")

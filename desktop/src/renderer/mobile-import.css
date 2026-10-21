@@ -1,10 +1,10 @@
 .mobile-import-dialog {
-  width: min(820px, calc(100vw - 48px));
-  height: min(720px, calc(100vh - 48px));
+  width: min(1040px, calc(100vw - 48px));
+  height: min(820px, calc(100vh - 48px));
   max-height: calc(100vh - 48px);
   padding: 0;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 12px;
   background: var(--panel);
   color: var(--text);
   box-shadow: 0 16px 48px #0000001f;
@@ -37,9 +37,11 @@
   margin-top: 8px;
 }
 .mobile-import-heading > button {
-  font-size: 23px;
-  line-height: 24px;
-  padding: 4px 10px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 8px;
 }
 .mobile-import-body {
   display: grid;
@@ -59,6 +61,18 @@
   gap: 12px;
   border-right: 1px solid var(--line);
   background: var(--paper-muted);
+}
+.mobile-pairing > details {
+  width: 100%;
+}
+.mobile-pairing summary {
+  cursor: pointer;
+  font-size: 13px;
+  padding: 8px 0;
+  text-align: left;
+}
+.mobile-pairing .mobile-activity {
+  text-align: left;
 }
 .mobile-pairing .hint {
   font-size: 12px;
@@ -224,4 +238,184 @@
   .mobile-photo-grid {
     max-height: 250px;
   }
+}
+
+.mobile-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.mobile-tabs button {
+  padding: 8px 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.mobile-tabs button[aria-selected="true"] {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+.mobile-tab-panel {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.mobile-tab-panel > .hint,
+.mobile-activity p {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.mobile-activity {
+  border-bottom: 1px solid var(--line);
+  padding: 12px 0;
+  overflow-wrap: anywhere;
+}
+.mobile-activity strong {
+  font-size: 14px;
+  font-weight: 500;
+}
+.mobile-approval {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 13px;
+}
+.mobile-approval p {
+  width: 100%;
+  text-align: center;
+}
+.mobile-approval button {
+  flex: 1;
+  white-space: nowrap;
+}
+
+.mobile-export-action {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 30px;
+  border-bottom: 1px solid var(--line);
+}
+
+.exchange-select {
+  border-bottom: 1px solid var(--line);
+  padding: 10px 0;
+}
+.exchange-select summary {
+  cursor: pointer;
+  padding: 8px 0;
+  font-size: 14px;
+}
+.exchange-select input {
+  width: 18px;
+  height: 18px;
+}
+.exchange-select .exchange-collection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.exchange-select .exchange-collection .collection-icon {
+  margin: 0;
+}
+.exchange-select .exchange-collection .collection-row-title {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  display: block;
+  -webkit-line-clamp: unset;
+}
+.exchange-collection input {
+  margin-left: auto;
+  flex: none;
+  accent-color: var(--blue);
+}
+.exchange-select .exchange-question {
+  margin: 12px 0;
+  cursor: pointer;
+  min-width: 0;
+}
+.exchange-question .card-top {
+  align-items: flex-start;
+}
+.exchange-check {
+  display: grid;
+  place-items: center;
+  min-width: 36px;
+  min-height: 36px;
+  cursor: pointer;
+}
+.exchange-check input {
+  accent-color: var(--blue);
+  cursor: pointer;
+}
+.exchange-question .card-preview {
+  max-height: none;
+  overflow: visible;
+}
+.exchange-question:has(input:focus-visible),
+.exchange-collection:has(input:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.exchange-select:has(input:disabled) {
+  cursor: default;
+}
+.mobile-tab-panel > h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+.mobile-tab-panel > h4 {
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.mobile-tab-panel > button {
+  align-self: flex-start;
+}
+.exchange-send-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+.exchange-send-footer > span {
+  color: var(--muted);
+  font-size: 12px;
+}
+@media (max-width: 650px) {
+  .mobile-import-body {
+    grid-template-rows: auto auto;
+    overflow-y: auto;
+  }
+  .mobile-pairing {
+    overflow: visible;
+  }
+  .mobile-received {
+    min-height: 380px;
+  }
+  .mobile-tab-panel {
+    overflow: visible;
+  }
+}
+.exchange-preview {
+  padding: 14px;
+  background: var(--subtle);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+}
+.exchange-details {
+  max-height: 150px;
+  overflow: auto;
+  line-height: 1.8;
 }

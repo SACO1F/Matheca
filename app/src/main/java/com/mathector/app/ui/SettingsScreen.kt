@@ -21,10 +21,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mathector.app.AppViewModel
+import com.mathector.app.BuildConfig
 import com.mathector.app.data.*
 
 @Composable
-internal fun SettingsScreen(count: Int, jobs: List<ImportJob>, settings: AppSettings, model: AppViewModel, onExportLibrary: () -> Unit, onImportLibrary: () -> Unit) {
+internal fun SettingsScreen(count: Int, jobs: List<ImportJob>, settings: AppSettings, model: AppViewModel, onExportLibrary: () -> Unit, onImportLibrary: () -> Unit, onDesktopLink: () -> Unit) {
     val testing by model.testingApi.collectAsStateWithLifecycle()
     val result by model.apiTestResult.collectAsStateWithLifecycle()
     LazyColumn(Modifier.fillMaxSize().testTag("settings-list"), contentPadding = PaddingValues(22.dp, 20.dp, 22.dp, 100.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -33,6 +34,11 @@ internal fun SettingsScreen(count: Int, jobs: List<ImportJob>, settings: AppSett
             Text("已保存 $count 道题 · 资料保存在本机", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
         } }
         item { AppearanceSettings(settings, model::setTheme, model::setAccent) }
+        item { SettingsCard {
+            Text("连接电脑", style = MaterialTheme.typography.titleMedium)
+            Text("离线收题、发送已有题目与题集，接收电脑整理后的资料。以桌面题库格式保存。", style = MaterialTheme.typography.bodyMedium)
+            Button(onClick = onDesktopLink, modifier = Modifier.fillMaxWidth().testTag("desktop-link-open")) { Text("打开电脑联动") }
+        } }
         item { LibraryBackupCard(onExportLibrary, onImportLibrary) }
         item { ApiConfiguration(settings, testing, result, model) }
         item { SettingsCard {
@@ -43,7 +49,7 @@ internal fun SettingsScreen(count: Int, jobs: List<ImportJob>, settings: AppSett
             Text("默认关闭。开启后调用已配置的接口生成答案与步骤，解答需要核对，可能产生额外服务费用。", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         } }
         item { SettingsCard {
-            Text("Matheca 0.22.0 · 高中数学题集", fontWeight = FontWeight.SemiBold)
+            Text("Matheca ${BuildConfig.VERSION_NAME} · 高中数学题集", modifier=Modifier.testTag("app-version"),fontWeight = FontWeight.SemiBold)
             Text("识别结果会保存为待校对草稿。PDF 每个文件最多 20 页，单个文件不超过 50 MB。", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
             Text("PDF 排版导出 · Word 正文可编辑，公式为图片。卸载前请使用“导出题库”保存完整 ZIP 备份。", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
         } }

@@ -75,7 +75,7 @@ class LibraryBackupTest {
             val (question, collection) = fixture(source, sourceStore, folder)
             val reader = LibraryBackupService(app, target, targetStore, File(folder, "restored"))
             LibraryBackupService(app, source, sourceStore).createArchive().use { archive ->
-                assertEquals(BackupSummary(2, 1, 1, 1, 0), archive.summary)
+                assertEquals(BackupSummary(2, 1, 1, 1, 0, 0, 0), archive.summary)
                 ZipFile(archive.file).use { zip ->
                     assertEquals(2, zip.size())
                     val manifest = zip.getInputStream(zip.getEntry("manifest.json")).bufferedReader().use { it.readText() }
@@ -135,13 +135,13 @@ class LibraryBackupTest {
             val writer = LibraryBackupService(app, source, sourceStore)
             val reader = LibraryBackupService(app, target, targetStore, File(folder, "restored"))
             writer.createArchive().use { archive -> reader.prepare(archive.file.inputStream()).use { prepared ->
-                assertEquals(BackupSummary(0, 0, 0, 0, 0), prepared.summary)
+                assertEquals(BackupSummary(0, 0, 0, 0, 0, 0, 0), prepared.summary)
                 assertEquals(RestoreResult(0, 0, 0, 0, 0), reader.restore(prepared))
             } }
             val (question, collection) = fixture(source, sourceStore, folder)
             assertTrue(File(question.sourcePath).delete())
             writer.createArchive().use { archive -> reader.prepare(archive.file.inputStream()).use { prepared ->
-                assertEquals(BackupSummary(2, 1, 0, 1, 2), prepared.summary)
+                assertEquals(BackupSummary(2, 1, 0, 1, 2, 0, 0), prepared.summary)
                 assertEquals(RestoreResult(2, 1, 0, 0, 1), reader.restore(prepared))
                 val restored = requireNotNull(target.dao().question(question.id))
                 assertEquals(question.body, restored.body); assertEquals(question.latex, restored.latex)
@@ -262,9 +262,12 @@ class LibraryBackupTest {
             assertEquals(count, runBlocking { dao.backupQuestions().size })
             compose.onNodeWithTag("nav-profile").performClick()
             compose.onNodeWithTag("settings-list").performScrollToNode(hasTestTag("library-backup-settings"))
+            // The floating navigation overlays the bottom of the scroll viewport; expose the action before tapping it.
+            compose.onNodeWithTag("settings-list").performTouchInput { swipeUp(startY=height*.65f,endY=height*.35f) }
             val cancelMonitor = monitor(Intent.ACTION_OPEN_DOCUMENT, Activity.RESULT_CANCELED, null)
             try {
                 compose.onNodeWithTag("backup-settings-import").performClick()
+                compose.waitUntil(5_000) { cancelMonitor.hits == 1 }
                 assertEquals(1, cancelMonitor.hits)
                 compose.onNodeWithTag("backup-import-preview").assertDoesNotExist()
             } finally { instrumentation.removeMonitor(cancelMonitor) }

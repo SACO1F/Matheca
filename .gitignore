@@ -23,6 +23,10 @@ tmp/
 /design-system/
 /.impeccable/review/
 /.impeccable/build/
+/.impeccable/questions/
+/.impeccable/mocks/compare/
+/.impeccable/decision-intro*.json
+/.impeccable/brief-intro-body.md
 
 # Local validation journals reference ignored machine-specific evidence.
 /docs/*_2026-10-*.md
@@ -34,3 +38,8 @@ tmp/
 *.db-*
 *.pem
 *.key
+
+/app/releases/
+
+# Retired-project source archives (kept locally for recovery).
+/archives/

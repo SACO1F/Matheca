@@ -121,7 +121,50 @@ export interface MobilePhoto {
   size: number;
   preview: string;
 }
+export type ExchangePolicy = "keep" | "replace" | "copy";
+export interface ExchangeSelection {
+  questionIds: string[];
+  collectionIds: string[];
+  changedOnly?: boolean;
+}
+export interface ExchangePreview {
+  id: string;
+  questions: number;
+  collections: number;
+  added: number;
+  repeated: number;
+  conflicts: number;
+  details: {
+    kind: "question" | "collection";
+    id: string;
+    title: string;
+    status: "new" | "same" | "conflict";
+  }[];
+  missingImages: number;
+}
+export interface ExchangeInbox {
+  id: string;
+  name: string;
+  size: number;
+  status: "received" | "imported";
+  receivedAt: number;
+}
+export interface MobileTransfer {
+  id: string;
+  name: string;
+  size: number;
+  status: "ready" | "downloading" | "transferred" | "failed";
+}
+export interface MobileTask {
+  id: string;
+  status: string;
+  completed: number;
+  total: number;
+  photos: number;
+}
 export interface MobileImportState {
+  pairedDevices: { id: string; name: string; pairedAt: number }[];
+  inventoryReady: boolean;
   sessionId: string;
   status: "closed" | "receiving" | "expired" | "importing";
   urls: string[];
@@ -130,13 +173,26 @@ export interface MobileImportState {
   connected: boolean;
   files: MobilePhoto[];
   imported: number;
+  pairing?: { id: string; code: string; approved: boolean };
+  transfers: MobileTransfer[];
+  tasks: MobileTask[];
+  libraries: ExchangeInbox[];
 }
 export interface DesktopAPI {
+  mobileForgetDevice(id: string): Promise<MobileImportState>;
   mobileStart(): Promise<MobileImportState>;
   mobileStatus(): Promise<MobileImportState>;
   mobilePause(): Promise<void>;
+  mobileCopyAddress(index: number): Promise<void>;
   mobileRemove(id: string): Promise<MobileImportState>;
   mobileConfirm(): Promise<number>;
+  mobileApprove(id: string): Promise<MobileImportState>;
+  mobileReject(id: string): Promise<MobileImportState>;
+  mobileShare(path: string): Promise<MobileImportState>;
+  mobileSendLibrary(selection: ExchangeSelection): Promise<MobileImportState>;
+  mobileInspectLibrary(id: string): Promise<ExchangePreview>;
+  mobileApplyLibrary(id: string, policy: ExchangePolicy): Promise<void>;
+  mobileDiscardLibrary(id: string): Promise<void>;
   historyList(
     limit?: number,
     offset?: number,

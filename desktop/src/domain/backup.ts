@@ -221,7 +221,7 @@ export function encodeBackup(data: BackupData): string {
     format: "MathecaLibraryBackup",
     version: 1,
     createdAt: BigInt(Date.now()),
-    appVersion: "0.21.0",
+    appVersion: "desktop-0.1.0",
     questions: data.questions.map((q) => {
       const { sourcePath, solutionFingerprint, ...record } = q;
       return {

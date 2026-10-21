@@ -122,6 +122,7 @@ export async function inspectArchive(
 export async function exportArchive(
   store: Store,
   target: string,
+  selection?: { questionIds: string[]; collectionIds: string[] },
 ): Promise<number> {
   const snapshot = store.db.transaction(() => ({
     questions: store.questions(),
@@ -129,6 +130,23 @@ export async function exportArchive(
     items: store.items(),
     customKnowledge: store.points(),
   }))();
+  if (selection) {
+    const cs = new Set(selection.collectionIds);
+    const qs = new Set([
+      ...selection.questionIds,
+      ...snapshot.items
+        .filter((i) => cs.has(i.collectionId))
+        .map((i) => i.questionId),
+    ]);
+    if (
+      [...cs].some((id) => !snapshot.collections.some((c) => c.id === id)) ||
+      [...qs].some((id) => !snapshot.questions.some((q) => q.id === id))
+    )
+      throw Error("所选题目或题集已变化，请重新选择");
+    snapshot.questions = snapshot.questions.filter((q) => qs.has(q.id));
+    snapshot.collections = snapshot.collections.filter((c) => cs.has(c.id));
+    snapshot.items = snapshot.items.filter((i) => cs.has(i.collectionId));
+  }
   const questions = snapshot.questions,
     sources: Record<string, string> = Object.create(null),
     files = new Map<string, string>(),
@@ -193,6 +211,7 @@ export function restoreArchive(
   data: BackupData,
   staging: string,
   batch: string,
+  replace = false,
 ): RestoreResult {
   // This operation owns exactly one fresh directory. Never reuse and then
   // remove an existing committed batch when a later restore step fails.
@@ -206,9 +225,11 @@ export function restoreArchive(
       const localQ = new Set(store.questions().map((q) => q.id)),
         localC = new Set(store.collections().map((c) => c.id));
       questions = data.questions
-        .filter((q) => !localQ.has(q.id))
+        .filter((q) => replace || !localQ.has(q.id))
         .map((q) => ({ ...q }));
-      collections = data.collections.filter((c) => !localC.has(c.id));
+      collections = data.collections.filter(
+        (c) => replace || !localC.has(c.id),
+      );
       const newC = new Set(collections.map((c) => c.id));
       for (const q of questions) {
         const entry = data.sources[q.id];
@@ -225,7 +246,11 @@ export function restoreArchive(
           : "";
         store.putQuestion(q);
       }
-      for (const c of collections) store.putCollection(c);
+      for (const c of collections) {
+        if (replace)
+          store.db.prepare("DELETE FROM items WHERE collectionId=?").run(c.id);
+        store.putCollection(c);
+      }
       const positions = new Map<string, number>();
       for (const i of [...data.items]
         .filter((i) => newC.has(i.collectionId))

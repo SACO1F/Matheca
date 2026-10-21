@@ -41,6 +41,9 @@ import com.mathector.app.data.*
     onClick: () -> Unit,
     trailing: (@Composable () -> Unit)? = null,
     extraLabels: List<String> = emptyList(),
+    footer: (@Composable () -> Unit)? = null,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
@@ -54,9 +57,9 @@ import com.mathector.app.data.*
     val neutral = MaterialTheme.colorScheme.onSurfaceVariant
     val gradeColor = LocalMathecaPalette.current.tagInk
     val knowledgeColor = LocalMathecaPalette.current.tagInk
-    val click = if(selected == null) Modifier.clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick)
-        else Modifier.toggleable(selected, interactionSource = interaction, indication = null, role = Role.Checkbox, onValueChange = { onClick() })
-    Column(Modifier.fillMaxWidth().scale(scale).clip(shape).background(fill)
+    val click = if(selected == null) Modifier.clickable(enabled = enabled, interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick)
+        else Modifier.toggleable(selected, enabled = enabled, interactionSource = interaction, indication = null, role = Role.Checkbox, onValueChange = { onClick() })
+    Column(modifier.fillMaxWidth().scale(scale).clip(shape).background(fill)
         .border(1.dp, if(selected == true) MaterialTheme.colorScheme.primary.copy(alpha = .6f) else MaterialTheme.colorScheme.outlineVariant, shape)
         .then(click).testTag("$tagPrefix-question-${question.id}").padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -85,11 +88,43 @@ import com.mathector.app.data.*
                 }
             } else trailing?.invoke()
         }
-        val title = QuestionText.cleanTitle(question.title)
-        val titleModifier = Modifier.fillMaxWidth().testTag("$tagPrefix-title-${question.id}")
-        if(MathContent.parse(title).any { it is MathPart.Formula }) RichMathText(title, titleModifier, dark, preview = true, fontSize = 16f)
-        else Text(title, titleModifier, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis, fontSize = 16.sp)
         RichMathText(MathContent.preview(question).ifBlank { "题干待补充" }, Modifier.fillMaxWidth().testTag("$tagPrefix-math-${question.id}"), dark, preview = true, fontSize = 13f)
+        val figures = QuestionFigures.decode(question.figures)
+        if(figures.isNotEmpty()) QuestionFigureThumbnails(figures, Modifier.fillMaxWidth().testTag("$tagPrefix-figures-${question.id}"))
+        val optionFigures = OptionFigures.decode(question.optionFigures)
+        if(optionFigures.isNotEmpty()) {
+            Column(Modifier.fillMaxWidth().testTag("$tagPrefix-option-figures-${question.id}"), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                optionFigures.forEach { (label, names) ->
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(label, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = neutral)
+                        QuestionFigureThumbnails(names, Modifier.weight(1f).testTag("$tagPrefix-option-figure-$label-${question.id}"), height = 84.dp)
+                    }
+                }
+            }
+        }
+        footer?.invoke()
+    }
+}
+
+/** Per-question print layout control shown at the bottom of a collection card. */
+@Composable internal fun SolutionSpaceRow(questionId: String, space: Int, kind: String, newPage: Boolean,
+    onChange: (Int, Boolean) -> Unit, modifier: Modifier = Modifier) {
+    val automatic = space == AUTO_SOLUTION_SPACE
+    val options = remember { solutionSpaceOptions.map { if(it == AUTO_SOLUTION_SPACE) "自动" else it.toString() } }
+    Column(modifier.fillMaxWidth().testTag("collection-space-$questionId"), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("解答空间", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+            GlideSelect("space-$questionId", "自动", if(automatic) "自动" else space.toString(),
+                listOf(GlideGroup("", options)), Modifier.width(76.dp), menuWidth = 132.dp) { picked ->
+                onChange(picked.toIntOrNull() ?: AUTO_SOLUTION_SPACE, newPage)
+            }
+            Text(if(automatic) "自动 ${defaultSolutionSpace(kind)}mm" else "${space}mm", Modifier.weight(1f),
+                fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(newPage, { onChange(space, it) }, Modifier.testTag("collection-newpage-$questionId"))
+            Text("另起一页", fontSize = 11.sp, maxLines = 1)
+        }
     }
 }
 

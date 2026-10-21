@@ -23,37 +23,73 @@ class ImportWorker @JvmOverloads constructor(context: Context, params: WorkerPar
         try {
             engine = engineFactory?.invoke() ?: MultimodalRecognitionEngine(app.settings.multimodalConfig())
             dao.save(job.copy(status = "processing", message = "正在准备识别"))
-            for (path in job.paths.split('\n').filter(String::isNotBlank)) {
-                if (isStopped) throw CancellationException()
+            // Keep PDF boundaries separate; consecutive photos form one ordered document.
+            val groups = mutableListOf<Pair<List<File>, String>>()
+            var photos = mutableListOf<File>()
+            fun flushPhotos() { if(photos.isNotEmpty()) { groups += photos.toList() to photos.joinToString("、") { it.name }; photos = mutableListOf() } }
+            for(path in job.paths.split('\n').filter(String::isNotBlank)) {
                 val file = File(path)
+                if(file.extension.lowercase() == "pdf") {
+                    flushPhotos()
+                    try { groups += renderPdf(file, jobId) to file.name }
+                    catch(error: Exception) { failures++; lastError = error.message?.take(100) ?: "PDF 无法读取" }
+                } else photos += file
+            }
+            flushPhotos()
+            for ((pages, label) in groups) {
+                if (isStopped) throw CancellationException()
                 try {
-                    val pages = if (file.extension.lowercase() == "pdf") renderPdf(file, jobId) else listOf(file)
-                    for (page in pages) {
+                    for ((pageIndex, page) in pages.withIndex()) {
                         pageNumber++
                         try {
                         dao.save(job.copy(status = "processing", message = "正在识别第 $pageNumber 页"))
-                        val cache = AtomicFile(File(applicationContext.filesDir, "sources/$jobId/recognition-$pageNumber.cache"))
-                        val recognized = if (cache.baseFile.exists()) {
-                            MultimodalRecognitionEngine.decodeDrafts(cache.readFully().toString(Charsets.UTF_8))
+                        val paged = pages.size > 1
+                        val cache = AtomicFile(File(applicationContext.filesDir, "sources/$jobId/recognition-${if(paged) "paged-v1-" else ""}$pageNumber.cache"))
+                        val groups: List<PageQuestion> = if(paged) {
+                            val target = pageIndex + 1
+                            val first = maxOf(1, target - 1)
+                            val result = if(cache.baseFile.exists()) {
+                                MultimodalRecognitionEngine.decodePagedDrafts(cache.readFully().toString(Charsets.UTF_8), target, 1, pages.size)
+                            } else {
+                                var last = minOf(pages.size, target + 1)
+                                var recognized: PagedRecognitionResult
+                                while(true) {
+                                    if(isStopped) throw CancellationException()
+                                    dao.save(job.copy(status="processing", message="正在识别第 $pageNumber 页 · 联合第 $first–$last 页判断跨页题"))
+                                    recognized = engine.recognizePages(pages.subList(first - 1, last), target, first)
+                                    if(!recognized.needMorePages) break
+                                    require(last < pages.size) { "文件结束处题目仍不完整，未录入半道题；请补充后续页面" }
+                                    last++
+                                }
+                                val stream = cache.startWrite()
+                                try { stream.write(MultimodalRecognitionEngine.encodePagedDrafts(recognized).toByteArray(Charsets.UTF_8)); cache.finishWrite(stream) }
+                                catch(error: Exception) { cache.failWrite(stream); throw error }
+                                recognized
+                            }
+                            result.questions
                         } else {
-                            val result = engine.recognize(page)
+                            val result = if(cache.baseFile.exists()) MultimodalRecognitionEngine.decodeDrafts(cache.readFully().toString(Charsets.UTF_8)) else {
+                            val recognized = engine.recognize(page)
                             cache.baseFile.parentFile?.mkdirs()
                             val stream = cache.startWrite()
-                            try { stream.write(MultimodalRecognitionEngine.encodeDrafts(result).toByteArray(Charsets.UTF_8)); cache.finishWrite(stream) }
+                            try { stream.write(MultimodalRecognitionEngine.encodeDrafts(recognized).toByteArray(Charsets.UTF_8)); cache.finishWrite(stream) }
                             catch (error: Exception) { cache.failWrite(stream); throw error }
-                            result
+                            recognized
+                            }
+                            result.questions.ifEmpty { QuestionSplitter.split(result.text).ifEmpty { listOf("") }.map { RecognizedQuestion(it) } }.map { PageQuestion(it, 1, 1) }
                         }
-                        val groups = recognized.questions.ifEmpty { QuestionSplitter.split(recognized.text).ifEmpty { listOf("") }.map { RecognizedQuestion(it) } }
-                        for ((index, draft) in groups.withIndex()) {
+                        for ((index, entry) in groups.withIndex()) {
+                            val draft = entry.question
                             val body = draft.body
                             val id = "$jobId-$pageNumber-$index"
                             // A resumed worker must never overwrite an already edited draft.
                             if (dao.question(id) == null) {
+                                val source = if(entry.endPage > entry.startPage) MultimodalRecognitionEngine.joinSourcePages(pages.subList(entry.startPage - 1, entry.endPage), File(applicationContext.filesDir, "sources/$jobId/pages-$pageNumber-${entry.endPage}.jpg")) else page
                                 val question = KnowledgeCatalog.normalize(Question(id = id, title = QuestionText.titleFromBody(body),
                                     body = body, latex = draft.latex,
                                     grade = draft.grade, kind = draft.kind,
                                     difficulty = draft.difficulty, knowledge = draft.knowledge,
-                                    sourcePath = page.absolutePath, sourceLabel = "${file.name} · 第 $pageNumber 页", autoSolve = inputData.getBoolean("autoSolve", false)))
+                                    sourcePath = source.absolutePath, sourceLabel = "$label · 第 ${entry.startPage}${if(entry.endPage > entry.startPage) "–${entry.endPage}" else ""} 页", autoSolve = inputData.getBoolean("autoSolve", false)))
                                 dao.save(question)
                                 if(question.autoSolve && (question.body.isNotBlank() || question.latex.isNotBlank())) SolutionScheduler.enqueue(applicationContext, question, ExistingWorkPolicy.KEEP)
                             }
@@ -63,7 +99,7 @@ class ImportWorker @JvmOverloads constructor(context: Context, params: WorkerPar
                         catch (error: Exception) { failures++; lastError = error.message?.take(100) ?: "页面无法识别" }
                     }
                 } catch (cancel: CancellationException) { throw cancel }
-                catch (error: Exception) { failures++; lastError = error.message?.take(100) ?: "文件无法识别"; dao.save(job.copy(status = "processing", message = "${file.name}：$lastError")) }
+                catch (error: Exception) { failures++; lastError = error.message?.take(100) ?: "文件无法识别"; dao.save(job.copy(status = "processing", message = "$label：$lastError")) }
             }
             dao.save(job.copy(status = if (failures == 0) "complete" else if(count == 0) "failed" else "partial", message = "已生成 $count 道草稿" + if (failures > 0) "，$failures 处识别失败：$lastError" else "，请校对公式与图形"))
             return if (count == 0 && failures > 0) Result.failure() else Result.success()

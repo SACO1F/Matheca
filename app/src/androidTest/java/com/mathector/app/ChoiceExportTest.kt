@@ -1,5 +1,7 @@
 package com.mathector.app
 
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.graphics.pdf.PdfRenderer
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -14,6 +16,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.w3c.dom.Element
 import java.io.File
+import java.util.UUID
 import java.util.zip.ZipFile
 import javax.xml.parsers.DocumentBuilderFactory
 import java.text.Normalizer
@@ -129,6 +132,52 @@ class ChoiceExportTest {
             } } finally { word.delete() }
         } finally { scenario.close() }
     }
+    /** Rendered ink of every page, used to prove a per-option image really reaches the document. */
+    private fun ink(file: File): Int = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY).use { descriptor ->
+        PdfRenderer(descriptor).use { renderer -> (0 until renderer.pageCount).sumOf { index -> renderer.openPage(index).use { page ->
+            val bitmap = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
+            try {
+                bitmap.eraseColor(Color.WHITE)
+                page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                var count = 0
+                for(y in 0 until bitmap.height) for(x in 0 until bitmap.width) if(Color.red(bitmap.getPixel(x, y)) < 180) count++
+                count
+            } finally { bitmap.recycle() }
+        } } }
+    }
+
+    @Test fun optionImagesAreDrawnUnderTheirOwnChoiceInBothFormats(): Unit = runBlocking {
+        val scenario = ActivityScenario.launch(MainActivity::class.java)
+        var activity: MainActivity? = null
+        scenario.onActivity { activity = it }
+        val folder = File(app.getExternalFilesDir(null), "validation").apply { mkdirs() }
+        val context = activity!!
+        val bitmap = Bitmap.createBitmap(600, 400, Bitmap.Config.ARGB_8888).apply {
+            eraseColor(Color.WHITE)
+            Canvas(this).drawRect(120f, 90f, 480f, 310f, Paint().apply { color = Color.BLACK; style = Paint.Style.STROKE; strokeWidth = 12f })
+        }
+        val name = QuestionFigures.save(context, bitmap)
+        bitmap.recycle()
+        val withFigure = Question(kind = "选择题", reviewed = true, body = "下列图形是（ ）\nA. 三角形\nB. 圆形\nC. 正方形\nD. 菱形",
+            optionFigures = OptionFigures.encode(mapOf("A" to listOf(name))))
+        val plain = withFigure.copy(id = UUID.randomUUID().toString(), optionFigures = "")
+        try {
+            val pdf = DocumentExporter.export(context, "选项图片验证", listOf(withFigure), word = false)
+            val plainPdf = DocumentExporter.export(context, "选项图片基准", listOf(plain), word = false)
+            try { pdf.copyTo(File(folder, "option-figure-export.pdf"), overwrite = true); assertTrue("选项配图必须真的画进 PDF", ink(pdf) > ink(plainPdf)) }
+            finally { pdf.delete(); plainPdf.delete() }
+            val word = DocumentExporter.export(context, "选项图片验证", listOf(withFigure), word = true)
+            try {
+                word.copyTo(File(folder, "option-figure-export.docx"), overwrite = true)
+                ZipFile(word).use { zip ->
+                    assertEquals(1, zip.entries().asSequence().count { it.name.startsWith("word/media/") })
+                    zip.getInputStream(zip.getEntry("word/document.xml")).use { DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(it) }
+                }
+            } finally { word.delete() }
+        } finally { QuestionFigures.delete(context, listOf(name)) }
+        scenario.close()
+    }
+
     @Test fun veryLongChoiceCellsPaginateWithoutDroppingTheRemainingOptions(): Unit = runBlocking {
         val scenario = ActivityScenario.launch(MainActivity::class.java)
         var activity: MainActivity? = null

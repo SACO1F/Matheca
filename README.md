@@ -5,9 +5,9 @@
 | 平台 | 工程 | 当前版本 | 使用与构建 |
 | --- | --- | --- | --- |
 | Windows x64 | [desktop/](desktop/) · Electron / React / TypeScript | 0.1.0 | [桌面版说明](desktop/README.md) |
-| Android 8.0+ | [app/](app/) · Kotlin / Jetpack Compose | 0.22.0 | [下方 Android 说明](#android-安装与快速开始) |
+| Android 8.0+ | [app/](app/) · Kotlin / Jetpack Compose | 0.1.0（与桌面版同步，内部版本 29） | [下方 Android 说明](#android-安装与快速开始) |
 
-**下载：[Windows 便携版 ZIP](https://github.com/SACO1F/Matheca/releases/download/matheca-2026.10.19/Matheca-win32-x64-0.1.0.zip) · [Android APK](https://github.com/SACO1F/Matheca/releases/download/android-v0.22.0/Matheca-android-0.22.0-debug.apk) · [Windows 发布与校验](https://github.com/SACO1F/Matheca/releases/tag/matheca-2026.10.19) · [Android 发布与校验](https://github.com/SACO1F/Matheca/releases/tag/android-v0.22.0)**
+**下载：[Windows 便携版 ZIP](https://github.com/SACO1F/Matheca/releases/download/matheca-2026.10.19/Matheca-win32-x64-0.1.0.zip) · [Android APK](https://github.com/SACO1F/Matheca/releases/download/matheca-2026.10.19/Matheca-android-0.21.0-debug.apk) · [统一发布页与校验值](https://github.com/SACO1F/Matheca/releases/tag/matheca-2026.10.19)**
 
 Windows 版请完整解压后运行 `Matheca.exe`，保留 DLL 和 `resources/`。Android 版目前提供 Debug 签名构建。两个平台分别存储本地数据；同仓库管理不等于跨设备实时同步。手机浏览器扫码上传到电脑的入口属于桌面版，不依赖 Android App。
 
@@ -27,7 +27,9 @@ Matheca/
 
 ## Windows 快速开始
 
-桌面版包含本地题库、来源原图校对、图片选项、题集、PDF / Word 导出、联网识别和 AI 解题任务。支持手机扫码上传、四套强调色、手动录题保存确认，以及确认校对后返回来源列表。当前桌面设置中的 ZIP 导入面向 Windows 题库，Android 备份实际互导尚未开放。
+第三阶段支持记住已配对设备、再次连接和按内容摘要增量交换，保留接收确认及冲突处理，详见 [第三阶段说明](docs/MOBILE_LINK_PHASE3.md)。本地最新安装包索引为 `desktop/releases/latest.txt` 和 `app/releases/latest.txt`；上方公开下载链接仍是历史发布。
+
+桌面版包含本地题库、来源原图校对、图片选项、题集、PDF / Word 导出、联网识别和 AI 解题任务。支持手机联动（扫码传图、识别进度、PDF／Word 回传）、四套强调色、手动录题保存确认，以及确认校对后返回来源列表。Android 0.1.0 与 Windows 以桌面题库格式双向交换题目与题集，可从手机“连接电脑 → 选择资料 → 导出桌面交换 ZIP”手动导入电脑；手机本地完整备份继续兼容旧 Android 图片附件格式。第二阶段本地构建与边界见 [手机联动开发说明](docs/MOBILE_LINK_PHASE2.md)；上方公开下载链接仍指向此前已发布版本。
 
 在安装 Node.js 24 和 npm 的 Windows 环境运行：
 
@@ -43,7 +45,7 @@ npm run test:portable
 
 ## Android 安装与快速开始
 
-1. 下载并安装 APK。当前提供 Debug 构建；0.22.0 与上一版签名相同，可以覆盖安装并保留本地数据。
+1. 下载并安装 APK。当前提供 Debug 构建；0.21.0 与上一版签名相同，可以覆盖安装并保留本地数据。
 2. 首次打开可点击“先用 3 道示例题体验”，或使用右下角加号手动录入题目。
 3. 需要图片或 PDF 识别时，在“我的 → 题目识别与接口”填写接口地址、API Key、支持图片输入的模型名，保存后点击“测试图片识别”。
 4. 拍照、选择相册图片或导入图片／PDF；识别完成后打开待校对题目，对照原图修改题干和分类，明确确认已校对。
@@ -63,27 +65,20 @@ npm run test:portable
 | 公式与解题 | 本地 KaTeX 显示题干和 AI 解答中的 LaTeX；独立公式校对预览；可选自动解题及手动生成、取消、重试 |
 | 文档导出 | A4 PDF 和 DOCX，支持试卷主标题、考试说明、考试时间、满分及选择题选项排版 |
 | 题库备份 | 完整 ZIP 导出与合并恢复，保留题目、可用原图、解答、自定义知识点、题集顺序与文档设置 |
-| 外观动效 | 与桌面 Matheca 对齐的石墨／雾蓝／陶土／梅紫，独立白天／黑夜／跟随系统模式、玻璃悬浮导航、滑动切换、按压回弹和圆角弹窗；题集与校对／录入顶部固定 |
+| 外观动效 | 白天／黑夜／跟随系统主题，蓝色点缀、玻璃悬浮导航、滑动切换、按压回弹和圆角弹窗；题集与校对／录入顶部固定 |
 
 ## 界面预览
 
-以下截图来自 0.22.0，使用应用示例和临时测试题目。
+以下截图来自 0.21.0，使用应用示例和临时测试题目。
 
 | 白天题库 | 黑夜题库 |
 | --- | --- |
-| <img src="docs/screenshots/library-graphite-light-0.22.0.png" width="260" alt="白天题库：紧凑统计卡片与备份入口"> | <img src="docs/screenshots/library-graphite-dark-0.22.0.png" width="260" alt="黑夜题库：数字和中文居中对齐"> |
+| <img src="docs/screenshots/library-compact-light-0.21.0.png" width="260" alt="白天题库：紧凑统计卡片与备份入口"> | <img src="docs/screenshots/library-compact-dark-0.21.0.png" width="260" alt="黑夜题库：数字和中文居中对齐"> |
 
-| 白天外观设置 | 黑夜外观设置 |
+| 我的页面 | 题库备份窗口 |
 | --- | --- |
-| <img src="docs/screenshots/appearance-light-0.22.0.png" width="260" alt="白天外观设置：石墨、雾蓝、陶土、梅紫"> | <img src="docs/screenshots/appearance-dark-0.22.0.png" width="260" alt="黑夜外观设置：明暗模式与配色独立选择"> |
+| <img src="docs/screenshots/backup-settings-0.21.0.png" width="260" alt="我的页面中的题库导入与导出"> | <img src="docs/screenshots/backup-dialog-dark-0.21.0.png" width="260" alt="黑夜主题的圆角题库备份窗口"> |
 
-## 与桌面 Matheca 一致的配色
-
-进入“我的 → 外观”，分别选择明暗模式和配色。默认石墨，另有雾蓝、陶土、梅紫；选择立即生效并本地保存。原来没有配色偏好的安装也默认石墨，保留之前的明暗模式。
-
-白天使用桌面相同的灰白背景、中性卡片与正文色，强调色用于主操作、选中和焦点。黑夜使用对应的深灰底与浅强调色；年级和知识点标签保持中性，已校对、警告与错误保留独立状态色。统计卡片取消亮蓝渐变，数字与中文继续紧凑居中。手机端保留现有悬浮导航、圆角和回弹动效。
-
-详细颜色、桌面来源与黑夜适配见 [配色规范](docs/matheca-colors.md)。
 ## 配置识别接口
 
 目前接入 **OpenAI 兼容的 Chat Completions 视觉协议**。服务商、地址、API Key 和模型名由用户自行填写，模型必须支持图片输入。第三方服务是否兼容，请通过内置图片测试验证。
@@ -158,10 +153,10 @@ ZIP 用于恢复题库，PDF／Word 用于练习与打印。当前为手动备�
 | 配置 | 当前值 |
 | --- | --- |
 | Android SDK | compileSdk / targetSdk 37，minSdk 26 |
-| Android Gradle Plugin / Gradle Wrapper | 9.4.0 / 9.7.1 |
+| Android Gradle Plugin / Gradle Wrapper | 9.4.1 / 9.7.1 |
 | Compose 编译器插件 / KSP | 2.3.21 / 2.3.6 |
 | 本机验证 JDK | Android Studio 内置 JBR 25 |
-| 数据库版本 | 4，保留版本 1、2、3 的迁移路径 |
+| 数据库版本 | 9，兼容原 Android 5／6／7、联动分支 5／8 以及更早迁移链路 |
 
 使用 Android Studio 打开项目，安装 Android SDK 37 与 Platform Tools。SDK 路径由本机 `local.properties` 配置，该文件不提交；JDK 路径按本机安装位置调整。
 
@@ -180,11 +175,12 @@ adb -s emulator-5554 install -r app/build/outputs/apk/androidTest/debug/app-debu
 adb -s emulator-5554 shell am instrument -w -e class com.mathector.app.LibraryBackupTest com.mathector.app.test/androidx.test.runner.AndroidJUnitRunner
 ```
 
-## 最新验证范围
+## Android 历史验证范围（0.21.0）
 
-0.22.0 于 **2026-10-19** 完成 APK 与测试包构建，**41 项单元测试**通过，Lint 为 **0 错误、18 项警告**。本次通过 **9 个相关设备场景**，包含四种配色 × 两种明暗模式、偏好持久化、菜单与选题关闭、题干和 AI 解答公式、题集悬浮按钮，大字号与横屏下的外观选项，以及新旧备份格式兼容和完整题库恢复。
+0.21.0 于 **2026-10-08** 完成构建，**39 项单元测试**通过，Lint 为 **0 错误、20 项既有警告**。设备测试覆盖 **7 个独立场景**，两轮共执行 8 项检查，全部通过。
 
-最终矩阵检查等待 KaTeX 字体、DOM 颜色与 WebView 实际绘制完成后收集截图。约 375 dp 视口、2.0 倍字号、系统动画关闭时，配色选择可通过滚动完整露出并避开底部导航；检查后恢复模拟器设置。APK v2 签名与上一版相同。详细范围及校验值见 [0.22.0 发布说明](docs/releases/0.22.0.md)，备份能力的上一轮验证见 [0.21.0 发布说明](docs/releases/0.21.0.md)。
+覆盖独立空数据库模拟重装、原图与解答恢复、题集顺序和文档设置、合并与重复导入、取消、损坏文件拒绝、恢复失败回滚、空库及缺失原图，以及两种主题的统计卡片高度、等宽和居中。文件选择合约使用受控 URI 与返回值，未验证实际云盘服务。APK 签名及发布文件校验通过，详见 [0.21.0 发布说明](docs/releases/0.21.0.md)。
+
 尚未验证真实服务商的识别准确率。复杂公式、跨栏与跨页拆题需要人工校对，几何图目前保留来源整页；Android 8.0、厂商真机、平板、拍摄质量与性能矩阵仍需扩大验证。DOCX 已验证结构与公式图片，尚未完成 Word／WPS 编辑与打印验证。
 
 ## 代码与文档导航
@@ -201,9 +197,15 @@ adb -s emulator-5554 shell am instrument -w -e class com.mathector.app.LibraryBa
 | [文档导出](app/src/main/java/com/mathector/app/data/DocumentExporter.kt) | 试卷首页、正文公式与选项布局 |
 | [单元测试](app/src/test/java/com/mathector/app/) / [设备测试](app/src/androidTest/java/com/mathector/app/) | 数据、迁移、界面与导出验证 |
 | [产品方案](docs/product-plan.md) / [备份说明](docs/library-backup.md) | 产品进度、备份流程与格式限制 |
-| [配色规范](docs/matheca-colors.md) | 桌面颜色契约与 Android 黑夜适配 |
 | [版本记录](docs/releases/) / [开发历史](docs/development-history.md) | 发布说明、历史改动与验证证据 |
 
 仓库包含源码、Gradle Wrapper、数据库 schema、测试和公开示例截图。本机配置、密钥、构建缓存、临时题库备份和验证产物不提交；APK 与校验文件通过 GitHub Release 提供。
 
 KaTeX 使用 MIT 许可，原文保留在 [本地资源目录](app/src/main/assets/katex/LICENSE)。正式发布前还需汇总应用内开源声明，补充无障碍、批量管理和发布验证。
+
+
+## 项目合并基线
+
+统一工程包含 `app/` 与 `desktop/`。Android 以用户修改后的 Mathector 为基线，保留石墨／雾蓝／陶土／梅紫主题、图片与选项图片编辑、题集留白分页、滑动选择及文档导出，并集成三阶段手机联动。当前两端版本名均为 **0.1.0**；Android 内部版本号为 29、数据库版本为 9。旧 Mathector 目录已完成源码及 Git 历史归档，合并记录见 [PROJECT_MERGE.md](docs/PROJECT_MERGE.md)，归档说明见 [MATHECTOR_ARCHIVE.md](docs/MATHECTOR_ARCHIVE.md)。
+
+移动端已支持完整题卡、编辑后返回原位置、联动页签与按钮平移，以及与题库共用的四项资料筛选。PDF 和同批连续照片可联合多图识别跨页题目；具体行为和验证边界见 [跨页识别说明](docs/EDITOR_RETURN_CROSS_PAGE.md)、[联动筛选说明](docs/LINK_FILTERS_AND_MOTION.md) 和 [按钮与版本同步说明](docs/LINK_TAB_BUTTONS_VERSION_010.md)。

@@ -27,6 +27,11 @@ data class Question(
     @ColumnInfo(defaultValue = "''") val solutionLatex: String = "",
     @ColumnInfo(defaultValue = "''") val solutionFingerprint: String = "",
     @ColumnInfo(defaultValue = "''") val solutionError: String = "",
+    @ColumnInfo(defaultValue = "''") val figures: String = "",
+    @ColumnInfo(defaultValue = "''") val optionFigures: String = "",
+    @ColumnInfo(defaultValue = "'[]'") val figuresJson: String = "[]",
+    @ColumnInfo(defaultValue = "'[]'") val figureWidthsJson: String = "[]",
+    @ColumnInfo(defaultValue = "'[]'") val figurePlacementsJson: String = "[]",
 )
 
 @Entity(tableName = "collections")
@@ -35,13 +40,16 @@ data class QuestionCollection(@PrimaryKey val id: String = UUID.randomUUID().toS
     @ColumnInfo(defaultValue = "''") val examInstructions: String = "",
     @ColumnInfo(defaultValue = "0") val examMinutes: Int = 0,
     @ColumnInfo(defaultValue = "0") val totalScore: Int = 0,
+    @ColumnInfo(defaultValue = "'{}'") val questionLayoutJson: String = "{}",
 )
 
 @Entity(tableName = "collection_items", primaryKeys = ["collectionId", "questionId"],
     foreignKeys = [ForeignKey(entity = QuestionCollection::class, parentColumns = ["id"], childColumns = ["collectionId"], onDelete = ForeignKey.CASCADE),
         ForeignKey(entity = Question::class, parentColumns = ["id"], childColumns = ["questionId"], onDelete = ForeignKey.CASCADE)],
     indices = [Index("questionId")])
-data class CollectionItem(val collectionId: String, val questionId: String, val position: Int)
+data class CollectionItem(val collectionId: String, val questionId: String, val position: Int,
+    @ColumnInfo(defaultValue = "-1") val solutionSpace: Int = AUTO_SOLUTION_SPACE,
+    @ColumnInfo(defaultValue = "0") val newPage: Boolean = false)
 
 @Entity(tableName = "imports")
 data class ImportJob(@PrimaryKey val id: String = UUID.randomUUID().toString(), val paths: String,
@@ -66,10 +74,13 @@ interface MathectorDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE) suspend fun add(item: CollectionItem)
     @Query("DELETE FROM questions WHERE id = :id") suspend fun deleteQuestion(id: String)
     @Query("DELETE FROM collections WHERE id = :id") suspend fun deleteCollection(id: String)
+    @Query("DELETE FROM collection_items WHERE collectionId = :collectionId") suspend fun clearItems(collectionId: String)
     @Query("DELETE FROM collection_items WHERE collectionId = :collectionId AND questionId = :questionId") suspend fun remove(collectionId: String, questionId: String)
     @Query("SELECT COALESCE(MAX(position), -1) + 1 FROM collection_items WHERE collectionId = :collectionId") suspend fun nextPosition(collectionId: String): Int
     @Query("SELECT * FROM collection_items WHERE collectionId = :collectionId ORDER BY position") suspend fun orderedItems(collectionId: String): List<CollectionItem>
     @Query("UPDATE collection_items SET position = :position WHERE collectionId = :collectionId AND questionId = :questionId") suspend fun setPosition(collectionId: String, questionId: String, position: Int)
+    @Query("UPDATE collection_items SET solutionSpace = :space, newPage = :newPage WHERE collectionId = :collectionId AND questionId = :questionId")
+    suspend fun setItemLayout(collectionId: String, questionId: String, space: Int, newPage: Boolean)
     @Transaction suspend fun saveSolution(id: String, fingerprint: String, result: SolutionResult?, error: String = ""): Boolean {
         val current = question(id) ?: return false
         if (current.contentFingerprint() != fingerprint) return false
@@ -97,10 +108,31 @@ interface MathectorDao {
     }
 }
 
-@Database(entities = [Question::class, QuestionCollection::class, CollectionItem::class, ImportJob::class], version = 4, exportSchema = true)
+@Database(entities = [Question::class, QuestionCollection::class, CollectionItem::class, ImportJob::class], version = 9, exportSchema = true)
 abstract class MathectorDatabase : RoomDatabase() {
     abstract fun dao(): MathectorDao
     companion object {
+        val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE questions ADD COLUMN optionFigures TEXT NOT NULL DEFAULT ''")
+            }
+        }
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE collection_items ADD COLUMN solutionSpace INTEGER NOT NULL DEFAULT -1")
+                db.execSQL("ALTER TABLE collection_items ADD COLUMN newPage INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+        val MIGRATION_5_9 = LegacyDatabaseMigration.from(5)
+        val MIGRATION_6_9 = LegacyDatabaseMigration.from(6)
+        val MIGRATION_7_9 = LegacyDatabaseMigration.from(7)
+        val MIGRATION_8_9 = LegacyDatabaseMigration.from(8)
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                listOf("figuresJson", "figureWidthsJson", "figurePlacementsJson").forEach { db.execSQL("ALTER TABLE questions ADD COLUMN $it TEXT NOT NULL DEFAULT '[]'") }
+                db.execSQL("ALTER TABLE collections ADD COLUMN questionLayoutJson TEXT NOT NULL DEFAULT '{}'")
+            }
+        }
         val MIGRATION_3_4 = object : Migration(3, 4) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE collections ADD COLUMN paperTitle TEXT NOT NULL DEFAULT ''")

@@ -36,7 +36,7 @@ class CollectionCardTest {
     private fun mathReady(dark: Boolean): Boolean {
         val latch = CountDownLatch(1)
         var valid = true
-        val color = if(dark) "rgb(237, 241, 248)" else "rgb(24, 37, 57)"
+        val color = if(dark) "rgb(232, 232, 232)" else "rgb(38, 38, 38)"
         compose.runOnUiThread {
             val mathViews = views(compose.activity.window.decorView).filter { it.isShown && (it.tag as? String)?.contains("已知等差数列") == true }
             if(mathViews.isEmpty()) { valid = false; latch.countDown() }
@@ -74,6 +74,7 @@ class CollectionCardTest {
             compose.onNodeWithText(collection.title).performClick()
             compose.onNodeWithTag("collection-add-floating").assertIsDisplayed().assertHeightIsEqualTo(52.dp).performClick()
             compose.onNodeWithTag("picker-search").performTextInput(suffix)
+            androidx.test.espresso.Espresso.closeSoftKeyboard()
             compose.onNodeWithTag("picker-list").performScrollToNode(hasTestTag("picker-question-${q.id}"))
             compose.onNodeWithTag("picker-question-${q.id}").performClick()
             val pickerGrade = bounds("picker-grade-${q.id}")
@@ -82,7 +83,7 @@ class CollectionCardTest {
             assertEquals("Common metadata fits one row", pickerGrade.top, pickerDifficulty.top, 1f)
             assertEquals("Knowledge shares the compact metadata row", pickerGrade.top, pickerPoint.top, 1f)
             val pickerTagHeight = bounds("picker-tags-${q.id}").height
-            assertTrue(bounds("picker-tags-${q.id}").bottom <= bounds("picker-title-${q.id}").top)
+            assertTrue(bounds("picker-tags-${q.id}").bottom <= bounds("picker-math-${q.id}").top)
             compose.onNodeWithTag("picker-confirm").performClick()
             compose.waitUntil(5000) { runBlocking { dao.orderedItems(collection.id).size == 1 } }
             compose.onNodeWithTag("collection-grade-${q.id}", useUnmergedTree = true).assertTextEquals("高二")
@@ -90,9 +91,16 @@ class CollectionCardTest {
             compose.onNodeWithTag("collection-knowledge-${q.id}-等差数列", useUnmergedTree = true).assertTextEquals("等差数列")
             compose.onNodeWithTag("collection-knowledge-${q.id}-数列求和", useUnmergedTree = true).assertExists()
             assertEquals("Both views use the same compact tag height", pickerTagHeight, bounds("collection-tags-${q.id}").height, 1f)
-            assertTrue(bounds("collection-tags-${q.id}").bottom <= bounds("collection-title-${q.id}").top)
-            assertTrue(bounds("collection-title-${q.id}").bottom <= bounds("collection-math-${q.id}").top)
+            assertTrue(bounds("collection-tags-${q.id}").bottom <= bounds("collection-math-${q.id}").top)
             compose.onNodeWithTag("collection-math-${q.id}", useUnmergedTree = true).assertContentDescriptionEquals(MathContent.preview(q))
+            compose.onNodeWithTag("collection-detail", useUnmergedTree = true).performScrollToNode(hasTestTag("collection-space-${q.id}"))
+            compose.onNodeWithTag("collection-space-${q.id}", useUnmergedTree = true).assertExists()
+            compose.onNodeWithTag("collection-newpage-${q.id}").assertIsOff().performClick()
+            compose.waitUntil(5_000) { runBlocking { dao.orderedItems(collection.id).first { it.questionId == q.id }.newPage } }
+            compose.onNodeWithTag("glide-select-space-${q.id}").performClick()
+            compose.onNodeWithTag("glide-option-space-${q.id}-80").performScrollTo().performClick()
+            compose.waitUntil(5_000) { runBlocking { dao.orderedItems(collection.id).first { it.questionId == q.id }.solutionSpace == 80 } }
+            compose.onNodeWithTag("collection-detail", useUnmergedTree = true).performScrollToIndex(0)
             runBlocking { dao.addQuestions(collection.id, extra.map { it.id }) }
             compose.waitUntil(5000) { runBlocking { dao.orderedItems(collection.id).size == 9 } }
             snapshot("collection-cards-light-0.18.0.png")
@@ -115,10 +123,9 @@ class CollectionCardTest {
             compose.onNodeWithTag("question-editor").assertExists()
             compose.onNodeWithTag("question-editor").performScrollToNode(hasText("题干与子题"))
             compose.onNodeWithText("题干与子题").assert(hasText("a_n=2n+1", substring = true))
-            compose.onNodeWithTag("question-editor").performScrollToNode(hasContentDescription("返回"))
             compose.onNodeWithContentDescription("返回").performClick()
-            compose.onNodeWithTag("collection-detail").performScrollToNode(hasTestTag("export-word"))
-            repeat(2) { compose.onNodeWithTag("collection-detail").performTouchInput { swipeUp() } }
+            compose.onNodeWithTag("collection-detail", useUnmergedTree = true).performScrollToNode(hasTestTag("export-word"))
+            repeat(2) { compose.onNodeWithTag("collection-detail", useUnmergedTree = true).performTouchInput { swipeUp() } }
             compose.onNodeWithTag("collection-add-floating").assertHeightIsEqualTo(52.dp).assertIsDisplayed()
             val floatingAfter = bounds("collection-add-floating")
             assertEquals("Scrolling must not move the add action", floatingBefore.top, floatingAfter.top, 1f)
@@ -129,7 +136,7 @@ class CollectionCardTest {
             compose.onNodeWithTag("collection-add-floating").performClick()
             compose.onNodeWithTag("question-picker").assertIsDisplayed()
             compose.onNodeWithContentDescription("关闭选题").performClick()
-            compose.onNodeWithTag("collection-detail").performScrollToIndex(0)
+            compose.onNodeWithTag("collection-detail", useUnmergedTree = true).performScrollToIndex(0)
             compose.onNodeWithContentDescription("返回").assertIsDisplayed()
             app.settings.setTheme(ThemeMode.DARK)
             compose.waitUntil(5000) { app.settings.state.value.theme == ThemeMode.DARK }

@@ -57,8 +57,8 @@ class QuestionPickerTest {
             compose.onNodeWithTag("picker-question-${sequence.id}").assertIsOn()
             compose.onNodeWithTag("picker-selected-count").assertTextEquals("已选 1 道")
             val tags = compose.onNodeWithTag("picker-tags-${sequence.id}", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-            val title = compose.onNodeWithTag("picker-title-${sequence.id}", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-            assertTrue("Metadata must precede the title", tags.bottom <= title.top)
+            val math = compose.onNodeWithTag("picker-math-${sequence.id}", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+            assertTrue("Metadata must precede the stem", tags.bottom <= math.top)
             snapshot("question-picker-filtered-light-0.9.0.png")
             filter("difficulty", "挑战")
             compose.onNodeWithTag("picker-selected-count").assertTextEquals("已选 1 道")

@@ -66,9 +66,10 @@ import com.mathector.app.data.BackupSummary
         containerColor = MaterialTheme.colorScheme.surface, title = { Text("导入题库备份", fontWeight = FontWeight.Bold) },
         text = { Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text("${summary.questions} 道题目 · ${summary.collections} 个题集", fontWeight = FontWeight.SemiBold)
-            Text("${summary.images} 张原图 · ${summary.knowledgePoints} 个自定义知识点", fontSize = 13.sp)
+            Text(buildString { append("${summary.images} 张原图"); if(summary.figures > 0) append(" · ${summary.figures} 张题目图片"); append(" · ${summary.knowledgePoints} 个自定义知识点") }, fontSize = 13.sp)
             Text("将合并到当前题库。同编号题目和题集保留本机版本，重复导入不会重复添加。", fontSize = 13.sp)
             if(summary.missingImages > 0) Text("备份中 ${summary.missingImages} 道题的原图已缺失，题干和其他数据仍可恢复。", fontSize = 12.sp)
+            if(summary.missingFigures > 0) Text("备份中 ${summary.missingFigures} 张题目图片已缺失，题干和其他数据仍可恢复。", fontSize = 12.sp)
         } }, confirmButton = { TextButton(onClick = onConfirm, modifier = Modifier.testTag("backup-import-confirm")) { Text("导入题库") } },
         dismissButton = { TextButton(onClick = onDismiss, modifier = Modifier.testTag("backup-import-cancel")) { Text("取消") } })
 }

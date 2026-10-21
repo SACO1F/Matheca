@@ -189,7 +189,21 @@ class MultimodalTest {
         val dao = app.database.dao()
         dao.save(ImportJob(id = id, paths = listOf(pdf, jpg).joinToString("\n") { it.absolutePath }))
         var calls = 0
-        val transport = client { calls++; if(calls == 2) 429 to "temporary error" else 200 to completion() }
+        val transport = client { request ->
+            calls++
+            if(calls == 2) 429 to "temporary error" else {
+                val buffer = Buffer(); request.body!!.writeTo(buffer)
+                val prompt = JSONObject(buffer.readUtf8()).getJSONArray("messages").getJSONObject(0).getJSONArray("content").getJSONObject(0).getString("text")
+                val target = Regex("目标起始页：(\\d+)").find(prompt)?.groupValues?.get(1)?.toInt()
+                if(target == null) 200 to completion() else {
+                    val envelope = JSONObject(completion())
+                    val message = envelope.getJSONArray("choices").getJSONObject(0).getJSONObject("message")
+                    val content = JSONObject(message.getString("content").removePrefix("```json\n").removeSuffix("\n```"))
+                    content.put("needMorePages", false).getJSONArray("questions").getJSONObject(0).put("startPage", target).put("endPage", target).put("complete", true)
+                    message.put("content", content.toString()); 200 to envelope.toString()
+                }
+            }
+        }
         val factory = object : WorkerFactory() {
             override fun createWorker(context: android.content.Context, workerClassName: String, params: WorkerParameters): ListenableWorker =
                 ImportWorker(context, params) { MultimodalRecognitionEngine(config, transport) }

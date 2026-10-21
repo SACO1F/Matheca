@@ -36,4 +36,18 @@ class QuestionFilterTest {
         assertFalse(QuestionFilter(grade = "高一").matches(legacy))
         assertEquals("待评估", legacy.displayDifficulty())
     }
+    @Test fun questionTypeFilterUsesTheNormalizedKindAndFallsBackToWrittenAnswers() {
+        val kinds = listOf(
+            Question(id = "choice", kind = "选择题"),
+            Question(id = "blank", kind = "填空题"),
+            Question(id = "proof", kind = "证明题"),
+            Question(id = "legacy", kind = "八年级"),
+        )
+        val ids = { filter: QuestionFilter -> kinds.filter(filter::matches).map { it.id } }
+        assertEquals(listOf("choice"), ids(QuestionFilter(kind = "选择题")))
+        assertEquals(listOf("blank"), ids(QuestionFilter(kind = "填空题")))
+        assertEquals(listOf("proof"), ids(QuestionFilter(kind = "证明题")))
+        assertEquals("An unrecognized stored type behaves like 解答题", listOf("legacy"), ids(QuestionFilter(kind = "解答题")))
+        assertTrue(QuestionFilter(kind = "选择题").active)
+    }
 }

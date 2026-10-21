@@ -48,10 +48,11 @@ class RichMathTest {
     @Test fun libraryPreviewAndAiSolutionRenderInlineAndDisplayMath() {
         val app = ApplicationProvider.getApplicationContext<MathectorApplication>()
         val base = Question(id = "math-ui-${UUID.randomUUID()}", title = "公式渲染验证", body = "题干显示验证：已知 \\(f(x)=\\frac{x^2}{2}+\\sqrt{x}\\)，求 \\(f(4)\\)。\n\\[a_n=\\sum_{i=1}^{n} i\\]", latex = "z^2=999", grade = "高二", knowledge = "导数概念与运算", reviewed = true)
-        val q = base.copy(solution = "答案显示验证：\\(f(4)=10\\)。\n\n1. 代入函数表达式：\\[f(4)=\\frac{4^2}{2}+\\sqrt{4}=10\\]\n2. 数列求和：\\(a_n=\\frac{n(n+1)}{2}\\)。", solutionFingerprint = base.contentFingerprint())
+        val normalized = base.copy(title=QuestionText.titleFromBody(base.body))
+        val q = normalized.copy(solution = "答案显示验证：\\(f(4)=10\\)。\n\n1. 代入函数表达式：\\[f(4)=\\frac{4^2}{2}+\\sqrt{4}=10\\]\n2. 数列求和：\\(a_n=\\frac{n(n+1)}{2}\\)。", solutionFingerprint = normalized.contentFingerprint())
         runBlocking { app.database.dao().save(q) }
         try {
-            compose.onNodeWithTag("library-list").performScrollToNode(hasText(q.title))
+            compose.onNodeWithTag("library-list").performScrollToNode(hasTestTag("library-question-${q.id}"))
             compose.waitUntil(10_000) { rendered("题干显示验证", 3) }
             snapshot("library-list", "latex-library-0.20.0.png")
             // A tap over the WebView preview must open the card.

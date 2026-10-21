@@ -161,7 +161,7 @@ export function pagedExtractionPrompt(
 ) {
   return (
     extractionPrompt(custom) +
-    `\n跨页识别：图片依次对应 PDF 第 ${first} 至 ${last} 页，目标起始页：${target}。仅提取从目标起始页开始的题目；上一页图片只用于区分页首续题，后续页只用于补齐跨页题，不重复录入从其他页开始的题目。相同大题的条件、选项、图形说明、小题必须合并为完整的一道题，不能把续题独立成题。每题增加 startPage（原 PDF 起始页整数）、endPage（结束页整数）和 complete（必须为 true）。根对象增加 needMorePages：若目标页开始的任一道题在已提供的最后一页仍未结束，设为 true，程序会继续提供后续页；不得猜测未提供的内容。目标页只有上一页续题或无题目时返回 questions:[]、needMorePages:false。`
+    `\n跨页识别：图片依次对应 PDF 第 ${first} 至 ${last} 页（若为连续照片，则为本次导入的图片顺序），目标起始页：${target}。仅提取从目标起始页开始的题目；上一页图片只用于区分页首续题，后续页只用于补齐跨页题，不重复录入从其他页开始的题目。相同大题的条件、选项、图形说明、小题必须合并为完整的一道题，不能把续题独立成题，也不能合并不同大题。每题增加 startPage（起始页整数）、endPage（结束页整数）和 complete（必须为 true）。根对象增加 needMorePages：若目标页开始的任一道题在已提供的最后一页仍未结束，设为 true，程序会继续提供后续页；不得猜测未提供的内容。目标页只有上一页续题或无题目时返回 questions:[]、needMorePages:false。`
   );
 }
 export function decodePagedDrafts(

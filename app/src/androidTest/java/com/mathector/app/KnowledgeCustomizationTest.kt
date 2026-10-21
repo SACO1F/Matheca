@@ -133,7 +133,8 @@ class KnowledgeCustomizationTest {
         try {
             app.settings.setTheme(ThemeMode.LIGHT)
             compose.onNodeWithTag("library-list").performScrollToNode(hasTestTag("library-question-${q.id}"))
-            compose.onNodeWithTag("library-question-${q.id}").performClick()
+            compose.onNodeWithTag("library-question-${q.id}").performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick) {it()}
+            compose.waitUntil(10000) {compose.onAllNodesWithTag("question-editor-header").fetchSemanticsNodes().isNotEmpty()}
             compose.onNodeWithTag("question-editor").performScrollToNode(hasTestTag("knowledge-tags"))
             compose.onNodeWithTag("add-knowledge").performClick()
             compose.onNodeWithTag("new-knowledge").performClick()
@@ -144,11 +145,10 @@ class KnowledgeCustomizationTest {
             compose.onNodeWithTag("custom-knowledge-name").performTextReplacement(name)
             compose.onNodeWithTag("custom-knowledge-group").performClick()
             compose.onNodeWithTag("custom-knowledge-group-三角").performScrollTo().performClick()
-            Espresso.closeSoftKeyboard()
             snapshot("custom-knowledge-dialog-light-0.13.0.png")
             app.settings.setTheme(ThemeMode.DARK)
             snapshot("custom-knowledge-dialog-dark-0.13.0.png")
-            compose.onNodeWithTag("custom-knowledge-save").performClick()
+            compose.onNodeWithTag("custom-knowledge-save").performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick) {it()}
             compose.waitUntil(5000) { compose.onAllNodesWithTag("custom-knowledge-dialog").fetchSemanticsNodes().isEmpty() }
             compose.onNodeWithTag("knowledge-$name").assertIsSelected()
             assertTrue(KnowledgeCatalog.groups.getValue("三角").contains(name))
@@ -157,25 +157,25 @@ class KnowledgeCustomizationTest {
             snapshot("custom-knowledge-sheet-light-0.13.0.png")
             compose.onNodeWithText("完成").performClick()
             compose.onNodeWithTag("remove-knowledge-$name").assertExists()
-            compose.onNodeWithTag("question-editor").performScrollToNode(hasText("确认并保存题目"))
-            compose.onNodeWithText("确认并保存题目").performClick()
+            compose.onNodeWithTag("question-editor-confirm").performClick()
             compose.waitUntil(5000) { runBlocking { dao.question(q.id)?.knowledge == name } }
             // Empty the in-memory registry to exercise loading from disk, as on a new process.
             KnowledgeCatalog.installCustomPoints(emptyList())
             CustomKnowledgeStore(app).reload()
             assertTrue(KnowledgeCatalog.points.contains(name))
             assertEquals(listOf(name), KnowledgeCatalog.decode(runBlocking { dao.question(q.id)!! }.knowledge))
-            compose.onNodeWithTag("library-list").performScrollToNode(hasTestTag("library-filter-list"))
-            compose.onNodeWithTag("library-filter-list").performScrollToNode(hasTestTag("library-filter-$name"))
-            compose.onNodeWithTag("library-filter-$name").performClick().assertIsSelected()
+            compose.onNodeWithTag("library-list").performScrollToNode(hasTestTag("glide-select-knowledge"))
+            compose.onNodeWithTag("glide-select-knowledge").performClick()
+            compose.onNodeWithTag("glide-option-knowledge-$name").performClick()
+            compose.onNodeWithTag("glide-select-knowledge").assertTextContains(name, substring = true)
             compose.onNodeWithTag("library-knowledge-${q.id}-$name", useUnmergedTree = true).assertTextEquals(name)
-            compose.onNodeWithTag("library-question-${q.id}").performClick()
+            compose.onNodeWithTag("library-question-${q.id}").performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick) {it()}
+            compose.waitUntil(10000) {compose.onAllNodesWithTag("question-editor-header").fetchSemanticsNodes().isNotEmpty()}
             compose.onNodeWithTag("question-editor").performScrollToNode(hasTestTag("knowledge-tags"))
             compose.onNodeWithTag("remove-knowledge-$name").assertExists()
             compose.mainClock.advanceTimeBy(5000)
             compose.waitUntil(10_000) { compose.onAllNodesWithText("题目已确认保存").fetchSemanticsNodes().isEmpty() }
-            compose.onNodeWithTag("question-editor").performScrollToNode(hasText("确认并保存题目"))
-            compose.onNodeWithText("确认并保存题目").performClick()
+            compose.onNodeWithTag("question-editor-confirm").performClick()
             compose.waitUntil(5000) { compose.onAllNodesWithTag("question-editor").fetchSemanticsNodes().isEmpty() }
             compose.onNodeWithTag("nav-collections").performClick()
             compose.onNodeWithTag("collection-card-${collection.id}").performClick()

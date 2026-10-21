@@ -33,6 +33,7 @@ import { complete } from "./network";
 import { RenderHost } from "./render-host";
 import { ScreenCapture } from "./screen-capture";
 import { MobileImport } from "./mobile-import";
+import { LibraryExchange } from "./library-exchange";
 import { publishFile, fileOperationMessage } from "./file-operations";
 import {
   guideLinks,
@@ -76,6 +77,7 @@ let win: BrowserWindow,
   quitting = false,
   closePending = false;
 let mobileImport: MobileImport;
+let libraryExchange: LibraryExchange;
 let screenCapture: ScreenCapture;
 let manualPromptOpen = false;
 const previews = new Map<string, { file: string; folder: string }>(),
@@ -260,9 +262,84 @@ function publicQuestion(q: Question): Question {
 function register() {
   handle("mobile:start", () => mobileImport.start());
   handle("mobile:status", () => mobileImport.state());
+  handle("mobile:forget-device", (v: unknown) =>
+    mobileImport.forgetDevice(string(v, 32)),
+  );
   handle("mobile:pause", () => mobileImport.pause());
+  handle("mobile:copy-address", (index: unknown) => {
+    const state = mobileImport.state();
+    if (
+      typeof index !== "number" ||
+      !Number.isInteger(index) ||
+      !state.urls[index] ||
+      state.status !== "receiving"
+    )
+      throw Error("连接地址不可用，请重新开启");
+    clipboard.writeText(state.urls[index]);
+  });
   handle("mobile:remove", (value: unknown) => mobileImport.remove(id(value)));
   handle("mobile:confirm", () => mobileImport.confirm());
+  handle("mobile:inspect-library", (v: unknown) =>
+    libraryExchange.inspect(id(v)),
+  );
+  handle("mobile:apply-library", (v: unknown, policy: unknown) => {
+    if (policy !== "keep" && policy !== "replace" && policy !== "copy")
+      throw Error("冲突处理方式无效");
+    libraryExchange.apply(id(v), policy);
+  });
+  handle("mobile:discard-library", (v: unknown) =>
+    libraryExchange.discard(id(v)),
+  );
+  handle("mobile:send-library", async (v: unknown) => {
+    if (!v || typeof v !== "object") throw Error("请选择题目或题集");
+    const selection = v as {
+      questionIds: unknown;
+      collectionIds: unknown;
+      changedOnly?: unknown;
+    };
+    if (
+      selection.changedOnly !== undefined &&
+      typeof selection.changedOnly !== "boolean"
+    )
+      throw Error("发送方式无效");
+    const check = (list: unknown) => {
+      if (!Array.isArray(list) || list.length > 20000)
+        throw Error("选择数量无效");
+      return list.map(id);
+    };
+    const questionIds = check(selection.questionIds),
+      collectionIds = check(selection.collectionIds);
+    if (!questionIds.length && !collectionIds.length)
+      throw Error("请先选择题目或题集");
+    const folder = path.join(root, "exchange-outgoing", randomUUID());
+    fs.mkdirSync(folder, { recursive: true });
+    const stamp = new Intl.DateTimeFormat("sv-SE", {
+      timeZone: "Asia/Shanghai",
+      dateStyle: "short",
+      timeStyle: "medium",
+    })
+      .format(new Date())
+      .replace(/[- :]/g, "");
+    const file = path.join(folder, "题库资料-" + stamp + ".zip");
+    try {
+      const chosen = selection.changedOnly
+        ? await mobileImport.delta({ questionIds, collectionIds })
+        : { questionIds, collectionIds };
+      if (!chosen.questionIds.length && !chosen.collectionIds.length)
+        throw Error("所选资料与手机一致，无需发送");
+      await libraryExchange.export(file, chosen);
+      return await mobileImport.share(file, true);
+    } finally {
+      fs.rmSync(folder, { recursive: true, force: true });
+    }
+  });
+  handle("mobile:approve", (v: unknown) => mobileImport.approve(string(v, 64)));
+  handle("mobile:reject", (v: unknown) => mobileImport.reject(string(v, 64)));
+  handle("mobile:share", (v: unknown) => {
+    const file = string(v, 32768);
+    if (!exports.has(file)) throw Error("仅可发送本次生成的 PDF 或 Word 文档");
+    return mobileImport.share(file);
+  });
   handle("history:list", (limit: unknown, offset: unknown, query: unknown) => {
     if (
       typeof limit !== "number" ||
@@ -752,10 +829,19 @@ else {
         }
       }
       jobs = new Jobs(store, settings, root, changed);
+      libraryExchange = new LibraryExchange(
+        path.join(root, "library-exchange"),
+        store,
+        changed,
+      );
       mobileImport = new MobileImport(
         path.join(root, "mobile-inbox"),
         (files) => jobs.intake(files),
         (name) => store.jobs().some((job) => job.labels?.includes(name)),
+        undefined,
+        undefined,
+        () => store.jobs(),
+        libraryExchange,
       );
       protocol.handle("matheca-asset", async (request) => {
         try {

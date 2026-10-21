@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { createRoot } from "react-dom/client";
 import { flushSync } from "react-dom";
-import katex from "katex";
+import { MathView, QuestionVisual } from "./question-content";
 import "katex/dist/katex.min.css";
 import "./style.css";
 import "./management-pages.css";
@@ -32,7 +32,6 @@ import {
   OptionFigureSizeControl,
 } from "./figure-image";
 import {
-  questionContent,
   figurePlacementOptions,
   type FigurePlacement,
 } from "../domain/figures";
@@ -61,7 +60,7 @@ import {
   decodeKnowledge,
   filterQuestion,
 } from "../domain/catalog";
-import { parseMath, readableSolution } from "../domain/math";
+import { readableSolution } from "../domain/math";
 const api = window.matheca;
 class ManualSaveCancelled extends Error {
   constructor() {
@@ -74,77 +73,6 @@ const recordQuery = (title: string, detail = "") => {
     .recordHistory(title.slice(0, 160), detail.slice(0, 200))
     .catch(() => {});
 };
-const MathView = React.memo(function MathView({ text }: { text: string }) {
-  return (
-    <div className="math-content">
-      {parseMath(text).map((part, i) => {
-        if (part.type === "text")
-          return <React.Fragment key={i}>{part.value}</React.Fragment>;
-        try {
-          return (
-            <span
-              key={i}
-              className={part.display ? "display-formula" : ""}
-              dangerouslySetInnerHTML={{
-                __html: katex.renderToString(part.latex, {
-                  displayMode: part.display,
-                  trust: false,
-                  throwOnError: true,
-                  output: "htmlAndMathml",
-                }),
-              }}
-            />
-          );
-        } catch {
-          return (
-            <span key={i} className="formula-error" title="公式语法需要修正">
-              {part.latex}
-            </span>
-          );
-        }
-      })}
-    </div>
-  );
-});
-const QuestionVisual = React.memo(function QuestionVisual({
-  question: q,
-  lazy = false,
-}: {
-  question: Question;
-  lazy?: boolean;
-}) {
-  const content = questionContent(q);
-  const figure = (index: number) => (
-    <FigureImage
-      key={index}
-      src={q.figures![index]}
-      index={index}
-      width={q.figureWidths?.[index]}
-      lazy={lazy}
-    />
-  );
-  return (
-    <div className="question-visual">
-      <MathView text={content.stem || "尚未填写题干"} />
-      {!!content.stemFigures.length && (
-        <div className="card-figures">{content.stemFigures.map(figure)}</div>
-      )}
-      {!!content.options.length && (
-        <div className="choice-preview">
-          {content.options.map((option) => (
-            <div className="choice-preview-option" key={option.label}>
-              <span className="choice-label">{option.label}.</span>
-              <div>
-                <MathView text={option.value} />
-                {option.figures.map(figure)}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-});
 const emptyFilter: Filter = {
   keyword: "",
   grade: "",
@@ -1204,6 +1132,7 @@ function App() {
     <div className="app">
       {mobileOpen && (
         <MobileImportDialog
+          exportPath={lastExport || undefined}
           onClose={() => setMobileOpen(false)}
           onTasks={() => {
             setMobileOpen(false);
@@ -1597,6 +1526,11 @@ function App() {
               />
             )}
           </header>
+          {lastExport && (
+            <div className="mobile-export-action">
+              <button onClick={() => setMobileOpen(true)}>发送到手机</button>
+            </div>
+          )}
           {error && (
             <div className="banner error" role="alert">
               <span>{error}</span>
@@ -3010,7 +2944,7 @@ function App() {
                   <span className="fab-menu-icon">
                     <QuickIcon name="camera" />
                   </span>
-                  手机拍照导入
+                  手机联动
                 </button>
               </div>
             )}

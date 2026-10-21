@@ -4,9 +4,9 @@
 
 ## 自动检查
 
-- `npm run verify`：TypeScript 与 Vitest；当前共有 140 项测试。
+- `npm run verify`：TypeScript 与 Vitest；当前共有 145 项测试。
 - `npm run make:portable`：生成新的 Windows x64 完整便携目录、ZIP 与 SHA256 校验值。
-- `npm run test:portable`：使用实际打包 EXE 执行核心验收，覆盖手动录题、主题、任务跳转、题目编辑、手机导入、导出、导航、知识点、题集、选择器、恢复、侧栏和浮动入口。
+- `npm run test:portable`：使用实际打包 EXE 执行核心验收，覆盖手动录题、主题、任务跳转、题目编辑、手机联动、导出、导航、知识点、题集、选择器、恢复、侧栏和浮动入口。
 - `npm run test:portable:full`：扩展验收集合；不应把只执行核心集合表述为执行了完整集合。
 
 验证生成独立的 `test-output/` 子目录，不读取或修改正常用户题库。每次运行的 `REPORT.md` 记录被测 EXE、哈希、各脚本退出状态、日志和证据目录。
@@ -16,3 +16,7 @@
 本地模拟识别服务与 Chrome 手机尺寸测试可以检查流程，不能证明真实服务的识别质量或 Android／iPhone 相机、实际局域网和防火墙行为。DOCX／PDF 自动检查也不能替代 Word／WPS 的完整编辑、分页与打印验证。
 
 发布时请同时查看对应 GitHub Release 的说明与校验文件。历史版本验证记录保留在本目录其他文档中，其中旧名称、旧版本、测试数量和本机路径不代表当前发布。
+
+## 手机联动第二阶段
+
+增加 `node scripts/android-exchange-ui.mjs` 和 `--native-ui` 变体验证实际 Android App 与 Windows 便携 EXE 的传输与界面。需要专门的 `emulator-5580`、已安装当前应用和测试 APK；仅用于隔离测试，脚本以 ADB TCP 转发连接，不证明物理 Wi-Fi 兼容性。`scripts/library-exchange-check.cjs` 在 Electron Node 模式下验证选题打包、冲突副本引用、重复接收、旧预览拒绝和失败回滚。Android 构建、设备测试与限制以第二阶段记录为准。

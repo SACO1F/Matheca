@@ -9,12 +9,14 @@ class BackupPolicyTest {
     private val second = Question(id = "two", body = "原题二")
     private val collection = QuestionCollection(id = "set", title = "函数题集")
     private val data = LibraryBackupData(listOf(first, second), listOf(collection), listOf(CollectionItem("set", "two", 9), CollectionItem("set", "one", 3)),
-        emptyList(), emptyMap(), emptySet(), 0)
+        emptyList(), emptyMap(), emptySet(), 0, emptyMap(), 0)
 
     @Test fun archivePathsCannotEscapeTheControlledSourceDirectory() {
         assertTrue(BackupPolicy.allowedEntry("manifest.json"))
         assertTrue(BackupPolicy.sourceEntry("sources/${"a".repeat(64)}.jpg"))
-        listOf("../manifest.json", "/manifest.json", "sources/../../outside.jpg", "sources\\outside.jpg", "sources/not-a-hash.jpg", "sources/${"a".repeat(64)}.exe").forEach {
+        assertTrue(BackupPolicy.figureEntry("figures/${"a".repeat(64)}.png"))
+        listOf("../manifest.json", "/manifest.json", "sources/../../outside.jpg", "sources\\outside.jpg", "sources/not-a-hash.jpg", "sources/${"a".repeat(64)}.exe",
+            "figures/not-a-hash.jpg", "figures/${"a".repeat(64)}.gif", "figures/../../escape.jpg").forEach {
             assertFalse(it, BackupPolicy.allowedEntry(it))
         }
     }

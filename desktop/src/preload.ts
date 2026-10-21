@@ -7,10 +7,19 @@ async function call<T>(channel: string, ...args: unknown[]): Promise<T> {
 }
 const api: DesktopAPI = {
   mobileStart: () => call("mobile:start"),
+  mobileForgetDevice: (id) => call("mobile:forget-device", id),
   mobileStatus: () => call("mobile:status"),
   mobilePause: () => call("mobile:pause"),
+  mobileCopyAddress: (index) => call("mobile:copy-address", index),
   mobileRemove: (id) => call("mobile:remove", id),
   mobileConfirm: () => call("mobile:confirm"),
+  mobileApprove: (id) => call("mobile:approve", id),
+  mobileReject: (id) => call("mobile:reject", id),
+  mobileShare: (file) => call("mobile:share", file),
+  mobileSendLibrary: (selection) => call("mobile:send-library", selection),
+  mobileInspectLibrary: (id) => call("mobile:inspect-library", id),
+  mobileApplyLibrary: (id, policy) => call("mobile:apply-library", id, policy),
+  mobileDiscardLibrary: (id) => call("mobile:discard-library", id),
   historyList: (limit = 100, offset = 0, query = "") =>
     call("history:list", limit, offset, query),
   recordHistory: (title, detail = "") => call("history:record", title, detail),

@@ -67,8 +67,7 @@ class UiMotionTest {
             compose.onNodeWithTag("library-difficulty-${q.id}", useUnmergedTree = true).assertTextEquals("进阶")
             compose.onNodeWithTag("library-knowledge-${q.id}-等差数列", useUnmergedTree = true).assertExists()
             compose.onNodeWithTag("library-knowledge-${q.id}-数列求和", useUnmergedTree = true).assertExists()
-            assertTrue(bounds("library-tags-${q.id}").bottom <= bounds("library-title-${q.id}").top)
-            assertTrue(bounds("library-title-${q.id}").bottom <= bounds("library-math-${q.id}").top)
+            assertTrue(bounds("library-tags-${q.id}").bottom <= bounds("library-math-${q.id}").top)
             val libraryHeight = bounds("library-question-${q.id}").height
             snapshot("library-compact-light-0.10.0.png")
             compose.onNodeWithTag("library-menu-${q.id}").performClick()

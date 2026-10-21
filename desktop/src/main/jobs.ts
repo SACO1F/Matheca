@@ -87,6 +87,7 @@ export class Jobs {
     this.store.putJob(job);
     this.changed();
     this.resume(id);
+    return id;
   }
   resume(id: string) {
     if (this.closing) throw Error("应用正在退出");
@@ -176,6 +177,22 @@ export class Jobs {
       if (signal.aborted) throw Error("任务已停止");
       let pages = 1;
       const isPdf = path.extname(file).toLowerCase() === ".pdf";
+      const paths = j.paths ?? [];
+      let photoFirst = fileOrdinal,
+        photoLast = fileOrdinal;
+      if (!isPdf) {
+        while (
+          photoFirst > 0 &&
+          path.extname(paths[photoFirst - 1]).toLowerCase() !== ".pdf"
+        )
+          photoFirst--;
+        while (
+          photoLast + 1 < paths.length &&
+          path.extname(paths[photoLast + 1]).toLowerCase() !== ".pdf"
+        )
+          photoLast++;
+      }
+      const paged = isPdf || photoLast > photoFirst;
       const pageImages = new Map<number, string>();
       const pageSource = (ordinal: number) =>
         path.join(path.dirname(file), `${fileOrdinal}-page-${ordinal}.jpg`);
@@ -183,9 +200,11 @@ export class Jobs {
         if (signal.aborted) throw Error("任务已停止");
         let image = pageImages.get(ordinal);
         if (!image) {
-          image = await host.call("pdfPage", ordinal + 1);
+          image = isPdf
+            ? await host.call("pdfPage", ordinal + 1)
+            : await host.image(paths[ordinal]);
           pageImages.set(ordinal, image);
-          if (!fs.existsSync(pageSource(ordinal)))
+          if (isPdf && !fs.existsSync(pageSource(ordinal)))
             fs.writeFileSync(
               pageSource(ordinal),
               Buffer.from(image.split(",")[1], "base64"),
@@ -223,9 +242,11 @@ export class Jobs {
             startPage?: number;
             endPage?: number;
           })[];
-          if (isPdf) {
-            const first = Math.max(0, pageOrdinal - 1);
-            let last = Math.min(pages - 1, pageOrdinal + 1);
+          if (paged) {
+            const target = isPdf ? pageOrdinal : fileOrdinal;
+            const first = Math.max(isPdf ? 0 : photoFirst, target - 1);
+            const finalPage = isPdf ? pages - 1 : photoLast;
+            let last = Math.min(finalPage, target + 1);
             while (true) {
               const images = await Promise.all(
                 Array.from({ length: last - first + 1 }, (_, i) =>
@@ -236,7 +257,7 @@ export class Jobs {
                 config,
                 pagedExtractionPrompt(
                   this.store.points(),
-                  pageOrdinal + 1,
+                  target + 1,
                   first + 1,
                   last + 1,
                 ),
@@ -245,7 +266,7 @@ export class Jobs {
               );
               const decoded = decodePagedDrafts(
                 content,
-                pageOrdinal + 1,
+                target + 1,
                 first + 1,
                 last + 1,
                 this.store.points(),
@@ -254,12 +275,12 @@ export class Jobs {
                 drafts = decoded.drafts;
                 break;
               }
-              if (last === pages - 1)
+              if (last === finalPage)
                 throw Error(
                   "文件结束处题目仍不完整，未录入半道题；请补充后续页面",
                 );
               last++;
-              j.message = `正在补齐第 ${pageOrdinal + 1} 页跨页题目，读取至第 ${last + 1}/${pages} 页`;
+              j.message = `正在补齐第 ${target + 1} 页跨页题目，读取至第 ${last + 1}/${finalPage + 1} 页`;
               this.store.putJob(j);
               this.changed();
             }
@@ -277,7 +298,7 @@ export class Jobs {
           }
           const sources: string[] = [];
           for (const draft of drafts) {
-            if (isPdf && draft.endPage! > draft.startPage!) {
+            if (paged && draft.endPage! > draft.startPage!) {
               const combinedPath = path.join(
                 path.dirname(file),
                 `${fileOrdinal}-pages-${draft.startPage}-${draft.endPage}.jpg`,
@@ -315,7 +336,7 @@ export class Jobs {
                   ...questionDraft,
                   title: titleFromBody(draft.body),
                   sourcePath: sources[i],
-                  sourceLabel: `${j.labels?.[fileOrdinal] ?? "导入 " + (fileOrdinal + 1)} · 第 ${pageOrdinal + 1}${draft.endPage && draft.endPage > pageOrdinal + 1 ? "–" + draft.endPage : ""} 页`,
+                  sourceLabel: `${j.labels?.[fileOrdinal] ?? "导入 " + (fileOrdinal + 1)} · 第 ${draft.startPage ?? pageOrdinal + 1}${draft.endPage && draft.endPage > (draft.startPage ?? pageOrdinal + 1) ? "–" + draft.endPage : ""} 页`,
                   autoSolve: auto,
                 });
             }

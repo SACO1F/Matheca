@@ -9,12 +9,16 @@ class QuestionReviewTest {
         difficulty = "基础", knowledge = "函数单调性", reviewed = true)
 
     @Test fun exerciseEditsInvalidateReviewButAuxiliarySettingsDoNot() {
+        val figure = QuestionFigures.encode(listOf("a".repeat(64) + ".jpg"))
+        val withFigure = saved.copy(figures = figure)
         listOf(saved.copy(title = "新标题"), saved.copy(body = "新题干"), saved.copy(grade = "高二"), saved.copy(kind = "选择题"),
-            saved.copy(difficulty = "进阶"), saved.copy(knowledge = "数列求和")).forEach { changed ->
+            saved.copy(difficulty = "进阶"), saved.copy(knowledge = "数列求和"), withFigure).forEach { changed ->
             assertFalse(QuestionReview.edited(saved, changed).reviewed)
         }
-        listOf(saved.copy(latex = "z^2=999"), saved.copy(autoSolve = true), saved.copy(favorite = true), saved.copy(solution = "AI 解答"),
-            saved.copy(title = "1. 函数练习")).forEach { auxiliary -> assertTrue(QuestionReview.edited(saved, auxiliary).reviewed) }
+        listOf(withFigure.copy(latex = "z^2=999"), withFigure.copy(autoSolve = true), withFigure.copy(favorite = true), withFigure.copy(solution = "AI 解答"),
+            withFigure.copy(title = "1. 函数练习")).forEach { auxiliary ->
+            assertTrue(QuestionReview.edited(withFigure, auxiliary).reviewed)
+        }
     }
 
     @Test fun draftsRemainPendingUntilExplicitConfirmation() {

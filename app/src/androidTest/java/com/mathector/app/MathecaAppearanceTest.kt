@@ -101,15 +101,20 @@ class MathecaAppearanceTest {
 
     @Test fun unifiedBackupFormatAlsoAcceptsLegacyMathectorManifests() {
         val q = Question(title = "兼容性验证", body = "求函数的单调区间。", reviewed = true)
-        val data = LibraryBackupData(listOf(q), emptyList(), emptyList(), emptyList(), emptyMap(), emptySet(), 0)
+        val collection = QuestionCollection(id = "legacy-collection", title = "旧版备份题集")
+        val data = LibraryBackupData(listOf(q), listOf(collection), listOf(CollectionItem(collection.id, q.id, 0)), emptyList(), emptyMap(), emptySet(), 0, emptyMap(), 0)
         val manifest = org.json.JSONObject(String(LibraryBackupCodec.encode(data), Charsets.UTF_8))
         assertEquals("MathecaLibraryBackup", manifest.getString("format"))
         assertEquals(q.body, LibraryBackupCodec.decode(manifest.toString()).questions.single().body)
         manifest.put("format", "MathectorLibraryBackup")
-        val legacy = LibraryBackupCodec.decode(manifest.toString()).questions.single()
-        assertEquals(q.id, legacy.id)
-        assertEquals(q.body, legacy.body)
-        assertTrue(legacy.reviewed)
+        val legacyItem = manifest.getJSONArray("items").getJSONObject(0)
+        legacyItem.remove("solutionSpace"); legacyItem.remove("newPage")
+        val legacy = LibraryBackupCodec.decode(manifest.toString())
+        assertEquals(q.id, legacy.questions.single().id)
+        assertEquals(q.body, legacy.questions.single().body)
+        assertTrue(legacy.questions.single().reviewed)
+        assertEquals("Old backups fall back to automatic blank space", AUTO_SOLUTION_SPACE, legacy.items.single().solutionSpace)
+        assertFalse("Old backups never page-break", legacy.items.single().newPage)
     }
 
     @Test fun settingsAndLibraryRenderAllFourAccentsInBothModes() {

@@ -41,7 +41,9 @@ class ReviewEditorTest {
     }
     private fun open(question: Question) {
         compose.onNodeWithTag("library-list").performScrollToNode(hasTestTag("library-question-${question.id}"))
-        compose.onNodeWithTag("library-question-${question.id}").performClick()
+        // Keep the tap above the app's floating bottom navigation when a full card reaches the viewport edge.
+        compose.onNodeWithTag("library-question-${question.id}").performTouchInput { click(androidx.compose.ui.geometry.Offset(center.x,24f)) }
+        compose.waitUntil(10_000) { runCatching { compose.onNodeWithTag("question-editor-header").assertIsDisplayed(); true }.getOrDefault(false) }
         compose.onNodeWithTag("question-editor-header").assertIsDisplayed()
     }
     private fun filter(label: String) {
@@ -68,8 +70,9 @@ class ReviewEditorTest {
     }
 
     @Test fun editorHeaderStatusAndConfirmationRemainFixedInBothThemes() {
-        val questions = listOf(false, true).map { reviewed -> Question(title = if(reviewed) "已校对的函数练习" else "待校对的函数练习",
-            body = "已知函数 \\(f(x)=x^2-4x+3\\)。\n（1）求单调区间；\n（2）求最小值。", grade = "高一", knowledge = "函数单调性", difficulty = "基础", reviewed = reviewed) }
+        val body = "已知函数 \\(f(x)=x^2-4x+3\\)。\n（1）求单调区间；\n（2）求最小值。"
+        val questions = listOf(false, true).map { reviewed -> Question(title = QuestionText.titleFromBody(body),
+            body = body, grade = "高一", knowledge = "函数单调性", difficulty = "基础", reviewed = reviewed) }
         val original = app.settings.state.value.theme
         runBlocking { questions.forEach { dao.save(it) } }
         try {
@@ -152,8 +155,28 @@ class ReviewEditorTest {
         } finally { runBlocking { dao.deleteCollection(collection.id); dao.deleteQuestion(pending.id); dao.deleteQuestion(reviewed.id) } }
     }
 
+    @Test fun choiceEditorOffersOneImageButtonPerDetectedOption() {
+        val question = Question(title = "选项配图", kind = "选择题", reviewed = true,
+            body = "下列图形是（ ）\nA. 三角形\nB. 圆形\nC. 正方形\nD. 菱形")
+        runBlocking { dao.save(question) }
+        try {
+            open(question)
+            compose.onNodeWithTag("question-editor").performScrollToNode(hasTestTag("question-option-figures"))
+            compose.onNodeWithTag("question-option-figures").assertIsDisplayed()
+            listOf("A", "B", "C", "D").forEach { label ->
+                compose.onNodeWithTag("question-editor").performScrollToNode(hasTestTag("option-figure-add-$label"))
+                compose.onNodeWithTag("option-figure-add-$label").assertIsDisplayed().assertHasClickAction()
+            }
+            compose.onNodeWithTag("option-figure-add-A").performClick()
+            compose.onNodeWithText("添加选项 A 的图片").assertIsDisplayed()
+            Espresso.pressBack()
+            compose.onNodeWithTag("question-editor-header").assertIsDisplayed()
+            snapshot("choice-option-figures-0.22.0.png")
+        } finally { runBlocking { dao.deleteQuestion(question.id) } }
+    }
+
     @Test fun proofreadingFormulaHasLiveLatexPreviewAndKeepsReviewedExerciseUnchanged() {
-        val question = Question(title = "独立公式校对", body = "求函数的零点。", latex = "z^2=999", grade = "高一", knowledge = "函数零点", difficulty = "基础", reviewed = true)
+        val question = Question(title = QuestionText.titleFromBody("求函数的零点。"), body = "求函数的零点。", latex = "z^2=999", grade = "高一", knowledge = "函数零点", difficulty = "基础", reviewed = true)
         val original = app.settings.state.value.theme
         runBlocking { dao.save(question) }
         try {
@@ -189,30 +212,29 @@ class ReviewEditorTest {
     }
 
     @Test fun manualEntryRequiresAStemAndKeepsHeaderVisibleWithKeyboard() {
-        val title = "录入验证-${UUID.randomUUID().toString().take(6)}"
+        val marker = "求方程 \\(x^2=3\\) 的解。"
         try {
             compose.onNodeWithTag("main-add-floating").performClick()
             compose.onNodeWithText("手动录入").performClick()
             compose.onNodeWithTag("question-editor-confirm").assertIsNotEnabled()
             val header = bounds("question-editor-header")
-            compose.onNodeWithTag("question-title-input").performTextReplacement(title)
+            compose.onNodeWithTag("question-editor").performScrollToNode(hasTestTag("question-formula-input"))
+            compose.onNodeWithTag("question-formula-input").performTextReplacement("x^2=3")
             assertEquals(header, bounds("question-editor-header"))
             compose.onNodeWithContentDescription("返回").assertIsDisplayed()
             snapshot("manual-entry-keyboard-0.20.0.png")
             Espresso.closeSoftKeyboard()
-            compose.onNodeWithTag("question-editor").performScrollToNode(hasTestTag("question-formula-input"))
-            compose.onNodeWithTag("question-formula-input").performTextReplacement("x^2=3")
-            Espresso.closeSoftKeyboard()
             compose.onNodeWithTag("question-editor-confirm").assertIsNotEnabled()
-            compose.onNodeWithTag("question-preview").assertDoesNotExist()
+            compose.onNodeWithTag("question-editor").performScrollToNode(hasTestTag("question-preview-card"))
+            compose.onNodeWithTag("question-preview").assertContentDescriptionEquals("题干待补充")
             compose.onNodeWithTag("question-editor").performScrollToNode(hasTestTag("proofreading-formula-preview"))
             compose.waitUntil(10_000) { rendered("x^2=3") }
             assertEquals(header, bounds("question-editor-header"))
             compose.onNodeWithTag("question-editor").performScrollToNode(hasTestTag("question-body-input"))
-            compose.onNodeWithTag("question-body-input").performTextReplacement("求方程 \\(x^2=3\\) 的解。")
+            compose.onNodeWithTag("question-body-input").performTextReplacement(marker)
             compose.onNodeWithTag("question-editor-confirm").assertIsDisplayed().assertIsEnabled().performClick()
-            compose.waitUntil(5_000) { runBlocking { dao.questions().first().any { it.title == title && it.reviewed } } }
-        } finally { runBlocking { dao.questions().first().filter { it.title == title }.forEach { dao.deleteQuestion(it.id) } } }
+            compose.waitUntil(5_000) { runBlocking { dao.questions().first().any { it.title == QuestionText.titleFromBody(marker) && it.reviewed } } }
+        } finally { runBlocking { dao.questions().first().filter { it.title == QuestionText.titleFromBody(marker) }.forEach { dao.deleteQuestion(it.id) } } }
     }
 
     @Test fun independentFormulasNeverEnterDocumentsAndEmptyStemsAreRejected() = runBlocking {

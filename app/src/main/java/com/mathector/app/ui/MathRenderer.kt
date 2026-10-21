@@ -38,11 +38,11 @@ fun richMathHtml(text: String, dark: Boolean = false, fontSize: Float = 14f, pre
         <!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
         <link rel="stylesheet" href="${ASSET_ORIGIN}katex/katex.min.css"><script src="${ASSET_ORIGIN}katex/katex.min.js"></script>
         <style>html,body{margin:0;padding:0;background:transparent;color:${if(dark) "#e8e8e8" else "#262626"};font-family:sans-serif;font-size:${fontSize}px}
-        #content{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.8;padding:3px 0;${if(preview) "max-height:98px;overflow:hidden;" else ""}}
+        #content{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.8;padding:3px 0;}
         .formula{white-space:normal}.display{display:block;margin:8px 0;overflow-x:auto}.katex{font-size:1.05em}.katex-display{margin:0} .katex-error{color:${if(dark) "#f3a7b6" else "#a23245"}}
         </style></head><body><div id="content">$body</div><script>
         document.querySelectorAll('.formula').forEach(function(node){var source=node.textContent;try{katex.render(source,node,{displayMode:node.dataset.display==='true',throwOnError:true,trust:false,maxExpand:300,maxSize:12});}catch(e){node.textContent='[公式需校对] '+source;node.classList.add('katex-error');}});
-        var last=0;function measure(){var h=Math.ceil(document.getElementById('content').getBoundingClientRect().height);if(h!==last){last=h;if(window.ContentHeight)window.ContentHeight.ready(h);}}
+        var last=0;function measure(){if(!document.body.clientWidth)return;var h=Math.ceil(document.getElementById('content').getBoundingClientRect().height);if(h!==last){last=h;if(window.ContentHeight)window.ContentHeight.ready(h);}}
         document.fonts.ready.then(function(){measure();new ResizeObserver(measure).observe(document.getElementById('content'));});
         </script></body></html>
     """.trimIndent()
@@ -59,12 +59,15 @@ private class ReadOnlyMathWebView(context: Context) : WebView(context) {
 fun RichMathText(text: String, modifier: Modifier = Modifier, dark: Boolean = false, preview: Boolean = false, fontSize: Float = 14f) {
     val density = LocalDensity.current
     val html = remember(text, dark, preview, fontSize, density.fontScale) { richMathHtml(text, dark, fontSize * density.fontScale, preview) }
-    var cssHeight by remember(html) { mutableIntStateOf(if(preview) 76 else 32) }
+    // Height is measured once and kept while the HTML reloads, so a card never collapses and springs back mid-edit.
+    var cssHeight by remember { mutableIntStateOf(if(preview) 76 else 32) }
     AndroidView(modifier = modifier.height(cssHeight.dp).semantics { contentDescription = text }, factory = { context ->
         configureMathWebView(ReadOnlyMathWebView(context)).apply {
             isVerticalScrollBarEnabled = false; isHorizontalScrollBarEnabled = false
         }
     }, update = { view ->
+        // CSS already applies Compose's fontScale; WebView otherwise applies the system zoom a second time.
+        if(view.settings.textZoom != 100) view.settings.textZoom = 100
         if (view.tag != html) {
             view.tag = html
             view.removeJavascriptInterface("ContentHeight")
