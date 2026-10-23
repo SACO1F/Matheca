@@ -16,7 +16,7 @@ assets/           LOGO 位图（Matheca-rounded.png，顶栏标记与 favicon �
 | 项 | 值 |
 | --- | --- |
 | 项目名 | `matheca` |
-| 根目录 / Root directory | 留空 |
+| 根目录 / Root directory | `site` |
 | 框架预设 | None |
 | 构建命令 | `mkdir -p dist && cp -r index.html styles.css main.js assets dist/` |
 | 输出目录 | `dist` |
