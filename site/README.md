@@ -35,7 +35,9 @@ assets/           LOGO 位图（Matheca-rounded.png，顶栏标记与 favicon �
 | 部署命令 | `npx wrangler deploy`（默认值，不用改） |
 | 构建输出 | `dist/`，由构建命令生成，不进版本库 |
 
-### B. Pages 项目（`matheca.pages.dev`）
+### B. Pages 项目（当前主地址）
+
+<https://matheca.pages.dev> —— 给出去就用这个，干净、跟其他项目的命名习惯一致。
 
 Pages 不读 `wrangler.jsonc`，也不跑 `wrangler deploy`；它只认后台那两个字段。**根目录留空**，路径前缀全写在构建命令里，省得两处对不上：
 
@@ -48,6 +50,8 @@ Pages 不读 `wrangler.jsonc`，也不跑 `wrangler deploy`；它只认后台那
 | 构建输出目录 | `site/dist` |
 
 如果界面里把根目录填成了 `site`，那构建命令要相应去掉 `site/` 前缀、输出目录改成 `dist`。**两种写法别混用**，混用就是 `cp: cannot stat 'index.html'`。
+
+两个地址的行为有一处不同，别当成 bug：Pages 上**任何不存在的路径都回落到首页**（`/README.md`、`/随便写` 都返回首页 HTML），Worker 那边是老老实实的 404。这不是白名单失效——`/README.md` 返回的是页面而不是文档内容，正说明它没被上传。单页站这样无伤，只是别指望 Pages 上能靠 404 做判断。
 
 
 
