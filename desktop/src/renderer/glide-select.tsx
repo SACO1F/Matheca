@@ -14,12 +14,14 @@ export function GlideSelect({
   options,
   onChange,
   boundaryRef,
+  portalHost,
 }: {
   label: string;
   value: string;
   options: Option[];
   onChange: (value: string) => void;
   boundaryRef?: React.RefObject<HTMLElement | null>;
+  portalHost?: HTMLElement | null;
 }) {
   const id = useId();
   const trigger = useRef<HTMLButtonElement>(null);
@@ -70,7 +72,9 @@ export function GlideSelect({
     if (!open || !trigger.current) return;
     const update = () => {
       const rect = trigger.current!.getBoundingClientRect();
-      const boundary = boundaryRef?.current?.getBoundingClientRect();
+      const boundary = (
+        boundaryRef?.current ?? portalHost
+      )?.getBoundingClientRect();
       const leftEdge = boundary ? boundary.left + 8 : 8;
       const rightEdge = boundary ? boundary.right - 8 : innerWidth - 8;
       const topEdge = boundary ? boundary.top + 8 : 8;
@@ -103,7 +107,7 @@ export function GlideSelect({
     update();
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
-  }, [open, menuHeight, label, boundaryRef]);
+  }, [open, menuHeight, label, boundaryRef, portalHost]);
   useEffect(() => {
     if (open || !mounted) return;
     const timeout = setTimeout(
@@ -265,7 +269,7 @@ export function GlideSelect({
               ))}
             </div>
           </div>,
-          document.body,
+          portalHost ?? document.body,
         )}
     </div>
   );

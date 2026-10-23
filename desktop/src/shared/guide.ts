@@ -1,4 +1,5 @@
 export const guideLinks = {
+  privacyContact: "https://github.com/SACO1F/Matheca/issues",
   home: "https://www.deepseek.com/",
   platform: "https://platform.deepseek.com/",
   balance: "https://platform.deepseek.com/balance",

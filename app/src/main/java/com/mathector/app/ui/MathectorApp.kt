@@ -48,6 +48,8 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.painterResource
+import com.mathector.app.R
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -217,7 +219,8 @@ fun MathectorApp(model: AppViewModel) {
                         }, label = "main-page-slide") { selectedTab ->
                             pageStates.SaveableStateProvider("tab-$selectedTab") {
                             when(selectedTab) {
-                                0 -> LibraryScreen(questions, jobs.firstOrNull(), busy, onEdit = { editorId = it.id }, onAdd = { showAdd = true }, onExample = model::examples, onFavorite = model::toggleFavorite, onAddToCollection = { addQuestionId = it }, onRetry = model::retry, onBackup = { showLibraryBackup = true })
+                                0 -> LibraryScreen(questions, jobs.firstOrNull(), busy, onEdit = { editorId = it.id }, onAdd = { showAdd = true }, onExample = model::examples, onFavorite = model::toggleFavorite, onAddToCollection = { addQuestionId = it }, onRetry = model::retry, onBackup = { showLibraryBackup = true },
+                                    onDelete = { id -> model.delete(id) { model.message("题目已删除") } })
                                 1 -> CollectionsScreen(collections, items, exportingId, onOpen = { collectionId = it }, onCreate = { showNewCollection = true }, onDelete = model::deleteCollection,
                                     onExport = { collection, word -> requestExport(CollectionExportRequest(collection, orderedQuestions(collection.id), word, collection.paperSettings(), layoutsOf(collection.id))) })
                                 else -> SettingsScreen(questions.size, jobs, settings, model, beginLibraryExport, beginLibraryImport, { showDesktopLink = true })
@@ -330,7 +333,9 @@ private fun NavItem(label: String, id: String, icon: ImageVector, selected: Bool
 
 @Composable
 private fun LibraryScreen(questions: List<Question>, job: ImportJob?, busy: Boolean, onEdit: (Question) -> Unit, onAdd: () -> Unit,
-    onExample: () -> Unit, onFavorite: (Question) -> Unit, onAddToCollection: (String) -> Unit, onRetry: (String) -> Unit, onBackup: () -> Unit) {
+    onExample: () -> Unit, onFavorite: (Question) -> Unit, onAddToCollection: (String) -> Unit, onRetry: (String) -> Unit, onBackup: () -> Unit,
+    onDelete: (String) -> Unit) {
+    var deleteId by rememberSaveable { mutableStateOf<String?>(null) }
     var search by rememberSaveable { mutableStateOf("") }
     var filter by rememberSaveable { mutableStateOf("全部") }
     val categories = rememberQuestionFilterState()
@@ -342,7 +347,7 @@ private fun LibraryScreen(questions: List<Question>, job: ImportJob?, busy: Bool
     }
     LazyColumn(Modifier.testTag("library-list"), contentPadding = PaddingValues(start = 22.dp, end = 22.dp, top = 18.dp, bottom = 100.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         item { Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Row(verticalAlignment = Alignment.CenterVertically) { Box(Modifier.size(32.dp).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) { Text("√", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold, fontSize = 22.sp) }; Spacer(Modifier.width(10.dp)); Text("Matheca", fontWeight = FontWeight.Bold, fontSize = 18.sp) }
+            Row(verticalAlignment = Alignment.CenterVertically) { Image(painterResource(R.drawable.ic_launcher), "Matheca LOGO", Modifier.size(32.dp).testTag("library-logo")); Spacer(Modifier.width(10.dp)); Text("Matheca", fontWeight = FontWeight.Bold, fontSize = 18.sp) }
             Spacer(Modifier.weight(1f))
             FilledTonalButton(onClick = onBackup, modifier = Modifier.heightIn(min = 40.dp).testTag("library-backup-open"),
                 shape = RoundedCornerShape(50.dp), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)) {
@@ -376,10 +381,16 @@ private fun LibraryScreen(questions: List<Question>, job: ImportJob?, busy: Bool
         }
         items(filtered, key = { it.id }) { q ->
             QuestionSummaryCard(q, "library", onClick = { onEdit(q) }, trailing = {
-                LibraryQuestionMenu(q, onFavorite = { onFavorite(q) }, onAdd = { onAddToCollection(q.id) })
+                LibraryQuestionMenu(q, onFavorite = { onFavorite(q) }, onAdd = { onAddToCollection(q.id) }, onDelete = { deleteId = q.id })
             }, extraLabels = buildList { if(q.example) add("示例"); if(q.favorite) add("已收藏") })
         }
         item { Text("识别结果待校对 · 保留原图与公式", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp, modifier = Modifier.fillMaxWidth()) }
+    }
+    deleteId?.let { id ->
+        if (questions.any { it.id == id }) DeleteQuestionDialog(onDismiss = { deleteId = null }, onConfirm = {
+            deleteId = null
+            onDelete(id)
+        })
     }
 }
 
@@ -393,7 +404,7 @@ private fun LibraryScreen(questions: List<Question>, job: ImportJob?, busy: Bool
 }
 
 @Composable
-private fun LibraryQuestionMenu(question: Question, onFavorite: () -> Unit, onAdd: () -> Unit) {
+private fun LibraryQuestionMenu(question: Question, onFavorite: () -> Unit, onAdd: () -> Unit, onDelete: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     Box {
         IconButton(onClick = { expanded = true }, modifier = Modifier.size(28.dp).testTag("library-menu-${question.id}")) {
@@ -405,6 +416,9 @@ private fun LibraryQuestionMenu(question: Question, onFavorite: () -> Unit, onAd
             RoundedMenuDivider()
             RoundedMenuItem("加入题集", icon = Icons.Rounded.Add,
                 onClick = { expanded = false; onAdd() }, modifier = Modifier.testTag("library-add-${question.id}"))
+            RoundedMenuDivider()
+            RoundedMenuItem("删除题目", icon = Icons.Rounded.DeleteOutline, destructive = true,
+                onClick = { expanded = false; onDelete() }, modifier = Modifier.testTag("library-delete-${question.id}"))
         }
     }
 }
@@ -722,7 +736,7 @@ private fun QuestionEditor(question: Question, dark: Boolean, solutionState: and
         if(ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) figureCamera = true
         else figurePermission.launch(Manifest.permission.CAMERA)
     }, onDismiss = { showFigureSheet = false; figureTarget = null })
-    if(confirmDelete) AlertDialog(onDismissRequest = { confirmDelete = false }, title = { Text("删除这道题？") }, text = { Text("题目会从题库和相关题集中移除。") }, confirmButton = { TextButton(onClick = onDelete) { Text("删除") } }, dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text("取消") } })
+    if(confirmDelete) DeleteQuestionDialog(onDismiss = { confirmDelete = false }, onConfirm = { confirmDelete = false; onDelete() })
 }
 
 @Composable private fun PageHeader(title: String, onBack: () -> Unit, modifier: Modifier = Modifier) { Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) { IconButton(onClick = onBack) { Icon(Icons.Rounded.ArrowBack, "返回") }; Text(title, Modifier.weight(1f), fontSize = 24.sp, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis) } }

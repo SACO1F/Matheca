@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.Matheca" parent="Theme.Matheca.Base">
+        <item name="android:windowBackground">@drawable/launch_background</item>
+        <item name="android:windowSplashScreenBackground">#F5F5F5</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
+    </style>
+</resources>

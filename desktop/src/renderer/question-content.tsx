@@ -80,3 +80,16 @@ export const QuestionVisual = React.memo(function QuestionVisual({
     </div>
   );
 });
+
+/** Subdued provenance shared by library, collection, picker and exchange cards. */
+export function QuestionSource({ question }: { question: Question }) {
+  const source =
+    question.sourceLabel.trim() ||
+    question.sourcePath.replace(/\\/g, "/").split("/").pop() ||
+    "来源未知";
+  return (
+    <div className="question-source" title={`来源：${source}`}>
+      来源：{source}
+    </div>
+  );
+}

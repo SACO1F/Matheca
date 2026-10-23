@@ -13,6 +13,8 @@
 
 本机已构建文件的位置记录在 `desktop/releases/latest.txt` 与 `app/releases/latest.txt`。从源码构建的方法见下文。安装文件不提交到 Git，公开附件以 [GitHub Releases](https://github.com/SACO1F/Matheca/releases) 中实际标注的版本为准。
 
+两端设置页均可离线查看[隐私政策](PRIVACY.md)。正文统一维护于 `app/src/main/assets/privacy-policy.json`；运行 `python scripts/export-privacy-policy.py` 可生成相同内容的 Markdown 与可独立托管的 `docs/privacy-policy.html`。网页文件需要部署后才能作为应用商店的公开政策网址。
+
 - **Windows**：完整解压 `Matheca-win32-x64-0.1.0.zip`，运行目录中的 `Matheca.exe`，保留 DLL、`resources/` 等运行资源。
 - **Android**：安装 `Matheca-android-0.1.0-debug.apk`。目前提供 Debug 签名构建；覆盖安装需要包名和签名一致。卸载前请先导出题库备份。
 

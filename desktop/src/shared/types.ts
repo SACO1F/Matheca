@@ -46,7 +46,9 @@ export interface KnowledgePoint {
   group: string;
   name: string;
 }
+export type CloseAction = "ask" | "quit" | "background";
 export interface Settings {
+  closeAction?: CloseAction;
   colorTheme?: import("./color-themes").ColorTheme;
   theme: "SYSTEM" | "LIGHT" | "DARK";
   address: string;
@@ -179,6 +181,12 @@ export interface MobileImportState {
   libraries: ExchangeInbox[];
 }
 export interface DesktopAPI {
+  onCloseChoice(fn: (open: boolean) => void): () => void;
+  resolveCloseChoice(
+    choice: "quit" | "background" | "cancel",
+    remember: boolean,
+  ): Promise<void>;
+  setCloseAction(action: CloseAction): Promise<void>;
   mobileForgetDevice(id: string): Promise<MobileImportState>;
   mobileStart(): Promise<MobileImportState>;
   mobileStatus(): Promise<MobileImportState>;

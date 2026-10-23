@@ -28,6 +28,8 @@ import com.mathector.app.data.*
 internal fun SettingsScreen(count: Int, jobs: List<ImportJob>, settings: AppSettings, model: AppViewModel, onExportLibrary: () -> Unit, onImportLibrary: () -> Unit, onDesktopLink: () -> Unit) {
     val testing by model.testingApi.collectAsStateWithLifecycle()
     val result by model.apiTestResult.collectAsStateWithLifecycle()
+    var privacyOpen by rememberSaveable { mutableStateOf(false) }
+    if (privacyOpen) PrivacyPolicyDialog { privacyOpen = false }
     LazyColumn(Modifier.fillMaxSize().testTag("settings-list"), contentPadding = PaddingValues(22.dp, 20.dp, 22.dp, 100.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         item { Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("我的", fontSize = 30.sp, fontWeight = FontWeight.Bold)
@@ -52,6 +54,11 @@ internal fun SettingsScreen(count: Int, jobs: List<ImportJob>, settings: AppSett
             Text("Matheca ${BuildConfig.VERSION_NAME} · 高中数学题集", modifier=Modifier.testTag("app-version"),fontWeight = FontWeight.SemiBold)
             Text("识别结果会保存为待校对草稿。PDF 每个文件最多 20 页，单个文件不超过 50 MB。", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
             Text("PDF 排版导出 · Word 正文可编辑，公式为图片。卸载前请使用“导出题库”保存完整 ZIP 备份。", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
+        } }
+        item { SettingsCard {
+            Text("隐私与数据", fontWeight = FontWeight.SemiBold)
+            Text("题库主要保存在本机。识别与解题会把相关题目发送至你配置的 AI 服务；设备联动会传输你选择的资料。", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            TextButton(onClick = { privacyOpen = true }, modifier = Modifier.testTag("privacy-policy-open")) { Text("隐私政策") }
         } }
         item { Text("导入记录", fontWeight = FontWeight.Bold, fontSize = 18.sp) }
         if (jobs.isEmpty()) item { Text("暂无导入任务", color = MaterialTheme.colorScheme.onSurfaceVariant) }

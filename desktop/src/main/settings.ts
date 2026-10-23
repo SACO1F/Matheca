@@ -10,6 +10,9 @@ export class SettingsService {
     const s = this.store;
     const colorTheme = s.getSetting("colorTheme");
     return {
+      closeAction: ["quit", "background"].includes(s.getSetting("closeAction"))
+        ? (s.getSetting("closeAction") as "quit" | "background")
+        : "ask",
       theme: "LIGHT",
       colorTheme: isColorTheme(colorTheme) ? colorTheme : "GRAPHITE",
       address: s.getSetting("address"),

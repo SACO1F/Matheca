@@ -1,0 +1,8 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="288dp" android:height="288dp" android:viewportWidth="288" android:viewportHeight="288">
+    <!-- A 96dp tile within the system splash safe area; keep original logo proportions. -->
+    <group android:translateX="96" android:translateY="96" android:scaleX="0.8888889" android:scaleY="0.8888889">
+        <path android:fillColor="#252525" android:pathData="M25,0H83A25,25 0,0 1,108 25V83A25,25 0,0 1,83 108H25A25,25 0,0 1,0 83V25A25,25 0,0 1,25 0Z" />
+        <path android:strokeColor="#FFFFFF" android:strokeWidth="7" android:strokeLineCap="round" android:strokeLineJoin="round" android:fillColor="@android:color/transparent" android:pathData="M22,60L35,74L49,32L85,32M57,51L75,73M75,51L57,73" />
+    </group>
+</vector>

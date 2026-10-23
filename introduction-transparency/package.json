@@ -1,0 +1,7 @@
+{
+  "name": "matheca-transparency-introduction",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {"build": "node build.mjs", "dev": "node serve.mjs", "preview": "node serve.mjs dist"}
+}

@@ -6,6 +6,17 @@ async function call<T>(channel: string, ...args: unknown[]): Promise<T> {
   return r.data;
 }
 const api: DesktopAPI = {
+  onCloseChoice: (fn) => {
+    const listener = (_event: unknown, open: boolean) => {
+      fn(open);
+      if (open) ipcRenderer.send("window:close-choice-shown");
+    };
+    ipcRenderer.on("window:close-choice", listener);
+    return () => ipcRenderer.removeListener("window:close-choice", listener);
+  },
+  resolveCloseChoice: (choice, remember) =>
+    call("window:close-choice", choice, remember),
+  setCloseAction: (action) => call("settings:close-action", action),
   mobileStart: () => call("mobile:start"),
   mobileForgetDevice: (id) => call("mobile:forget-device", id),
   mobileStatus: () => call("mobile:status"),

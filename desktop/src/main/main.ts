@@ -8,6 +8,7 @@ import {
   app,
   BrowserWindow,
   Menu,
+  Tray,
   ipcMain,
   dialog,
   clipboard,
@@ -80,6 +81,11 @@ let mobileImport: MobileImport;
 let libraryExchange: LibraryExchange;
 let screenCapture: ScreenCapture;
 let manualPromptOpen = false;
+let tray: Tray | undefined;
+let closeChoiceOpen = false;
+let closeChoiceReady = false;
+let quitReady = false;
+let closeRequest = 0;
 const previews = new Map<string, { file: string; folder: string }>(),
   exports = new Set<string>(),
   workers = new Set<Promise<unknown>>(),
@@ -226,16 +232,131 @@ async function inspectBackupFile(source: string) {
 async function finishQuit() {
   if (quitting) return;
   quitting = true;
-  screenCapture?.cancel();
-  await mobileImport?.pause();
-  for (const c of requestControllers) c.abort();
-  await jobs.stopAll();
-  await Promise.allSettled([...operations]);
-  await Promise.allSettled([...workers]);
-  for (const token of previews.keys()) await cleanupPreview(token);
-  store.close();
-  app.quit();
+  try {
+    screenCapture?.cancel();
+    await mobileImport?.pause();
+    for (const controller of requestControllers) controller.abort();
+    await jobs.stopAll();
+    await Promise.allSettled([...operations]);
+    await Promise.allSettled([...workers]);
+    for (const token of previews.keys()) await cleanupPreview(token);
+    store.close();
+    tray?.destroy();
+    tray = undefined;
+    quitReady = true;
+    app.quit();
+  } catch (error) {
+    quitting = false;
+    showMainWindow();
+    dialog.showErrorBox(
+      "Matheca 暂未退出",
+      error instanceof Error ? error.message : "请稍后重试退出",
+    );
+  }
 }
+function showMainWindow() {
+  if (!win || win.isDestroyed()) return;
+  if (win.isMinimized()) win.restore();
+  win.setSkipTaskbar(false);
+  win.show();
+  win.focus();
+}
+function ensureTray() {
+  if (tray && !tray.isDestroyed()) return;
+  const icon = nativeImage
+    .createFromPath(path.join(__dirname, "../../assets/icon.png"))
+    .resize({ width: 32, height: 32 });
+  if (icon.isEmpty()) throw Error("无法载入托盘图标，请保留完整应用目录");
+  tray = new Tray(icon);
+  tray.setToolTip("Matheca");
+  tray.setContextMenu(
+    Menu.buildFromTemplate([
+      { label: "显示 Matheca", click: showMainWindow },
+      { type: "separator" },
+      { label: "退出", click: requestQuit },
+    ]),
+  );
+  tray.on("click", showMainWindow);
+  tray.on("double-click", showMainWindow);
+}
+function requestQuit() {
+  if (quitting || closePending) return;
+  closeChoiceOpen = false;
+  win.webContents.send("window:close-choice", false);
+  showMainWindow();
+  if (manualPromptOpen) return;
+  closePending = true;
+  const request = ++closeRequest;
+  win.webContents.send("window:before-close");
+  setTimeout(() => {
+    if (
+      request !== closeRequest ||
+      !closePending ||
+      quitting ||
+      manualPromptOpen
+    )
+      return;
+    closePending = false;
+    void dialog
+      .showMessageBox(win, {
+        type: "warning",
+        buttons: ["返回应用", "退出"],
+        defaultId: 0,
+        cancelId: 0,
+        message: "界面未响应，尚未确认草稿保存",
+        detail: "已写入的题库与任务进度会保留。",
+      })
+      .then((result) => {
+        if (result.response === 1) void finishQuit();
+      });
+  }, 15000);
+}
+function moveToBackground() {
+  ensureTray();
+  win.hide();
+  win.setSkipTaskbar(true);
+}
+async function chooseCloseAction() {
+  if (closeChoiceOpen || closePending || quitting || manualPromptOpen) return;
+  try {
+    const preference = settings.read().closeAction;
+    if (preference === "quit") {
+      requestQuit();
+      return;
+    }
+    if (preference === "background") {
+      moveToBackground();
+      return;
+    }
+    closeChoiceOpen = true;
+    closeChoiceReady = false;
+    win.webContents.send("window:close-choice", true);
+    setTimeout(() => {
+      if (!closeChoiceOpen || closeChoiceReady || quitting) return;
+      closeChoiceOpen = false;
+      void dialog
+        .showMessageBox(win, {
+          type: "warning",
+          message: "界面未响应，无法显示关闭选项",
+          buttons: ["返回应用", "后台运行", "直接退出"],
+          defaultId: 0,
+          cancelId: 0,
+        })
+        .then((result) => {
+          if (result.response === 1) moveToBackground();
+          else if (result.response === 2) requestQuit();
+        });
+    }, 15000);
+  } catch (error) {
+    closeChoiceOpen = false;
+    showMainWindow();
+    dialog.showErrorBox(
+      "Matheca 暂未关闭",
+      error instanceof Error ? error.message : "请稍后重试",
+    );
+  }
+}
+
 function applyTheme() {
   nativeTheme.themeSource = "light";
   updateTitleBar();
@@ -260,6 +381,26 @@ function publicQuestion(q: Question): Question {
   };
 }
 function register() {
+  handle("settings:close-action", (value: unknown) => {
+    if (value !== "ask" && value !== "quit" && value !== "background")
+      throw Error("关闭行为无效");
+    store.setSetting("closeAction", value);
+    changed();
+  });
+  handle("window:close-choice", (choice: unknown, remember: unknown) => {
+    if (choice !== "quit" && choice !== "background" && choice !== "cancel")
+      throw Error("关闭选择无效");
+    boolean(remember);
+    if (!closeChoiceOpen) return;
+    if (choice === "background") ensureTray();
+    if (remember && choice !== "cancel") {
+      store.setSetting("closeAction", choice);
+      changed();
+    }
+    closeChoiceOpen = false;
+    if (choice === "quit") setImmediate(requestQuit);
+    else if (choice === "background") moveToBackground();
+  });
   handle("mobile:start", () => mobileImport.start());
   handle("mobile:status", () => mobileImport.state());
   handle("mobile:forget-device", (v: unknown) =>
@@ -889,6 +1030,7 @@ else {
         minWidth: 1024,
         minHeight: 700,
         title: "Matheca",
+        icon: path.join(__dirname, "../../assets/icon.ico"),
         titleBarStyle: "hidden",
         titleBarOverlay: {
           color: "#f4f6fa",
@@ -911,11 +1053,15 @@ else {
       win.webContents.on("render-process-gone", () => {
         manualPromptOpen = false;
         closePending = false;
+        closeChoiceOpen = false;
       });
       win.webContents.session.setPermissionRequestHandler(
         (_wc, _permission, callback) => callback(false),
       );
       register();
+      ipcMain.on("window:close-choice-shown", (event) => {
+        if (trusted(event) && closeChoiceOpen) closeChoiceReady = true;
+      });
       ipcMain.on("window:close-ready", (event, ok) => {
         if (!trusted(event) || !closePending) return;
         closePending = false;
@@ -926,31 +1072,10 @@ else {
             message: "草稿保存失败，请检查后再退出",
           });
       });
-      win.on("close", (e) => {
-        if (quitting) return;
-        e.preventDefault();
-        if (manualPromptOpen) return;
-        if (!closePending) {
-          closePending = true;
-          win.webContents.send("window:before-close");
-          setTimeout(() => {
-            if (closePending && !quitting && !manualPromptOpen) {
-              closePending = false;
-              void dialog
-                .showMessageBox(win, {
-                  type: "warning",
-                  buttons: ["返回应用", "退出"],
-                  defaultId: 0,
-                  cancelId: 0,
-                  message: "界面未响应，尚未确认草稿保存",
-                  detail: "已写入的题库与任务进度会保留。",
-                })
-                .then((r) => {
-                  if (r.response === 1) void finishQuit();
-                });
-            }
-          }, 15000);
-        }
+      win.on("close", (event) => {
+        if (quitReady) return;
+        event.preventDefault();
+        if (!quitting) void chooseCloseAction();
       });
       if (MAIN_WINDOW_VITE_DEV_SERVER_URL)
         await win.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
@@ -970,9 +1095,9 @@ else {
       app.quit();
     });
   app.on("before-quit", (e) => {
-    if (store && !quitting) {
+    if (store && !quitReady) {
       e.preventDefault();
-      win.close();
+      requestQuit();
     }
   });
 }

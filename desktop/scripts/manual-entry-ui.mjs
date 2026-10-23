@@ -111,6 +111,10 @@ try {
   await app.evaluate(({ BrowserWindow }) =>
     BrowserWindow.getAllWindows()[0].close(),
   );
+  await page
+    .getByRole("dialog", { name: "关闭 Matheca", exact: true })
+    .getByRole("button", { name: "直接退出", exact: true })
+    .click();
   await modal().waitFor();
   // A deliberate user decision must not trigger the 15s unresponsive warning.
   await page.waitForTimeout(16000);
@@ -167,7 +171,7 @@ try {
   assert.equal(
     await app.evaluate(() => globalThis.nativePrompts.length),
     0,
-    "save prompts never call a native message box",
+    "close and save choices both use in-app dialogs",
   );
   const db = new Database(path.join(env.MATHECA_TEST_DATA, "library.sqlite"));
   const empty = {

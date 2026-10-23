@@ -560,3 +560,45 @@ button.primary:hover {
     transform: none;
   }
 }
+
+/* Provenance stays readable without competing with the question content. */
+.question-source {
+  min-width: 0;
+  padding: 0 20px 12px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.editor-classification {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.editor-classification .field {
+  min-width: 0;
+}
+.editor-classification .glide-select,
+.editor .knowledge-field .glide-select {
+  width: 100%;
+  min-width: 0;
+}
+.editor-classification .glide-select .glide-trigger,
+.editor .knowledge-field .glide-trigger {
+  height: 38px;
+  min-height: 38px;
+  padding: 0 12px;
+  font-size: 13px;
+  border-radius: 8px;
+  border-color: var(--line);
+  background: var(--panel);
+  color: var(--text);
+}
+.editor-classification .glide-select .glide-trigger:hover,
+.editor .knowledge-field .glide-trigger:hover {
+  background: var(--hover);
+}

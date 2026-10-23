@@ -1,8 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { QuestionVisual } from "./question-content";
+import { QuestionVisual, QuestionSource } from "./question-content";
 import { NavIcon } from "./nav-icon";
-import { decodeKnowledge } from "../domain/catalog";
+import {
+  decodeKnowledge,
+  filterQuestion,
+  grades,
+  difficulties,
+  kinds,
+} from "../domain/catalog";
+import { GlideSelect } from "./glide-select";
+import { knowledgeOptions } from "./knowledge-options";
 import type {
   ExchangePreview,
   ExchangePolicy,
@@ -32,6 +40,30 @@ export function LibraryExchangePanel({
   const [changedOnly, setChangedOnly] = useState(false);
   const [questionLimit, setQuestionLimit] = useState(100);
   const [collectionLimit, setCollectionLimit] = useState(100);
+  const [questionFilter, setQuestionFilter] = useState({
+    grade: "",
+    difficulty: "",
+    knowledge: "",
+    kind: "",
+  });
+  const filteredQuestions = useMemo(
+    () =>
+      library?.questions.filter((q) =>
+        filterQuestion(
+          q,
+          { ...questionFilter, keyword: "", reviewed: "all", favorite: false },
+          library.customKnowledge,
+        ),
+      ) ?? [],
+    [library, questionFilter],
+  );
+  const filterActive = Object.values(questionFilter).some(Boolean);
+  const filterQuestions = (patch: Partial<typeof questionFilter>) => {
+    setQuestionFilter((value) => ({ ...value, ...patch }));
+    setQuestionLimit(100);
+  };
+  const dropdownHost = footerHost?.closest("dialog");
+
   useEffect(() => {
     void action(async () => setLibrary(await window.matheca.state()));
   }, []);
@@ -255,7 +287,75 @@ export function LibraryExchangePanel({
       </details>
       <details className="exchange-select">
         <summary>选择题目（{questions.length}）</summary>
-        {library?.questions.slice(0, questionLimit).map((q, index) => (
+        <div
+          className="library-filters exchange-question-filters"
+          aria-label="交换题目筛选条件"
+        >
+          <GlideSelect
+            label="年级"
+            value={questionFilter.grade}
+            onChange={(grade) => filterQuestions({ grade })}
+            options={[
+              { value: "", label: "全部年级" },
+              ...grades.map((value) => ({ value, label: value })),
+            ]}
+            portalHost={dropdownHost}
+          />
+          <GlideSelect
+            label="难度"
+            value={questionFilter.difficulty}
+            onChange={(difficulty) => filterQuestions({ difficulty })}
+            options={[
+              { value: "", label: "全部难度" },
+              ...["待评估", ...difficulties].map((value) => ({
+                value,
+                label: value,
+              })),
+            ]}
+            portalHost={dropdownHost}
+          />
+          <GlideSelect
+            label="知识点"
+            value={questionFilter.knowledge}
+            onChange={(knowledge) => filterQuestions({ knowledge })}
+            options={knowledgeOptions(
+              library?.customKnowledge ?? [],
+              library?.questions ?? [],
+            )}
+            portalHost={dropdownHost}
+          />
+          <GlideSelect
+            label="题型"
+            value={questionFilter.kind}
+            onChange={(kind) => filterQuestions({ kind })}
+            options={[
+              { value: "", label: "全部题型" },
+              ...kinds.map((value) => ({ value, label: value })),
+            ]}
+            portalHost={dropdownHost}
+          />
+        </div>
+        <div className="exchange-filter-summary">
+          <span aria-live="polite">
+            显示 {filteredQuestions.length} / {library?.questions.length ?? 0}{" "}
+            道题
+          </span>
+          <button
+            disabled={!filterActive}
+            onClick={() => {
+              setQuestionFilter({
+                grade: "",
+                difficulty: "",
+                knowledge: "",
+                kind: "",
+              });
+              setQuestionLimit(100);
+            }}
+          >
+            清除筛选
+          </button>
+        </div>
+        {filteredQuestions.slice(0, questionLimit).map((q, index) => (
           <article
             key={q.id}
             data-question-id={q.id}
@@ -278,13 +378,14 @@ export function LibraryExchangePanel({
               <div className="tags">
                 {q.grade && <span className="tag blue">{q.grade}</span>}
                 <span className="tag">{q.difficulty}</span>
-                {decodeKnowledge(q.knowledge, library.customKnowledge).map(
-                  (point) => (
-                    <span key={point} className="tag purple">
-                      {point}
-                    </span>
-                  ),
-                )}
+                {decodeKnowledge(
+                  q.knowledge,
+                  library?.customKnowledge ?? [],
+                ).map((point) => (
+                  <span key={point} className="tag purple">
+                    {point}
+                  </span>
+                ))}
               </div>
               <label className="exchange-check">
                 <input
@@ -302,6 +403,7 @@ export function LibraryExchangePanel({
               </span>
               <QuestionVisual question={q} lazy />
             </div>
+            <QuestionSource question={q} />
             <div className="card-footer">
               <span className="card-meta">
                 {q.kind} · {q.reviewed ? "已校对" : "待校对"}
@@ -309,13 +411,19 @@ export function LibraryExchangePanel({
             </div>
           </article>
         ))}
-        {!library?.questions.length && <p className="hint">暂无题目</p>}
-        {!!library && library.questions.length > questionLimit && (
+        {!filteredQuestions.length && (
+          <p className="hint">
+            {library?.questions.length
+              ? "没有符合条件的题目，请调整或清除筛选。"
+              : "暂无题目"}
+          </p>
+        )}
+        {filteredQuestions.length > questionLimit && (
           <button
             disabled={busy}
             onClick={() => setQuestionLimit((n) => n + 100)}
           >
-            显示更多题目（{questionLimit}/{library.questions.length}）
+            显示更多题目（{questionLimit}/{filteredQuestions.length}）
           </button>
         )}
       </details>

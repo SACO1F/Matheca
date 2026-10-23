@@ -1,8 +1,11 @@
 <resources>
-    <style name="Theme.Matheca" parent="android:style/Theme.Material.Light.NoActionBar">
+    <style name="Theme.Matheca.Base" parent="android:style/Theme.Material.Light.NoActionBar">
         <item name="android:fontFamily">sans</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowActionModeOverlay">true</item>
         <item name="android:colorAccent">#252525</item>
+    </style>
+    <style name="Theme.Matheca" parent="Theme.Matheca.Base">
+        <item name="android:windowBackground">@drawable/launch_background</item>
     </style>
 </resources>

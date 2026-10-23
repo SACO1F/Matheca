@@ -41,3 +41,18 @@
   padding: 0 16px;
   font-size: 13px;
 }
+
+.close-choice-remember {
+  margin-top: 18px;
+  gap: 8px;
+  font-size: 13px;
+}
+.close-choice-remember input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--blue);
+}
+.manual-save-content .close-choice-note {
+  font-size: 12px;
+  margin-top: 8px;
+}

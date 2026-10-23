@@ -419,3 +419,39 @@
   overflow: auto;
   line-height: 1.8;
 }
+
+.exchange-question-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 0 12px;
+}
+.exchange-filter-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+/* Native details keeps keyboard and disclosure semantics, including on reversal. */
+@supports (interpolate-size: allow-keywords) {
+  .exchange-select {
+    interpolate-size: allow-keywords;
+  }
+  .exchange-select::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition:
+      block-size 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      content-visibility 260ms allow-discrete;
+  }
+  .exchange-select[open]::details-content {
+    block-size: auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .exchange-select::details-content {
+    transition-duration: 0.01ms;
+  }
+}

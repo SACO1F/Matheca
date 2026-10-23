@@ -115,31 +115,42 @@ internal fun RoundedMenuDivider() {
 
 @Composable
 internal fun DeleteCollectionDialog(name: String, onDismiss: () -> Unit, onConfirm: () -> Unit) {
+    DeleteConfirmationDialog("删除这个题集？", name, "题库中的题目会保留。", "collection-delete", onDismiss, onConfirm)
+}
+
+@Composable
+internal fun DeleteQuestionDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
+    DeleteConfirmationDialog("删除这道题？", null, "题目会从题库和相关题集中移除，此操作无法撤销。", "question-delete", onDismiss, onConfirm)
+}
+
+@Composable
+private fun DeleteConfirmationDialog(title: String, name: String?, message: String, tag: String,
+    onDismiss: () -> Unit, onConfirm: () -> Unit) {
     val colors = MaterialTheme.colorScheme
     val divider = colors.onSurface.copy(alpha = .08f)
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Box(Modifier.fillMaxWidth().padding(horizontal = 24.dp), contentAlignment = Alignment.Center) {
-            Surface(Modifier.widthIn(max = 320.dp).fillMaxWidth().testTag("collection-delete-dialog"),
+            Surface(Modifier.widthIn(max = 320.dp).fillMaxWidth().testTag("$tag-dialog"),
                 shape = RoundedCornerShape(28.dp), color = overlayColor(), contentColor = colors.onSurface,
                 tonalElevation = 0.dp, shadowElevation = 0.dp) {
                 Column {
                     Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 22.dp),
                         horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Text("删除这个题集？", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
-                        Text(name, Modifier.testTag("collection-delete-name"), fontSize = 15.sp,
+                        Text(title, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+                        if (name != null) Text(name, Modifier.testTag("$tag-name"), fontSize = 15.sp,
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center, maxLines = 3,
                             overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
-                        Text("题库中的题目会保留。", fontSize = 13.sp, color = colors.onSurface.copy(alpha = .65f),
+                        Text(message, fontSize = 13.sp, color = colors.onSurface.copy(alpha = .65f),
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                     }
                     HorizontalDivider(thickness = .5.dp, color = divider)
                     Row(Modifier.fillMaxWidth().height(52.dp)) {
-                        TextButton(onClick = onDismiss, modifier = Modifier.weight(1f).fillMaxHeight().testTag("collection-delete-cancel"),
+                        TextButton(onClick = onDismiss, modifier = Modifier.weight(1f).fillMaxHeight().testTag("$tag-cancel"),
                             shape = RectangleShape, colors = ButtonDefaults.textButtonColors(contentColor = colors.primary)) {
                             Text("取消", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                         }
                         VerticalDivider(thickness = .5.dp, color = divider)
-                        TextButton(onClick = onConfirm, modifier = Modifier.weight(1f).fillMaxHeight().testTag("collection-delete-confirm"),
+                        TextButton(onClick = onConfirm, modifier = Modifier.weight(1f).fillMaxHeight().testTag("$tag-confirm"),
                             shape = RectangleShape, colors = ButtonDefaults.textButtonColors(contentColor = colors.error)) {
                             Text("删除", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                         }

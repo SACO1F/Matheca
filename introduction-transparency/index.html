@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Matheca 数学题库：从收集、校对与分类，到编排自己的练习。Windows 与 Android，题库保存在本机。"><meta name="theme-color" content="#f7faff"><title>Matheca · 同一道题，逐层清晰</title>
+<link rel="stylesheet" href="assets/fonts/fonts.css"><link rel="stylesheet" href="assets/katex/katex.min.css"><link rel="stylesheet" href="style.css"><script defer src="assets/katex/katex.min.js"></script><script defer src="assets/katex/auto-render.min.js"></script><script defer src="main.js"></script></head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<header class="site-header">
+ <a class="wordmark" href="#top" aria-label="Matheca 首页">Matheca</a><p class="audience">高中数学备课</p>
+ <nav class="main-nav" aria-label="页面导航"><a href="#process">看整理过程</a><a href="#usage">使用说明</a></nav>
+ <div class="header-downloads">
+ <a class="button button-primary" href="https://github.com/SACO1F/Matheca/releases/download/matheca-2026.10.19/Matheca-win32-x64-0.1.0.zip"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="m2 4 9-1v8H2zm11-1 9-1v9h-9zM2 13h9v8l-9-1zm11 0h9v9l-9-1z"/></svg><span>下载 Windows</span></a>
+ <a class="button button-outline" href="https://github.com/SACO1F/Matheca/releases/download/android-v0.22.0/Matheca-android-0.22.0-debug.apk"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 4-2-3m10 3 2-3M5 10h14v9H5zM3 11v6m18-6v6M8 19v3m8-3v3M5 8a7 7 0 0 1 14 0Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M8 6h1m6 0h1" stroke="currentColor" stroke-width="1.8"/></svg><span>下载 Android</span></a>
+ </div>
+</header>
+<main id="main">
+ <section class="hero" id="top" aria-labelledby="hero-title">
+ <div class="hero-heading"><h1 id="hero-title">同一道题，逐层清晰</h1><p>从收集的题目，到你自己的练习。</p></div>
+ <div class="optical-stage" aria-label="来源、校对和练习的三层演示">
+ <article class="plane plane-source"><header><h2>原始题目<span> · 演示</span></h2><span class="stage-number">01</span></header><img class="source-image" src="assets/plates/source-image.png" alt="演示来源题目：已知函数 f(x)=x²−2x，求它在 [0,3] 上的值域。"></article>
+ <article class="plane plane-editor">
+ <header><h2>校对与编辑</h2><span class="stage-number">02</span></header>
+ <div class="editor-question"><p>已知 \(f(x)=x^2-2x\)，</p><p>求它在 <span class="correction">\([0,3]\)</span> 上的值域。</p></div><p class="correction-note">区间更正为 \([0,3]\)</p>
+ <div class="analysis"><h3>解析（可编辑）</h3><p>\(f(x)=x^2-2x=(x-1)^2-1\)。</p><p>在 \([0,3]\) 上，函数的最小值为 \(-1\)（\(x=1\)），<br>最大值为 \(3\)（\(x=3\)）。</p></div>
+ <figure class="function-plot"><canvas id="functionPlot" role="img" aria-label="函数 f(x)=x²−2x 在 [0,3] 上的图像，最低点 (1,-1)，右端点 (3,3)"></canvas><figcaption>\(y=x^2-2x\)</figcaption></figure>
+ <i class="register register-tl" aria-hidden="true"></i><i class="register register-bl" aria-hidden="true"></i>
+ </article>
+ <article class="plane plane-exercise"><header><h2>我的练习<span> · 演示</span></h2><span class="stage-number">03</span></header>
+ <div class="exercise-question"><p>已知 \(f(x)=x^2-2x\)，</p><p>求它在 \([0,3]\) 上的值域。</p></div>
+ <dl class="exercise-meta"><div><dt>题型</dt><dd>函数与导数</dd><button type="button" data-edit="type" aria-label="编辑演示题的题型">编辑</button></div><div><dt>难度</dt><dd>基础</dd><button type="button" data-edit="difficulty" aria-label="编辑演示题的难度">编辑</button></div><div><dt>标签</dt><dd>值域 · 二次函数 · 区间最值</dd><button type="button" data-edit="tags" aria-label="编辑演示题的标签">编辑</button></div></dl>
+ <div class="exercise-answer"><p>参考答案</p><strong>\([-1,3]\)</strong><button type="button" id="answerToggle" aria-expanded="true">隐藏</button></div>
+ <i class="register register-tr" aria-hidden="true"></i><i class="register register-br" aria-hidden="true"></i>
+ </article>
+ </div></section>
+ <section class="proofreading" id="process" aria-labelledby="proof-title">
+ <div class="proof-copy"><h2 id="proof-title">校对，让题目真正可用</h2><p>在整理过程中校对、编辑、修正题干，完善解析，<br class="desktop-break">让收集的题目变成清晰、规范、可反复使用的练习。</p></div>
+ <div class="proof-demo"><div class="proof-original"><p>原始题目（局部）</p><img src="assets/plates/next-source.png" alt="同一道题的复印来源局部"><span class="proof-note">标点与区间格式需核对</span></div><span class="flow-arrow" aria-hidden="true">→</span><div class="proof-corrected"><p>校对后（可编辑）</p><div>已知 \(f(x)=x^2-2x\)，<br>求它在 <span class="correction">\([0,3]\)</span> 上的值域。</div></div></div>
+ <ul class="proof-list"><li>修正标点、符号和区间格式</li><li>对照原图，核对条件与解析</li><li>设置题型、难度与标签</li><li>保存可反复使用的练习</li></ul>
+ </section>
+ <div class="demonstration-note"><span>界面与题目均为流程演示，不读取或修改你的应用数据。</span><button id="correctionToggle" type="button" aria-pressed="true">隐藏修订标记</button></div>
+ <section class="organisation chapter" id="organise" aria-labelledby="organise-title">
+  <div class="chapter-heading"><h2 id="organise-title">把题目放在<br>合适的位置。</h2><p>知识点串起线索，题集留下你的编排。<br>试着选几道题，让它们成为下面那份练习。</p></div>
+  <div class="collection-workspace">
+   <div class="question-library"><div class="workspace-label"><h3>可复用的题目</h3><span>演示题库</span></div>
+    <div class="subject-filter" role="group" aria-label="按知识点筛选演示题"><button type="button" data-filter="all" aria-pressed="true">全部</button><button type="button" data-filter="function" aria-pressed="false">函数</button><button type="button" data-filter="sequence" aria-pressed="false">数列</button></div>
+    <div id="questionPool"></div>
+   </div>
+   <div class="collection-order"><div class="workspace-label"><h3>我的练习</h3><span><b id="selectedTotal">2</b> 道题</span></div><p class="order-explanation">加入、排序，顺序就成为卷面顺序。</p><ol id="orderedQuestions" aria-label="练习中的题目顺序"></ol><p class="collection-footnote">移除只改变这里的演示题集，题库原题仍保留。</p></div>
+  </div>
+ </section>
+ <section class="composition chapter" id="compose" aria-labelledby="compose-title">
+  <div class="document-tools"><h2 id="compose-title">从整理，<br>到一张真正的练习。</h2><p>同一组题，从编辑视野走到卷面。<br>标题、顺序与留白，都由你安排。</p>
+   <div class="document-settings"><label for="paperTitle">练习标题</label><input id="paperTitle" value="函数与数列 · 单元练习" maxlength="36"><dl><div><dt>纸张</dt><dd>A4</dd></div><div><dt>考试时间</dt><dd>45 分钟</dd></div><div><dt>满分</dt><dd>100 分</dd></div></dl><label class="check-setting"><input type="checkbox" id="answerSpace" checked><span>保留每题答题留白</span></label></div>
+   <a class="text-link" href="#organise">返回调整选题与顺序 <span aria-hidden="true">↗</span></a><p class="export-note">这里展示排版效果。PDF / Word 文件需在 Matheca 应用中导出；Word 中的公式目前以图片呈现。</p>
+  </div>
+  <div class="paper-surround"><article class="exercise-paper" aria-label="选题后的练习卷面演示"><header><p>Matheca · 排版示意</p><h3 id="paperHeading">函数与数列 · 单元练习</h3><p>考试时间 45 分钟　·　满分 100 分</p><div class="student-line">姓名 __________　班级 __________</div></header><ol id="paperQuestions"></ol><div class="paper-empty" id="paperEmpty" hidden><p>一份新的练习，正在等第一道题。</p><a href="#organise">去选题</a></div><footer><span>练习预览</span><span>公式在本地排版</span></footer></article></div>
+ </section>
+ <section class="usage chapter" id="usage" aria-labelledby="usage-title"><div class="usage-heading"><h2 id="usage-title">整理留在本机，<br>选择交给自己。</h2><p>了解工具怎么工作，再把它带进日常备课。</p></div><dl class="usage-ledger"><div><dt>离线整理</dt><dd>手动录题、题库分类、校对、选题组卷与文档导出可离线使用。题目和来源图保存在本机，建议定期导出题库备份。</dd></div><div><dt>识别与解题</dt><dd>需要自行配置支持图片输入的接口、模型与 API Key。调用可能产生服务费用；识别结果与 AI 解答仍需人工核对。</dd></div><div><dt>手机与电脑</dt><dd>同一局域网中连接并确认后，可手动交换题目与题集；手机浏览器也可扫码传图。两端各自保存本地题库，没有账户云同步。</dd></div></dl></section>
+ <section class="download-section" id="download" aria-labelledby="download-title"><div class="download-intro"><h2 id="download-title">带走这份清晰。</h2><p>让每一次整理，都成为下一次备课的起点。</p></div><div class="download-options"><a class="download-option" href="https://github.com/SACO1F/Matheca/releases/download/matheca-2026.10.19/Matheca-win32-x64-0.1.0.zip"><span>Windows x64 · 0.1.0</span><strong>下载便携版 <span aria-hidden="true">↗</span></strong><p>完整解压后运行 Matheca.exe，保留目录中的运行资源。</p></a><a class="download-option" href="https://github.com/SACO1F/Matheca/releases/download/android-v0.22.0/Matheca-android-0.22.0-debug.apk"><span>Android 8.0+ · 0.22.0 Debug</span><strong>下载 Android <span aria-hidden="true">↗</span></strong><p>调试签名构建。覆盖安装前，请先保存完整题库备份。</p></a></div><p class="release-note">以上链接为已发布的指定版本，页面演示不代表旧版本包含当前源码的全部功能。更多版本、说明与校验文件见 <a href="https://github.com/SACO1F/Matheca/releases">GitHub Releases</a>。</p></section>
+</main>
+<footer class="site-footer"><a class="footer-brand" href="#top">Matheca</a><p>从收集的题目，到你自己的练习。</p><nav aria-label="更多信息"><a href="https://github.com/SACO1F/Matheca">源码仓库</a><a href="https://github.com/SACO1F/Matheca/blob/main/README.md">使用文档</a><a href="#top">返回顶部 ↑</a></nav></footer>
+<p class="live-status sr-only" role="status" aria-live="polite"></p>
+<form class="inline-editor" id="inlineEditor" hidden><label for="editValue">编辑演示内容</label><input id="editValue" maxlength="48" required><div><button type="button" id="cancelEdit">取消</button><button type="submit">保存</button></div><p>仅修改网页演示，刷新后恢复。</p></form>
+</body></html>

@@ -178,6 +178,12 @@ try {
       .find((w) => w.isVisible())
       .close(),
   );
+  await (
+    await application.firstWindow()
+  )
+    .getByRole("dialog", { name: "关闭 Matheca", exact: true })
+    .getByRole("button", { name: "直接退出", exact: true })
+    .click();
   await application.waitForEvent("close", { timeout: 30000 });
   application = undefined;
   application = await electron.launch({
@@ -280,6 +286,12 @@ try {
       .find((w) => w.isVisible())
       .close(),
   );
+  await (
+    await application.firstWindow()
+  )
+    .getByRole("dialog", { name: "关闭 Matheca", exact: true })
+    .getByRole("button", { name: "直接退出", exact: true })
+    .click();
   await application.waitForEvent("close", { timeout: 30000 });
   application = undefined;
   application = await electron.launch({
@@ -302,6 +314,12 @@ try {
       .find((w) => w.isVisible())
       .close(),
   );
+  await (
+    await application.firstWindow()
+  )
+    .getByRole("dialog", { name: "关闭 Matheca", exact: true })
+    .getByRole("button", { name: "直接退出", exact: true })
+    .click();
   await closed;
   application = undefined;
   application = await electron.launch({
@@ -325,6 +343,12 @@ try {
       .find((w) => w.isVisible())
       .close(),
   );
+  await (
+    await application.firstWindow()
+  )
+    .getByRole("dialog", { name: "关闭 Matheca", exact: true })
+    .getByRole("button", { name: "直接退出", exact: true })
+    .click();
   await closed;
   application = undefined;
   console.log(

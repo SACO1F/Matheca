@@ -102,6 +102,11 @@ import com.mathector.app.data.*
                 }
             }
         }
+        val source = question.sourceLabel.trim().ifBlank {
+            question.sourcePath.replace('\\', '/').substringAfterLast('/').ifBlank { "来源未知" }
+        }
+        Text("来源：$source", Modifier.fillMaxWidth().testTag("$tagPrefix-source-${question.id}"),
+            color = neutral, fontSize = 11.sp, lineHeight = 16.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
         footer?.invoke()
     }
 }

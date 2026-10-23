@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { createRoot } from "react-dom/client";
 import { flushSync } from "react-dom";
-import { MathView, QuestionVisual } from "./question-content";
+import { MathView, QuestionVisual, QuestionSource } from "./question-content";
 import "katex/dist/katex.min.css";
 import "./style.css";
 import "./management-pages.css";
@@ -41,6 +41,8 @@ import { SourceViewer } from "./source-viewer";
 import { NavIcon, type NavIconName } from "./nav-icon";
 import { QuickIcon } from "./quick-icon";
 import { MobileImportDialog } from "./mobile-import";
+import { CloseChoiceDialog } from "./close-choice-dialog";
+import { PrivacyPolicy } from "./privacy-policy";
 import { ManualSaveDialog, type ManualSaveChoice } from "./manual-save-dialog";
 import { KnowledgeTree } from "./knowledge-tree";
 import type {
@@ -82,33 +84,6 @@ const emptyFilter: Filter = {
   reviewed: "all",
   favorite: false,
 };
-function Select({
-  value,
-  onChange,
-  options,
-  label,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  options: string[];
-  label: string;
-}) {
-  return (
-    <label className="field">
-      <span>{label}</span>
-      <select
-        aria-label={label}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-      >
-        <option value="">全部</option>
-        {options.map((v) => (
-          <option key={v}>{v}</option>
-        ))}
-      </select>
-    </label>
-  );
-}
 function App() {
   const filterHistoryTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const pickerHistoryTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -138,6 +113,7 @@ function App() {
     [busy, setBusy] = useState(false),
     [preview, setPreview] = useState<BackupPreview>(),
     [guideOpen, setGuideOpen] = useState(false),
+    [privacyOpen, setPrivacyOpen] = useState(false),
     [mobileOpen, setMobileOpen] = useState(false),
     [collectionDialog, setCollectionDialog] = useState(false),
     [joinQuestionId, setJoinQuestionId] = useState<string>(),
@@ -169,6 +145,20 @@ function App() {
     [knowledgeOpen, setKnowledgeOpen] = useState(false),
     [knowledgeHover, setKnowledgeHover] = useState(false);
   const [undoReview, setUndoReview] = useState<Question>();
+  useEffect(() => {
+    if (!state) return;
+    const values = new Set(
+      knowledgeOptions(state.customKnowledge, state.questions).map(
+        (option) => option.value,
+      ),
+    );
+    setFilter((current) =>
+      values.has(current.knowledge) ? current : { ...current, knowledge: "" },
+    );
+    setPickerFilter((current) =>
+      values.has(current.knowledge) ? current : { ...current, knowledge: "" },
+    );
+  }, [state?.questions, state?.customKnowledge]);
   const [undoDelete, setUndoDelete] = useState<string>();
   const [undoAdd, setUndoAdd] = useState<string>();
   const [toastId, setToastId] = useState(0);
@@ -309,6 +299,8 @@ function App() {
   }, [knowledgeOpen, section]);
   const selectionRequest = useRef(0);
   const manualDraftId = useRef<string | undefined>(undefined);
+  const [closeChoicePrompt, setCloseChoicePrompt] = useState(false);
+  useEffect(() => api.onCloseChoice(setCloseChoicePrompt), []);
   const [manualSavePrompt, setManualSavePrompt] = useState<{
     hasContent: boolean;
   }>();
@@ -560,6 +552,7 @@ function App() {
     const listener = (e: KeyboardEvent) => {
       if (
         manualSavePrompt ||
+        closeChoicePrompt ||
         pendingKnowledge !== undefined ||
         joinQuestionId ||
         documentPreview
@@ -951,6 +944,7 @@ function App() {
           </span>
           <QuestionVisual question={q} lazy />
         </div>
+        <QuestionSource question={q} />
         {inCollection && paper && (
           <div className="question-layout-controls">
             <label>
@@ -1584,7 +1578,10 @@ function App() {
                     label="知识点"
                     value={filter.knowledge}
                     onChange={(knowledge) => setF({ knowledge })}
-                    options={knowledgeOptions(state.customKnowledge)}
+                    options={knowledgeOptions(
+                      state.customKnowledge,
+                      state.questions,
+                    )}
                   />
                   <GlideSelect
                     label="校对状态"
@@ -1867,25 +1864,53 @@ function App() {
                               }
                             />
                           </label>
-                          <div className="filter-row">
-                            <Select
-                              label="题目年级"
-                              value={draft.grade}
-                              onChange={(grade) => update({ grade })}
-                              options={grades}
-                            />
-                            <Select
-                              label="题目题型"
-                              value={draft.kind}
-                              onChange={(kind) => update({ kind })}
-                              options={kinds}
-                            />
-                            <Select
-                              label="题目难度"
-                              value={draft.difficulty}
-                              onChange={(difficulty) => update({ difficulty })}
-                              options={["待评估", ...difficulties]}
-                            />
+                          <div className="editor-classification">
+                            <div className="field">
+                              <span>年级</span>
+                              <GlideSelect
+                                label="题目年级"
+                                value={draft.grade}
+                                onChange={(grade) => update({ grade })}
+                                options={[
+                                  { value: "", label: "未设置年级" },
+                                  ...grades.map((value) => ({
+                                    value,
+                                    label: value,
+                                  })),
+                                ]}
+                              />
+                            </div>
+                            <div className="field">
+                              <span>题型</span>
+                              <GlideSelect
+                                label="题目题型"
+                                value={draft.kind}
+                                onChange={(kind) => update({ kind })}
+                                options={[
+                                  { value: "", label: "未设置题型" },
+                                  ...kinds.map((value) => ({
+                                    value,
+                                    label: value,
+                                  })),
+                                ]}
+                              />
+                            </div>
+                            <div className="field">
+                              <span>难度</span>
+                              <GlideSelect
+                                label="题目难度"
+                                value={draft.difficulty}
+                                onChange={(difficulty) =>
+                                  update({ difficulty })
+                                }
+                                options={[
+                                  { value: "", label: "未设置难度" },
+                                  ...["待评估", ...difficulties].map(
+                                    (value) => ({ value, label: value }),
+                                  ),
+                                ]}
+                              />
+                            </div>
                           </div>
                           <div className="field knowledge-field">
                             <span>知识点（多选）</span>
@@ -2499,6 +2524,7 @@ function App() {
                                 }
                                 options={knowledgeOptions(
                                   state.customKnowledge,
+                                  state.questions,
                                 )}
                               />
                               <GlideSelect
@@ -2704,6 +2730,35 @@ function App() {
                   }
                 </p>
               </section>
+              <section
+                className="settings-card"
+                aria-labelledby="close-behavior-heading"
+              >
+                <h2 id="close-behavior-heading">关闭行为</h2>
+                <p>
+                  选择关闭窗口后的操作。系统托盘右键“退出”始终进入退出流程。
+                </p>
+                <label className="field">
+                  <span>关闭窗口时</span>
+                  <select
+                    aria-label="关闭窗口时"
+                    value={state.settings.closeAction ?? "ask"}
+                    disabled={busy}
+                    onChange={(event) =>
+                      void run(async () => {
+                        await api.setCloseAction(
+                          event.target.value as "ask" | "quit" | "background",
+                        );
+                        await refresh();
+                      })
+                    }
+                  >
+                    <option value="ask">每次询问</option>
+                    <option value="background">后台运行</option>
+                    <option value="quit">直接退出</option>
+                  </select>
+                </label>
+              </section>
               <div className="settings-card">
                 <div className="settings-help-heading">
                   <h2>题目识别与接口</h2>
@@ -2828,6 +2883,17 @@ function App() {
                   </button>
                 </div>
               </div>
+              <section
+                className="settings-card"
+                aria-labelledby="privacy-settings-title"
+              >
+                <h2 id="privacy-settings-title">隐私与数据</h2>
+                <p>
+                  题库主要保存在本机。AI
+                  识别与解题会发送内容至你配置的服务；设备联动会传输你选择的资料。
+                </p>
+                <button onClick={() => setPrivacyOpen(true)}>隐私政策</button>
+              </section>
               <QuickHelp />
             </section>
           )}
@@ -2969,6 +3035,7 @@ function App() {
           onExport={() => void run(confirmDocumentExport)}
         />
       )}
+      {privacyOpen && <PrivacyPolicy onClose={() => setPrivacyOpen(false)} />}
       {guideOpen && (
         <ApiGuide
           onClose={() => setGuideOpen(false)}
@@ -2979,6 +3046,17 @@ function App() {
             });
             setGuideOpen(false);
             setNotice("已填入地址与模型名，请粘贴 API Key 后保存配置");
+          }}
+        />
+      )}
+      {closeChoicePrompt && (
+        <CloseChoiceDialog
+          onDecision={(choice, remember) => {
+            setCloseChoicePrompt(false);
+            void api.resolveCloseChoice(choice, remember).catch((error) => {
+              setError(error.message);
+              setCloseChoicePrompt(true);
+            });
           }}
         />
       )}

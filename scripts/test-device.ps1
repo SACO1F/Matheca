@@ -22,7 +22,7 @@ try {
     & $adb install -r app\build\outputs\apk\androidTest\debug\app-debug-androidTest.apk
     if ($LASTEXITCODE -ne 0) { throw 'Test installation failed.' }
     New-Item -ItemType Directory -Path artifacts -Force | Out-Null
-    $testOutput = & $adb shell am instrument -w com.mathector.app.test/androidx.test.runner.AndroidJUnitRunner
+    $testOutput = & $adb shell am instrument -w com.matheca.app.test/androidx.test.runner.AndroidJUnitRunner
     $testOutput | Tee-Object -FilePath artifacts\instrumentation-results.txt
     if (($testOutput -join "`n") -notmatch '(?m)^OK \(\d+ tests?\)') { throw 'Device tests failed; inspect artifacts/instrumentation-results.txt.' }
 } finally { Pop-Location }

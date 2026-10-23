@@ -10,6 +10,12 @@ import androidx.activity.SystemBarStyle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import kotlinx.coroutines.delay
+import com.mathector.app.ui.StartupScreen
 import com.mathector.app.ui.MathectorApp
 
 class MainActivity : ComponentActivity() {
@@ -22,7 +28,13 @@ class MainActivity : ComponentActivity() {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T = AppViewModel(application as MathectorApplication) as T
             })
-            MathectorApp(model)
+            var starting by rememberSaveable { mutableStateOf(savedInstanceState == null) }
+            LaunchedEffect(starting) {
+                if (starting) { delay(700); starting = false }
+            }
+            Crossfade(starting, animationSpec = tween(180), label = "startup-content") { showStartup ->
+                if (showStartup) StartupScreen() else MathectorApp(model)
+            }
         }
     }
 }
