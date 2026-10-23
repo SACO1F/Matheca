@@ -1,0 +1,13 @@
+{
+  // Cloudflare Workers 静态资源部署配置。
+  // Cloudflare 的构建机在仓库根目录执行 `npx wrangler deploy`，读的就是这份文件；
+  // 本机也可以直接 `npx wrangler deploy --dry-run` 预演一次。
+  // 没有 main、没有 bundler：这个 Worker 的全部内容就是构建命令放进 dist/ 的那几个文件。
+  "name": "matheca",
+  "compatibility_date": "2026-10-23",
+  "assets": {
+    // 相对本文件（仓库根目录）。dist/ 由 Cloudflare 后台的构建命令生成，不进版本库。
+    // 不直接指向 ./site：assets 目录是整目录上传，README.md 会一起变成 /README.md。
+    "directory": "./dist"
+  }
+}
