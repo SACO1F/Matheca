@@ -1247,3 +1247,5 @@ code {
   .js [data-reveal] { opacity: 1; transform: none; }
   .js .proof:not(.is-done) .proof__stamp { opacity: .92; transform: rotate(-7deg); }
 }
+
+/* deploy-check 2026-10-23T08:49:08Z */
