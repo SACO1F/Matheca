@@ -11,7 +11,19 @@ assets/           LOGO 位图（Matheca-rounded.png，顶栏标记与 favicon �
 
 ## 部署
 
-线上是 Cloudflare **Workers 静态资源**（不是 Pages），接 GitHub `SACO1F/Matheca` 的 `main` 分支，推送即重建。配置分两处，改任何一处都要跟另一处对得上：
+同一份文件，目前挂在 Cloudflare 的两个地方：**Worker 静态资源**（已上线）和 **Pages 项目**（给 `matheca.pages.dev` 这个习惯命名用）。两边的发布面都是白名单——只有构建命令点名的文件会上线，`site/README.md`、`DESIGN.md` 这类文档不进公网。
+
+发布面是**白名单**：只有 `cp` 点名的文件会上线。新增页面级资源（比如再拆一个 css）必须同时改构建命令，否则线上 404；`assets/` 是整目录拷贝，往里加文件不用改。
+
+为什么用 `dist/` 而不是让静态目录直接指 `./site`：静态目录是**整目录上传**，`site/README.md` 会一起变成公开的 `/README.md`。`.assetsignore` 这条路走不通——wrangler 4.151 实测对它不生效（加了这个文件，上传数反而只多不少），所以白名单只能交给构建命令。
+
+`DESIGN.md`、`PRODUCT.md`、`.impeccable/`、`.workbuddy/` 已被 `.gitignore` 挡在仓库外，既不进版本库也不进构建产物。
+
+### A. Worker 静态资源（当前线上）
+
+<https://matheca.1005262768.workers.dev> —— 账户自动分配的 workers.dev 子域。
+
+配置分两处，改任何一处都要跟另一处对得上：
 
 - 仓库里：根目录的 `wrangler.jsonc`。`name` 必须和 Cloudflare 上的项目同名（`matheca`），`assets.directory` 指向 `./dist`。
 - Cloudflare 后台「部署 / 构建设置」：
@@ -23,11 +35,20 @@ assets/           LOGO 位图（Matheca-rounded.png，顶栏标记与 favicon �
 | 部署命令 | `npx wrangler deploy`（默认值，不用改） |
 | 构建输出 | `dist/`，由构建命令生成，不进版本库 |
 
-发布面是**白名单**：只有上面 `cp` 点名的文件会上线。新增页面级资源（比如再拆一个 css）必须同时改这条构建命令，否则线上 404；`assets/` 是整目录拷贝，往里加文件不用改。
+### B. Pages 项目（`matheca.pages.dev`）
 
-为什么用 `dist/` 而不是让 `assets.directory` 直接指 `./site`：`assets` 目录是整目录上传，`site/README.md` 会一起变成公开的 `/README.md`。`.assetsignore` 这条路走不通——wrangler 4.151 实测对它不生效（加了这个文件，上传数反而只多不少），所以白名单交给构建命令。
+Pages 不读 `wrangler.jsonc`，也不跑 `wrangler deploy`；它只认后台那两个字段。**根目录留空**，路径前缀全写在构建命令里，省得两处对不上：
 
-`DESIGN.md`、`PRODUCT.md`、`.impeccable/`、`.workbuddy/` 已被 `.gitignore` 挡在仓库外，既不进版本库也不进构建产物。
+| 项 | 值 |
+| --- | --- |
+| 生产分支 | `main` |
+| 框架预设 | `None` |
+| 根目录 | 留空 |
+| 构建命令 | `mkdir -p site/dist && cp -r site/index.html site/styles.css site/main.js site/assets site/dist/` |
+| 构建输出目录 | `site/dist` |
+
+如果界面里把根目录填成了 `site`，那构建命令要相应去掉 `site/` 前缀、输出目录改成 `dist`。**两种写法别混用**，混用就是 `cp: cannot stat 'index.html'`。
+
 
 
 ## 视觉方向：批改现场
