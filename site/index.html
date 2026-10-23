@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Matheca · 机器先写，你落笔定稿</title>
+<meta name="description" content="Matheca 是面向高中数学备课的本地题库工具：拍照或导入 PDF，机器给出识别草稿，你对照原图校对、按知识点分类、选题组卷，导出 A4 PDF 与 Word。提供 Windows 便携版与 Android App，题库保存在本机。">
+<meta name="theme-color" content="#f6f7f8">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Matheca · 机器先写，你落笔定稿">
+<meta property="og:description" content="把照片和 PDF 里的数学题收成本地题库，校对、组卷，导出 A4 PDF 与 Word。">
+<link rel="icon" href="assets/Matheca-rounded.png" type="image/png">
+<link rel="stylesheet" href="styles.css">
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="topbar" id="top">
+  <div class="wrap topbar__inner">
+    <a class="brand" href="#top" aria-label="Matheca 首页">
+      <img class="brand__mark" src="assets/Matheca-rounded.png" alt="" width="26" height="26">
+      <span class="brand__name">Matheca</span>
+    </a>
+
+    <button class="navToggle" type="button" aria-expanded="false" aria-controls="site-nav" data-nav-toggle>
+      <span aria-hidden="true"><i></i><i></i></span>
+      <span class="visually-hidden">导航</span>
+    </button>
+
+    <nav class="nav" id="site-nav" aria-label="页面导航" data-nav>
+      <a href="#flow">流程</a>
+      <a href="#features">功能</a>
+      <a href="#start">开始使用</a>
+      <a href="#limits">边界</a>
+      <a class="nav__gh" href="https://github.com/SACO1F/Matheca" target="_blank" rel="noreferrer">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.6 9.6 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/></svg>
+        <span>GitHub</span>
+      </a>
+      <a class="btn btn--pen btn--sm nav__cta" href="https://github.com/SACO1F/Matheca/releases" target="_blank" rel="noreferrer">下载</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ============================ HERO ============================ -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap hero__grid">
+
+      <div class="hero__copy">
+        <h1 class="hero__title" id="hero-title">Matheca</h1>
+
+        <p class="hero__tagline">机器先写，<span class="mark">你落笔定稿</span>。</p>
+
+        <p class="hero__lede">
+          面向高中数学备课的本地题库。拍照、相册或 PDF 导入，识别结果只存成待校对草稿；你对照原图改完，再按知识点分类、选题组卷，导出 A4 PDF 与 Word。
+        </p>
+
+        <div class="hero__actions">
+          <a class="btn btn--pen" href="https://github.com/SACO1F/Matheca/releases" target="_blank" rel="noreferrer">
+            下载 v0.1.0
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v10M7.5 9.5 12 14l4.5-4.5M5 19h14"/></svg>
+          </a>
+          <button class="btn btn--line" type="button">先看它能做什么</button>
+        </div>
+
+        <ul class="hero__meta">
+          <li>Windows x64</li>
+          <li>Android 8.0+</li>
+          <li>题库保存在本机</li>
+          <li>整理与导出可离线</li>
+        </ul>
+      </div>
+
+      <!-- 校对现场：一张已经定稿的题卡，红笔的痕迹只剩右上那枚章 -->
+      <figure class="proof" aria-labelledby="proof-cap">
+        <div class="proof__card">
+          <div class="proof__head">
+            <span class="proof__qn" aria-hidden="true">第 <b>1</b> 题</span>
+            <p class="proof__meta">
+              <span>高一</span>
+              <span class="proof__sep" aria-hidden="true"></span>
+              <span>基础</span>
+              <span class="proof__sep" aria-hidden="true"></span>
+              <span class="proof__kp">函数单调性</span>
+            </p>
+            <span class="proof__stamp" aria-hidden="true">已校对</span>
+          </div>
+
+            <div class="proof__body">
+              <div class="scan" aria-hidden="true">
+                <span class="scan__no">1.</span>
+                <span class="scan__line" style="--w:88%"></span>
+                <span class="scan__line" style="--w:72%"></span>
+                <span class="scan__line" style="--w:94%"></span>
+                <span class="scan__line" style="--w:58%"></span>
+                <span class="scan__line" style="--w:80%"></span>
+                <span class="scan__line" style="--w:64%"></span>
+                <span class="scan__c scan__c--tl"></span>
+                <span class="scan__c scan__c--br"></span>
+              </div>
+              <div class="proof__text">
+                <p class="stem">已知函数 <span class="math"><i>f</i>(<i>x</i>) = <i>x</i><sup>2</sup> − 2<i>x</i></span>。</p>
+                <ol class="parts">
+                  <li>求函数的定义域；</li>
+                  <li>求函数的单调区间；</li>
+                  <li>求函数的最小值及取得最小值时的 <span class="math"><i>x</i></span> 的值。</li>
+                </ol>
+              </div>
+            </div>
+
+        </div>
+
+        <div class="proof__set">
+          <span class="proof__setTitle">题集 · 函数单调性 · 单元测</span>
+          <span class="proof__setMeta">12 题 · A4 · 45 分钟 · 满分 100</span>
+        </div>
+
+        <figcaption class="proof__cap" id="proof-cap">界面示意 · 题目取自应用内示例</figcaption>
+      </figure>
+
+    </div>
+  </section>
+
+  <!-- ============================ FOR WHOM ============================ -->
+  <section class="forwho" aria-labelledby="forwho-title">
+    <div class="wrap">
+      <h2 class="visually-hidden" id="forwho-title">它适合谁</h2>
+      <dl class="forwho__list" data-reveal>
+        <div>
+          <dt>写给谁</dt>
+          <dd>高中数学老师。备课、周测、月考，同一道题会反复用上几年。</dd>
+        </div>
+        <div>
+          <dt>什么时候用</dt>
+          <dd>手上是拍照的讲义、扫描的试卷、别人的 PDF，而题库还散在一个文件夹里。</dd>
+        </div>
+        <div>
+          <dt>换来什么</dt>
+          <dd>一份能改、能备份的本地题库，和一张能直接印的 A4 卷子。</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- ============================ FLOW ============================ -->
+  <section class="section" id="flow" aria-labelledby="flow-title">
+    <div class="wrap">
+      <div class="head">
+        <h2 class="h2" id="flow-title">从一张照片，到一张卷子</h2>
+      </div>
+
+      <ol class="flow" data-reveal>
+        <li class="flow__step">
+          <div class="flow__art">
+            <div class="art-photo">
+              <span class="art-photo__glare" aria-hidden="true"></span>
+              <span class="art-photo__line" style="--w:86%"></span>
+              <span class="art-photo__line" style="--w:70%"></span>
+              <span class="art-photo__line" style="--w:92%"></span>
+              <span class="art-photo__line" style="--w:48%"></span>
+              <span class="art-photo__line" style="--w:88%"></span>
+              <span class="art-photo__line" style="--w:76%"></span>
+              <span class="art-photo__line" style="--w:58%"></span>
+            </div>
+            <span class="art-chip">IMG_2041 · 第 3 页</span>
+          </div>
+          <h3 class="flow__title"><span class="flow__n">1</span>收进来</h3>
+          <p class="flow__text">拍照、相册、PDF 导入，桌面端还能截图、粘贴和拖放。跨页的照片按页码顺序同批导入，接缝处的续题也能认。</p>
+        </li>
+
+        <li class="flow__step">
+          <div class="flow__art">
+            <div class="draft" aria-hidden="true">
+              <div class="draft__sheet draft__sheet--draft">
+                <span class="draft__line" style="--w:70%"></span>
+                <span class="draft__line" style="--w:92%"></span>
+                <span class="draft__line draft__line--cut" style="--w:56%"></span>
+                <span class="draft__line" style="--w:78%"></span>
+                <span class="draft__line" style="--w:64%"></span>
+              </div>
+              <span class="draft__arrow"></span>
+              <div class="draft__sheet draft__sheet--final">
+                <span class="draft__line" style="--w:70%"></span>
+                <span class="draft__line" style="--w:92%"></span>
+                <span class="draft__line draft__line--ink" style="--w:56%"></span>
+                <span class="draft__line" style="--w:78%"></span>
+                <span class="draft__line" style="--w:64%"></span>
+              </div>
+            </div>
+            <span class="art-chip art-chip--pen">识别草稿 · 待校对</span>
+          </div>
+          <h3 class="flow__title"><span class="flow__n">2</span>机器写</h3>
+          <p class="flow__text">视觉接口给出题干与公式，存成待校对，不直接进题库。复杂公式、跨栏排版和几何图，本来就需要人过一眼。</p>
+        </li>
+
+        <li class="flow__step">
+          <div class="flow__art">
+            <div class="art-paper">
+              <span class="art-paper__head"></span>
+              <span class="art-paper__line" style="--w:100%"></span>
+              <span class="art-paper__line" style="--w:78%"></span>
+              <span class="art-paper__line" style="--w:92%"></span>
+              <span class="art-paper__line" style="--w:64%"></span>
+              <span class="art-paper__line" style="--w:100%"></span>
+              <span class="art-paper__line" style="--w:70%"></span>
+              <span class="art-paper__line" style="--w:88%"></span>
+              <span class="art-paper__foot"></span>
+            </div>
+            <span class="art-chip">A4 · 45 分钟 · 满分 100</span>
+          </div>
+          <h3 class="flow__title"><span class="flow__n">3</span>你定稿</h3>
+          <p class="flow__text">对照原图改字、补插图、点已校对；选题、排序、设每题留白与分页，导出 PDF 或 Word。</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ============================ FEATURES ============================ -->
+  <section class="section section--paper" id="features" aria-labelledby="features-title">
+    <div class="wrap">
+      <div class="head">
+        <h2 class="h2" id="features-title">同一份题库上，<br class="smBr">把九件事做完</h2>
+      </div>
+
+      <div class="bento">
+        <article class="tile tile--wide" data-reveal>
+          <h3 class="tile__title">AI 自主识别<span class="tile__flag">需联网</span></h3>
+          <p class="tile__text">接 OpenAI 兼容的视觉接口，服务商、地址、Key 与模型都由你填。同一批连续照片跨页续题，失败可重试，成功结果缓存，你改过的内容不会被再次覆盖。</p>
+        </article>
+
+        <article class="tile" data-reveal>
+          <h3 class="tile__title">题目录入</h3>
+          <p class="tile__text">拍照、相册、PDF、手动录题；桌面另加截图、剪贴板与拖放。</p>
+        </article>
+
+        <article class="tile" data-reveal>
+          <h3 class="tile__title">对照原图校对</h3>
+          <p class="tile__text">左原来稿，右编题干。手机改完返回，仍停在原来的筛选与滚动位置。</p>
+        </article>
+
+        <article class="tile" data-reveal>
+          <h3 class="tile__title">题库整理</h3>
+          <p class="tile__text">年级、知识点、题型、难度、关键词、收藏、校对状态，七项筛选叠加使用。正文、公式与插图原样显示。</p>
+        </article>
+
+        <article class="tile" data-reveal>
+          <h3 class="tile__title">题集组卷</h3>
+          <p class="tile__text">选题、排序、移除；标题、说明、考试时间、满分、每题留白与题前分页逐项设置。</p>
+        </article>
+
+        <article class="tile" data-reveal>
+          <h3 class="tile__title">导出 PDF 与 Word</h3>
+          <p class="tile__text">A4 版式，选择题选项单独排版。Word 里的公式是图片，Word／WPS 可能重新分页。</p>
+        </article>
+
+        <article class="tile" data-reveal>
+          <h3 class="tile__title">手机接着干</h3>
+          <p class="tile__text">同局域网扫码配对，电脑点头才开数据口。题目与题集双向交换，收前先看新增、重复和冲突。</p>
+        </article>
+
+        <article class="tile" data-reveal>
+          <h3 class="tile__title">备份与恢复</h3>
+          <p class="tile__text">整库导出 ZIP，含题目、原图、解答、自定义知识点与题集版式；导入时校验后再合并。不含 API Key。</p>
+        </article>
+
+        <article class="tile tile--note" data-reveal>
+          <p class="tile__math" aria-hidden="true">
+            <span class="math math--lg"><i>a</i><sup>2</sup> + <i>b</i><sup>2</sup> = <i>c</i><sup>2</sup></span>
+          </p>
+          <p class="tile__text">正文与选项用本地 KaTeX 排版，<span class="math">\(x^2\)</span> 与 <span class="math">$x^2$</span> 都收。公式跟着题目走，不靠截图凑。</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ START ============================ -->
+  <section class="section" id="start" aria-labelledby="start-title">
+    <div class="wrap">
+      <div class="head">
+      <h2 class="h2" id="start-title">五步，打出第一张卷子</h2>
+      </div>
+
+      <ol class="steps" data-reveal>
+      <li class="step">
+      <span class="step__n" aria-hidden="true">01</span>
+      <h3 class="step__title">装上来</h3>
+      <p class="step__text">Windows 下 zip 完整解压，运行 <code>Matheca.exe</code>，DLL 与 <code>resources/</code> 要一起留着。Android 装 APK；覆盖安装要求包名与签名一致。</p>
+      <span class="step__tag">Windows x64 · Android 8.0+</span>
+      </li>
+
+      <li class="step">
+      <span class="step__n" aria-hidden="true">02</span>
+      <h3 class="step__title">配接口（可跳过）</h3>
+      <p class="step__text">在「题目识别与接口」填 HTTPS 地址、API Key 和支持图片输入的模型名，保存后测试。不配也能手动录题、整理和导出。</p>
+      <span class="step__tag">可选</span>
+      </li>
+
+      <li class="step">
+      <span class="step__n" aria-hidden="true">03</span>
+      <h3 class="step__title">收题</h3>
+      <p class="step__text">拍照或导入 PDF。跨页照片按页码顺序放在同一批；手机上单份 PDF 最多 20 页，单个文件不超过 50 MB。</p>
+      <span class="step__tag">照片 · PDF · 手动</span>
+      </li>
+
+      <li class="step">
+      <span class="step__n" aria-hidden="true">04</span>
+      <h3 class="step__title">校对</h3>
+      <p class="step__text">打开待校对题，对着原图改题干、插图和图片选项，补上年级与知识点，点「已校对」。</p>
+      <span class="step__tag">人工操作</span>
+      </li>
+
+      <li class="step">
+      <span class="step__n" aria-hidden="true">05</span>
+      <h3 class="step__title">组卷导出</h3>
+      <p class="step__text">新建题集，选题、排序，设版式，导出 PDF 或 Word。AI 解答不会自动进练习文档，要放进去得自己选。</p>
+      <span class="step__tag">A4 · PDF · DOCX</span>
+      </li>
+      </ol>
+
+      <aside class="pairing" data-reveal>
+      <div class="pairing__head">
+      <h3 class="pairing__title">手机和电脑怎么对上</h3>
+      <span class="pairing__badge">局域网</span>
+      </div>
+      <ol class="pairing__steps">
+      <li>两台设备接进同一个能互访的局域网，桌面右下角加号打开「手机联动」。</li>
+      <li>手机扫二维码或粘贴完整连接地址，核对两端核对码，在电脑上允许。</li>
+      <li>在「选择资料」勾题目与题集，接收方校验后预览新增、重复与冲突，再确认。</li>
+      </ol>
+      <p class="pairing__note">配对凭证 15 分钟有效，一次连一台手机。这是手动交换：没有账户云同步，也没有后台自动同步。</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============================ LIMITS ============================ -->
+  <section class="section section--night" id="limits" aria-labelledby="limits-title">
+    <div class="wrap">
+      <div class="head head--night">
+        <h2 class="h2" id="limits-title">也说说它做不到的</h2>
+      </div>
+
+      <ul class="limits" data-reveal>
+        <li class="limit">
+          <span class="limit__n" aria-hidden="true">1</span>
+          <div>
+            <h3>识别要联网，接口是你自己的</h3>
+            <p>图片会发往你配置的服务；接口调用可能产生服务费。请自己挑可信的服务商。</p>
+          </div>
+        </li>
+        <li class="limit">
+          <span class="limit__n" aria-hidden="true">2</span>
+          <div>
+            <h3>识别不等于校对完</h3>
+            <p>复杂公式、跨栏排版、几何图和题目完整性仍需人工确认。草稿的价值在于省了打字，不在于替你判断。</p>
+          </div>
+        </li>
+        <li class="limit">
+          <span class="limit__n" aria-hidden="true">3</span>
+          <div>
+            <h3>手机只走局域网</h3>
+            <p>不在同一网络就换不了题。没有账号体系，也没有云端题库，所以两端不会自动对齐。</p>
+          </div>
+        </li>
+        <li class="limit">
+          <span class="limit__n" aria-hidden="true">4</span>
+          <div>
+            <h3>数据在本机，删了就没了</h3>
+            <p>卸载会清掉应用私有数据。换机器或重装前，先在「题库备份」导出一份完整 ZIP。</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============================ CTA ============================ -->
+  <section class="cta" aria-labelledby="cta-title">
+    <div class="wrap cta__inner" data-reveal>
+      <div class="cta__copy">
+        <h2 class="cta__title" id="cta-title">题目是你的，<br>工具也该是。</h2>
+        <div class="cta__actions">
+          <a class="btn btn--pen btn--lg" href="https://github.com/SACO1F/Matheca" target="_blank" rel="noreferrer">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.6 9.6 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/></svg>
+            SACO1F / Matheca
+          </a>
+        </div>
+      </div>
+
+      <div class="repo">
+        <div class="repo__bar">
+          <span class="repo__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="repo__path">SACO1F / Matheca</span>
+          <span class="repo__tag">v0.1.0</span>
+        </div>
+        <p class="repo__cmd"><span aria-hidden="true">$</span> git clone https://github.com/SACO1F/Matheca.git</p>
+        <ul class="repo__tree">
+          <li><code>desktop/</code><span>Windows · Electron / React</span></li>
+          <li><code>app/</code><span>Android · Kotlin / Compose</span></li>
+          <li><code>docs/</code><span>结构与备份规则</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <p class="footer__note">题库保存在本机。页面所述能力以仓库 README 与 PRODUCT.md 为准，识别准确率与实际打印效果未经承诺。</p>
+  </div>
+</footer>
+
+<script src="main.js" defer></script>
+</body>
+</html>
