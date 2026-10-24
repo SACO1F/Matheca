@@ -53,6 +53,32 @@ Pages 不读 `wrangler.jsonc`，也不跑 `wrangler deploy`；它只认后台那
 
 两个地址的行为有一处不同，别当成 bug：Pages 上**任何不存在的路径都回落到首页**（`/README.md`、`/随便写` 都返回首页 HTML），Worker 那边是老老实实的 404。这不是白名单失效——`/README.md` 返回的是页面而不是文档内容，正说明它没被上传。单页站这样无伤，只是别指望 Pages 上能靠 404 做判断。
 
+### 下载链路：GitHub Releases + 国内中转
+
+安装包不放在站点里，走 GitHub Releases，页面上的按钮指向中转而非 GitHub 直链——`github.com` 与 `objects.githubusercontent.com` 在大陆经常超时。资产本身仍以 GitHub 为唯一源头。
+
+| 项 | 值 |
+| --- | --- |
+| Windows | `desktop-v0.1.0` → `Matheca-win32-x64-0.1.0.zip`（210,583,250 B） |
+| Android | `android-v0.1.0` → `Matheca-android-0.1.0-release.apk`（4,305,822 B） |
+| 主用中转 | `https://gh-proxy.com/<github 资产 URL>` |
+| 备用 | `ghproxy.net`（同格式）；页面同时留 GitHub 直链明文 |
+
+**为什么不用七牛**：七牛测试域名自 2020-02-14 起禁止分发 apk/exe，且 30 天回收、不支持 HTTPS、国内 CDN 必须绑定备案域名。COS/OSS 的默认域名可以直接下载且不需要备案，是更省事的备选。
+
+**为什么排除 `ghfast.top`**：实测返回 `HTTP 200` 但 APK 只有 4,127,841 B（少 178 KB），且 200 MB 的包只给 2.9/5 MiB。**HTTP 200 不等于文件正确**，只有哈希能证明。
+
+改动安装包时必须同时更新三处：Release 资产、页面 `.dl` 区块里的体积与 SHA256、以及按钮的 URL。核对方式：
+
+```bash
+# 本地算
+sha256sum Matheca-win32-x64-0.1.0.zip
+# 经中转取回来的必须一致
+curl -sL "https://gh-proxy.com/https://github.com/SACO1F/Matheca/releases/download/desktop-v0.1.0/Matheca-win32-x64-0.1.0.zip" | sha256sum
+```
+
+中转服务是第三方，随时可能消失或变更行为。页面把直链与哈希都摆明，就是在保留用户自行判断的能力；这条不要为了"干净"删掉。
+
 
 
 ## 视觉方向：批改现场

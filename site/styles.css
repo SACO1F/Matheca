@@ -924,6 +924,58 @@ code {
   font-variant-numeric: tabular-nums;
 }
 
+/* 下载与校验：一条细线起头，正文是哈希，不是卡片。 */
+.dl {
+  margin-top: clamp(32px, 4vw, 48px);
+  border-top: 1px solid var(--line);
+  padding-top: var(--s6);
+}
+.dl__title {
+  font-size: 1.125rem;
+  font-weight: 650;
+  color: var(--ink);
+}
+.dl__list {
+  margin-top: var(--s4);
+  display: grid;
+  gap: var(--s4);
+}
+.dl__file {
+  display: block;
+  font-size: .8125rem;
+  color: var(--ink);
+}
+.dl__file code { font-size: .8125rem; }
+.dl__meta {
+  display: block;
+  margin-top: 2px;
+  font-size: .75rem;
+  color: var(--muted);
+}
+.dl__meta code {
+  font-size: .75rem;
+  color: var(--ink-2);
+  word-break: break-all;
+}
+.dl__alt {
+  display: inline-block;
+  margin-top: var(--s1);
+  font-size: .75rem;
+  color: var(--ink-2);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.dl__alt:hover { color: var(--ink); }
+.dl__note {
+  margin-top: var(--s5);
+  max-width: 46em;
+  font-size: .8125rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.dl__note code { font-size: .75rem; color: var(--ink-2); }
+
 .pairing {
   margin-top: clamp(32px, 4vw, 48px);
   padding: clamp(24px, 3.4vw, 40px);
