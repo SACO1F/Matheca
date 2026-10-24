@@ -53,28 +53,43 @@ Pages 不读 `wrangler.jsonc`，也不跑 `wrangler deploy`；它只认后台那
 
 两个地址的行为有一处不同，别当成 bug：Pages 上**任何不存在的路径都回落到首页**（`/README.md`、`/随便写` 都返回首页 HTML），Worker 那边是老老实实的 404。这不是白名单失效——`/README.md` 返回的是页面而不是文档内容，正说明它没被上传。单页站这样无伤，只是别指望 Pages 上能靠 404 做判断。
 
-### 下载链路：GitHub Releases + 国内中转
+### 下载链路：GitHub Releases + 同域转发
 
-安装包不放在站点里，走 GitHub Releases，页面上的按钮指向中转而非 GitHub 直链——`github.com` 与 `objects.githubusercontent.com` 在大陆经常超时。资产本身仍以 GitHub 为唯一源头。
+安装包不放在站点里，走 GitHub Releases。资产本身仍以 GitHub 为唯一源头，页面负责把"难连的源"包一层。
 
 | 项 | 值 |
 | --- | --- |
 | Windows 安装版 | `desktop-v0.1.0` → `Matheca-0.1.0-Setup.exe`（199,133,696 B，推荐） |
 | Windows 免安装 | `desktop-v0.1.0` → `Matheca-win32-x64-0.1.0.zip`（209,294,997 B） |
 | Android | `android-v0.1.0` → `Matheca-android-0.1.0-b32-release.apk`（4,305,986 B） |
-| 主用中转 | `https://gh-proxy.com/<github 资产 URL>` |
-| 备用 | `ghproxy.net`（同格式）；页面同时留 GitHub 直链明文 |
+| Windows 按钮落地 | `/dl/windows` —— Pages Function 流式转发上面的 Setup（同域） |
+| APK 按钮落地 | `https://gh-proxy.com/<github 资产 URL>` |
+| 备用 | GitHub 直链明文留在 `.dl` 区块；`ghproxy.net` 同格式 |
+
+**为什么 Setup 不能直接放进站点**：Pages 单个静态资产上限 **25 MiB**（官方 Limits 文档），而这个包是 **189.9 MiB**；commit 进仓库也不行——GitHub 拒收单文件超过 100 MB。所以 `functions/dl/windows.ts` 在边缘把 GitHub 的资产流式转发：用户看到的是本站域名，字节由 Cloudflare 取回，透传 `Range` 以支持断点续传。
+
+实测（预览部署 `5b7ce33e`）：`Range: bytes=0-1023` 返回 `206` + `Content-Range: bytes 0-1023/199133696`；完整下载 91 秒、`199,133,696` B、SHA256 与本地一致。
+
+**两处已知差异，别当 bug**：
+
+- Worker 部署（`matheca.1005262768.workers.dev`）没有 `functions/`，所以 `/dl/windows` 在那儿是 404。这个端点只存在于 Pages 项目。
+- 转发依赖 GitHub 可达性。GitHub 若整体不可用，`/dl/windows` 会返回 502 并附上游状态码，此时页面上的 GitHub 直链和中转同样失效——三条路共用一个源，没有独立副本。
+
+**注意 Pages 的 `functions/` 与根目录 `wrangler.jsonc` 的冲突**：`wrangler pages dev` 会读根目录那份为 Worker 准备的配置并去找 `./dist`，直接报错。本地调试要先把 `wrangler.jsonc` 移开；线上构建不受影响（实测预览部署构建成功）。
+
 
 **为什么不用七牛**：七牛测试域名自 2020-02-14 起禁止分发 apk/exe，且 30 天回收、不支持 HTTPS、国内 CDN 必须绑定备案域名。COS/OSS 的默认域名可以直接下载且不需要备案，是更省事的备选。
 
 **为什么排除 `ghfast.top`**：实测返回 `HTTP 200` 但 APK 只有 4,127,841 B（少 178 KB），且 200 MB 的包只给 2.9/5 MiB。**HTTP 200 不等于文件正确**，只有哈希能证明。
 
-改动安装包时必须同时更新三处：Release 资产、页面 `.dl` 区块里的体积与 SHA256、以及按钮的 URL。核对方式：
+改动安装包时必须同时更新三处：Release 资产、页面 `.dl` 区块里的体积与 SHA256、以及 `functions/dl/windows.ts` 顶部的 `SOURCE` 与 `FILENAME`（按钮地址固定是 `/dl/windows`，换版本只改转发目标，页面链接不用动）。核对方式：
 
 ```bash
 # 本地算
 sha256sum Matheca-0.1.0-Setup.exe
-# 经中转取回来的必须一致
+# 从本站端点取回来的必须一致
+curl -sL "https://matheca.pages.dev/dl/windows" | sha256sum
+# 中转备用链路也要对得上
 curl -sL "https://gh-proxy.com/https://github.com/SACO1F/Matheca/releases/download/desktop-v0.1.0/Matheca-0.1.0-Setup.exe" | sha256sum
 ```
 
