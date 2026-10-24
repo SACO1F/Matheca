@@ -58,7 +58,7 @@
         </p>
 
         <div class="hero__actions">
-          <a class="btn btn--line btn--sweep btn--sweep--pen" href="https://gh-proxy.com/https://github.com/SACO1F/Matheca/releases/download/desktop-v0.1.0/Matheca-win32-x64-0.1.0.zip" rel="noreferrer"><span class="btn__label">下载 Windows 版</span></a>
+          <a class="btn btn--line btn--sweep btn--sweep--pen" href="https://gh-proxy.com/https://github.com/SACO1F/Matheca/releases/download/desktop-v0.1.1/Matheca-0.1.1-Setup.exe" rel="noreferrer"><span class="btn__label">下载 Windows 版</span></a>
           <a class="btn btn--line btn--sweep" href="https://gh-proxy.com/https://github.com/SACO1F/Matheca/releases/download/android-v0.1.0/Matheca-android-0.1.0-b31-release.apk" rel="noreferrer"><span class="btn__label">下载 Android 版</span></a>
         </div>
 
@@ -283,7 +283,7 @@
       <li class="step">
       <span class="step__n" aria-hidden="true">01</span>
       <h3 class="step__title">装上来</h3>
-      <p class="step__text">Windows 下 zip 完整解压，运行 <code>Matheca.exe</code>，DLL 与 <code>resources/</code> 要一起留着。Android 装 APK；覆盖安装要求包名与签名一致。</p>
+      <p class="step__text">Windows 双击 <code>Setup.exe</code> 安装，按当前用户装好，不需要管理员；不想安装就下 zip 解压运行 <code>Matheca.exe</code>，DLL 与 <code>resources/</code> 要一起留着。Android 装 APK；覆盖安装要求包名与签名一致。</p>
       <span class="step__tag">Windows x64 · Android 8.0+</span>
       </li>
 
@@ -320,9 +320,14 @@
       <h3 class="dl__title">下载与校验</h3>
       <ul class="dl__list">
       <li>
-      <span class="dl__file"><code>Matheca-win32-x64-0.1.0.zip</code> · 200.8 MB</span>
-      <span class="dl__meta">SHA256 <code>6f5e1bd7f5c18b7b7e592443645bd37ceeabe661b0b0898edfd8e22b3ffdbc4c</code></span>
-      <a class="dl__alt" href="https://github.com/SACO1F/Matheca/releases/download/desktop-v0.1.0/Matheca-win32-x64-0.1.0.zip" rel="noreferrer">GitHub 直链（大陆可能超时）</a>
+      <span class="dl__file"><code>Matheca-0.1.1-Setup.exe</code> · 189.9 MB · 安装版，推荐</span>
+      <span class="dl__meta">SHA256 <code>ed882da4ceb894ad188b2a58b1bccfe45f7d3f4f8d8c624daaebf7f46d6ae713</code></span>
+      <a class="dl__alt" href="https://github.com/SACO1F/Matheca/releases/download/desktop-v0.1.1/Matheca-0.1.1-Setup.exe" rel="noreferrer">GitHub 直链（大陆可能超时）</a>
+      </li>
+      <li>
+      <span class="dl__file"><code>Matheca-win32-x64-0.1.1.zip</code> · 199.6 MB · 免安装</span>
+      <span class="dl__meta">SHA256 <code>49ca4a28d995ab47f23244525375c27cf7ea7a66a34be245f9455099d94520f1</code></span>
+      <a class="dl__alt" href="https://github.com/SACO1F/Matheca/releases/download/desktop-v0.1.1/Matheca-win32-x64-0.1.1.zip" rel="noreferrer">GitHub 直链（大陆可能超时）</a>
       </li>
       <li>
       <span class="dl__file"><code>Matheca-android-0.1.0-b31-release.apk</code> · 4.1 MB</span>
@@ -330,7 +335,7 @@
       <a class="dl__alt" href="https://github.com/SACO1F/Matheca/releases/download/android-v0.1.0/Matheca-android-0.1.0-b31-release.apk" rel="noreferrer">GitHub 直链（大陆可能超时）</a>
       </li>
       </ul>
-      <p class="dl__note">按钮走的是国内中转（gh-proxy.com），直连不通时也能取到。装之前建议核对哈希：Windows 用 <code>certutil -hashfile 文件名 SHA256</code>，Android 用任意校验工具。中转节点若替换了文件，哈希就会对不上。</p>
+      <p class="dl__note">按钮走的是国内中转（gh-proxy.com），直连不通时也能取到。安装版按当前用户安装，不需要管理员权限；安装版与免安装版共用同一份用户数据（<code>%APPDATA%\Matheca</code>），换包不丢题库。未做代码签名，首次运行 Windows 可能提示「未知发布者」。装之前建议核对哈希：Windows 用 <code>certutil -hashfile 文件名 SHA256</code>，Android 用任意校验工具。</p>
       </div>
 
       <aside class="pairing" data-reveal>

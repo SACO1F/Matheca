@@ -2710,11 +2710,8 @@ input.inline-search {
   color: #fff;
   border: 1px solid var(--blue);
 }
-.collection-detail .collection-add-trigger:hover {
-  background: #2057ca;
-  border-color: #2057ca;
-  filter: none;
-}
+/* 悬停交给 button.primary:hover 的 brightness 统一处理：
+   这里曾写死 #2057ca + filter:none，是全站唯一一处偏离主按钮规范的地方。 */
 .collection-add-trigger .quick-icon {
   width: 16px;
   height: 16px;

@@ -59,7 +59,8 @@ Pages 不读 `wrangler.jsonc`，也不跑 `wrangler deploy`；它只认后台那
 
 | 项 | 值 |
 | --- | --- |
-| Windows | `desktop-v0.1.0` → `Matheca-win32-x64-0.1.0.zip`（210,583,250 B） |
+| Windows 安装版 | `desktop-v0.1.1` → `Matheca-0.1.1-Setup.exe`（199,130,624 B，推荐） |
+| Windows 免安装 | `desktop-v0.1.1` → `Matheca-win32-x64-0.1.1.zip`（209,294,123 B） |
 | Android | `android-v0.1.0` → `Matheca-android-0.1.0-b31-release.apk`（4,305,822 B） |
 | 主用中转 | `https://gh-proxy.com/<github 资产 URL>` |
 | 备用 | `ghproxy.net`（同格式）；页面同时留 GitHub 直链明文 |
@@ -72,9 +73,9 @@ Pages 不读 `wrangler.jsonc`，也不跑 `wrangler deploy`；它只认后台那
 
 ```bash
 # 本地算
-sha256sum Matheca-win32-x64-0.1.0.zip
+sha256sum Matheca-0.1.1-Setup.exe
 # 经中转取回来的必须一致
-curl -sL "https://gh-proxy.com/https://github.com/SACO1F/Matheca/releases/download/desktop-v0.1.0/Matheca-win32-x64-0.1.0.zip" | sha256sum
+curl -sL "https://gh-proxy.com/https://github.com/SACO1F/Matheca/releases/download/desktop-v0.1.1/Matheca-0.1.1-Setup.exe" | sha256sum
 ```
 
 中转服务是第三方，随时可能消失或变更行为。页面把直链与哈希都摆明，就是在保留用户自行判断的能力；这条不要为了"干净"删掉。

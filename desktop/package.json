@@ -1,7 +1,7 @@
 {
   "name": "matheca-desktop",
   "productName": "Matheca",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Matheca 高中数学题库 Windows 桌面版",
   "author": "SACO1F",
   "private": true,
