@@ -185,6 +185,49 @@ code {
 }
 .btn--line:hover { background: var(--paper); border-color: var(--ink); }
 
+/* 两颗下载按钮共用一套「笔扫过」：底色从左缘填满胶囊，字随底色反相。
+   底色与字色交给自定义属性——次级用石墨，主行动用朱红，谁扫进来谁说得算。
+   刻意不写 @media (hover: hover)：那层门槛在触屏/内嵌浏览器上会让整套动效失效。 */
+.btn--sweep {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.btn--sweep::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--sweep-bg, var(--ink));
+  border-radius: inherit;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--t-mid) var(--ease-out);
+}
+.btn--sweep .btn__label {
+  position: relative;
+  z-index: 1;
+  transition: color var(--t-mid) var(--ease-out);
+}
+.btn--sweep:hover::before,
+.btn--sweep:focus-visible::before,
+.btn--sweep:active::before { transform: scaleX(1); }
+.btn--sweep:hover .btn__label,
+.btn--sweep:focus-visible .btn__label,
+.btn--sweep:active .btn__label { color: var(--sweep-fg, var(--paper)); }
+.btn--line.btn--sweep:hover,
+.btn--line.btn--sweep:focus-visible,
+.btn--line.btn--sweep:active { border-color: var(--ink); }
+
+/* 主行动：静止透明底 + 墨字，悬停时朱红从左扫满、字转白。
+   字色延后 90ms，正好是朱红推到字上的时候——"同时变白"要的是这个同时，
+   而不是字先白、底还没到的那几十毫秒。 */
+.btn--sweep--pen { --sweep-bg: var(--pen); --sweep-fg: var(--paper); }
+.btn--sweep--pen .btn__label { transition-delay: 90ms; }
+/* 必须压过 .btn--line.btn--sweep:hover 的墨色边，否则红填充外面会围一圈墨。 */
+.btn--line.btn--sweep.btn--sweep--pen:hover,
+.btn--line.btn--sweep.btn--sweep--pen:focus-visible,
+.btn--line.btn--sweep.btn--sweep--pen:active { border-color: var(--pen); }
+
 .btn--sm { min-height: 38px; padding: 0 var(--s5); font-size: .875rem; }
 .btn--lg { min-height: 54px; padding: 0 var(--s8); font-size: 1rem; }
 .btn svg { flex: none; }
