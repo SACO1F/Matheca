@@ -60,7 +60,7 @@ Pages 不读 `wrangler.jsonc`，也不跑 `wrangler deploy`；它只认后台那
 | 项 | 值 |
 | --- | --- |
 | Windows | `desktop-v0.1.0` → `Matheca-win32-x64-0.1.0.zip`（210,583,250 B） |
-| Android | `android-v0.1.0` → `Matheca-android-0.1.0-release.apk`（4,305,822 B） |
+| Android | `android-v0.1.0` → `Matheca-android-0.1.0-b31-release.apk`（4,305,822 B） |
 | 主用中转 | `https://gh-proxy.com/<github 资产 URL>` |
 | 备用 | `ghproxy.net`（同格式）；页面同时留 GitHub 直链明文 |
 

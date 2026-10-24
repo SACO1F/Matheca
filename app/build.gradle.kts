@@ -17,7 +17,7 @@ android {
         applicationId = "com.matheca.app"
         minSdk = 26
         targetSdk = 37
-        versionCode = 30
+        versionCode = 31
         versionName = "0.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
