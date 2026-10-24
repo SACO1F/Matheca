@@ -1038,7 +1038,10 @@ small {
 .settings-card .button-row {
   margin-top: 20px;
 }
-.settings-card .button-row button {
+/* Every button in a settings card reads at the same size. Sizing only
+   .button-row left standalone buttons (隐私政策, 图文配置教学) inheriting the
+   16px base, so they rendered visibly larger than the ones next to them. */
+.settings-card button {
   font-size: 12px;
 }
 .busy-indicator {
@@ -2268,6 +2271,17 @@ input.inline-search {
 .glide-select:nth-child(5) {
   width: 84px;
   min-width: 78px;
+}
+/* A dropdown inside a settings form is not a filter chip: it takes the full
+   row like the inputs beside it, at field text size. */
+.glide-select--field {
+  width: 100%;
+}
+.glide-select--field .glide-trigger {
+  height: 34px;
+  padding: 0 10px;
+  font-size: 12px;
+  border-radius: 9px;
 }
 .glide-trigger {
   display: flex;

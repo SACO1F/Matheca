@@ -15,6 +15,8 @@ export function GlideSelect({
   onChange,
   boundaryRef,
   portalHost,
+  className,
+  filtered = true,
 }: {
   label: string;
   value: string;
@@ -22,6 +24,14 @@ export function GlideSelect({
   onChange: (value: string) => void;
   boundaryRef?: React.RefObject<HTMLElement | null>;
   portalHost?: HTMLElement | null;
+  /** Extra class for the wrapper, so a form field can size it without a nth-child rule. */
+  className?: string;
+  /**
+   * The blue "filter is active" treatment only makes sense for list filters.
+   * A settings dropdown always has a non-empty value and is not filtering anything,
+   * so it must be able to opt out.
+   */
+  filtered?: boolean;
 }) {
   const id = useId();
   const trigger = useRef<HTMLButtonElement>(null);
@@ -142,7 +152,11 @@ export function GlideSelect({
   }, [open, highlight]);
   return (
     <div
-      className={"glide-select" + (value && value !== "all" ? " filtered" : "")}
+      className={
+        "glide-select" +
+        (className ? ` ${className}` : "") +
+        (filtered && value && value !== "all" ? " filtered" : "")
+      }
     >
       <button
         ref={trigger}

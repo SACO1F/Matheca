@@ -2738,26 +2738,29 @@ function App() {
                 <p>
                   选择关闭窗口后的操作。系统托盘右键“退出”始终进入退出流程。
                 </p>
-                <label className="field">
+                <div className="field">
                   <span>关闭窗口时</span>
-                  <select
-                    aria-label="关闭窗口时"
+                  <GlideSelect
+                    label="关闭窗口时"
                     value={state.settings.closeAction ?? "ask"}
-                    disabled={busy}
-                    onChange={(event) =>
+                    options={[
+                      { value: "ask", label: "每次询问" },
+                      { value: "background", label: "后台运行" },
+                      { value: "quit", label: "直接退出" },
+                    ]}
+                    filtered={false}
+                    className="glide-select--field"
+                    onChange={(value) => {
+                      if (busy) return;
                       void run(async () => {
                         await api.setCloseAction(
-                          event.target.value as "ask" | "quit" | "background",
+                          value as "ask" | "quit" | "background",
                         );
                         await refresh();
-                      })
-                    }
-                  >
-                    <option value="ask">每次询问</option>
-                    <option value="background">后台运行</option>
-                    <option value="quit">直接退出</option>
-                  </select>
-                </label>
+                      });
+                    }}
+                  />
+                </div>
               </section>
               <div className="settings-card">
                 <div className="settings-help-heading">
@@ -2892,7 +2895,9 @@ function App() {
                   题库主要保存在本机。AI
                   识别与解题会发送内容至你配置的服务；设备联动会传输你选择的资料。
                 </p>
-                <button onClick={() => setPrivacyOpen(true)}>隐私政策</button>
+                <div className="button-row">
+                  <button onClick={() => setPrivacyOpen(true)}>隐私政策</button>
+                </div>
               </section>
               <QuickHelp />
             </section>

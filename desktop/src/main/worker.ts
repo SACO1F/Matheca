@@ -3,9 +3,11 @@ import fs from "node:fs";
 import convert from "heic-convert";
 import { Store } from "./store";
 import { inspectArchive, exportArchive, restoreArchive } from "./archive";
+import { setAppVersionTag } from "../domain/backup";
 import { fileOperationMessage } from "./file-operations";
 (async () => {
   const { operation, args } = workerData;
+  if (args?.appVersion) setAppVersionTag(args.appVersion);
   let store: Store | undefined;
   try {
     let result: unknown;

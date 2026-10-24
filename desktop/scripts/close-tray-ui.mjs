@@ -152,7 +152,10 @@ try {
   await app.evaluate(() => globalThis.testTray.emit("click"));
   await visible(true);
   await page.getByRole("button", { name: "设置与备份", exact: true }).click();
-  await page.getByLabel("关闭窗口时", { exact: true }).selectOption("ask");
+  // The close-behaviour control is a GlideSelect now, matching the other
+  // dropdowns in the app, so it is a combobox rather than a native <select>.
+  await page.getByLabel("关闭窗口时", { exact: true }).click();
+  await page.getByRole("option", { name: "每次询问", exact: true }).click();
   await page.waitForFunction(
     async () => (await window.matheca.state()).settings.closeAction === "ask",
   );

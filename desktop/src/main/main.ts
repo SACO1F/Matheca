@@ -43,6 +43,7 @@ import {
   type GuideValue,
 } from "../shared/guide";
 import type { BackupData } from "../domain/backup";
+import { setAppVersionTag } from "../domain/backup";
 import type {
   Question,
   Collection,
@@ -53,6 +54,9 @@ import type {
 } from "../shared/types";
 if (squirrel) app.quit();
 app.setName("Matheca");
+// Backups record which build produced them. Read the real version here instead
+// of hard-coding it in the encoder.
+setAppVersionTag(app.getVersion());
 // Reuse existing libraries in place; never move or rewrite the user's directory.
 const legacyDataRoot = path.join(app.getPath("appData"), "Mathector");
 if (

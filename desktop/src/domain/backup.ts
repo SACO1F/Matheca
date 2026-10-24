@@ -214,6 +214,19 @@ export function decodeBackup(text: string): BackupData {
   references(data);
   return data;
 }
+/**
+ * Stamped into every backup manifest as `appVersion` so an exported archive can
+ * be traced back to the build that produced it. The main process sets this from
+ * app.getVersion(); the fallback keeps worker threads and unit tests that never
+ * call the setter from writing a hard-coded version that ages badly.
+ */
+let appVersion = "";
+export function setAppVersionTag(version: string) {
+  appVersion = version.trim().replace(/^desktop-/, "");
+}
+export function readAppVersionTag(): string {
+  return appVersion ? `desktop-${appVersion}` : "desktop";
+}
 export function encodeBackup(data: BackupData): string {
   references(data);
   if (data.customKnowledge.length > limits.points) throw Error("知识点过多");
@@ -221,7 +234,7 @@ export function encodeBackup(data: BackupData): string {
     format: "MathecaLibraryBackup",
     version: 1,
     createdAt: BigInt(Date.now()),
-    appVersion: "desktop-0.1.0",
+    appVersion: readAppVersionTag(),
     questions: data.questions.map((q) => {
       const { sourcePath, solutionFingerprint, ...record } = q;
       return {
