@@ -1,0 +1,17 @@
+{
+  "links": {
+    "privacyContact": "https://github.com/SACO1F/Matheca/issues",
+    "home": "https://www.deepseek.com/",
+    "platform": "https://platform.deepseek.com/",
+    "balance": "https://platform.deepseek.com/balance",
+    "keys": "https://platform.deepseek.com/api_keys",
+    "docs": "https://api-docs.deepseek.com/",
+    "vision": "https://api-docs.deepseek.com/guides/vision/",
+    "faq": "https://api-docs.deepseek.com/faq/"
+  },
+  "values": {
+    "address": "https://api.deepseek.com",
+    "model": "deepseek-flash"
+  },
+  "verifiedDate": "2026-10-15"
+}

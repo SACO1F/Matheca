@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-capture-loaded"
+description = "Enables the capture_loaded command without any pre-configured scope."
+commands.allow = ["capture_loaded"]
+
+[[permission]]
+identifier = "deny-capture-loaded"
+description = "Denies the capture_loaded command without any pre-configured scope."
+commands.deny = ["capture_loaded"]

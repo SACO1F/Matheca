@@ -1,7 +1,7 @@
 import { it, expect, vi, afterEach } from "vitest";
 import https from "node:https";
 import { EventEmitter } from "node:events";
-import { complete } from "../src/main/network";
+import { complete } from "../electron/main/network";
 afterEach(() => {
   vi.restoreAllMocks();
   vi.useRealTimers();

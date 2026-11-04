@@ -1,0 +1,6 @@
+{
+  "identifier": "local-worker",
+  "description": "Hidden local image/PDF and domain worker; replies only",
+  "windows": ["worker-*"],
+  "permissions": ["allow-worker-reply"]
+}

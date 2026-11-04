@@ -54,6 +54,7 @@ export interface Settings {
   address: string;
   model: string;
   hasApiKey: boolean;
+  keyWarning?: string;
   autoSolveImports: boolean;
 }
 export interface SettingsInput extends Omit<Settings, "hasApiKey"> {
@@ -156,6 +157,7 @@ export interface MobileTransfer {
   name: string;
   size: number;
   status: "ready" | "downloading" | "transferred" | "failed";
+  kind?: "document" | "library";
 }
 export interface MobileTask {
   id: string;

@@ -1,6 +1,6 @@
 # Matheca Windows 桌面版 v0.1.0
 
-高中数学本地题库、校对与题集导出工具，使用 Electron、React、TypeScript 和 SQLite。界面固定浅色，可选石墨、雾蓝、陶土和梅紫强调色；本文说明 Windows 当前能力，Android App 位于同一仓库的 `app/`，两个平台分别构建。
+高中数学本地题库、校对与题集导出工具，默认使用 Tauri、Rust、React 和 SQLite，保留 Electron 回退构建。界面固定浅色，可选石墨、雾蓝、陶土和梅紫强调色；本文说明 Windows 当前能力，Android App 位于同一仓库的 `app/`，两个平台分别构建。迁移版的运行要求、边界和完整说明见 [Tauri 便携版说明](docs/TAURI_PREVIEW.md)。
 
 ## 手机联动
 
@@ -14,15 +14,15 @@ Android v0.1.0 的联动界面与应用其他页面保持一致：手机的题�
 
 ## 运行与快速开始
 
-完整解压 Matheca-win32-x64-0.1.0.zip，运行文件夹中的 Matheca.exe。保留 resources、DLL 等运行资源，不要只复制 EXE。
+完整解压 Matheca-Tauri-win32-x64.zip，运行文件夹中的 Matheca.exe。保留 DLL、许可和 PORTABLE_FILES.sha256，不要只复制 EXE。需要 Windows x64 和系统 WebView2。
 
-构建输出到 releases/v0.1.0/构建时间/，同时保留完整应用目录、make/zip/win32/x64/ 下的 ZIP 和 SHA256SUMS.txt。最新完整路径见 releases/latest.txt。
+Tauri 构建输出到 releases/tauri-preview/v0.1.0/构建时间/，同时保留完整应用目录、同级 ZIP 和 SHA256SUMS.txt。最新完整路径见 releases/latest-tauri.txt。路径中的 tauri-preview 为迁移期间保留的构建目录名。Electron 回退版仍输出到 releases/v0.1.0/，最新路径见 releases/latest.txt。
 
-新安装的正常题库在 %APPDATA%\Matheca（已有旧版题库时继续使用原目录，不搬移数据），与 EXE 目录分开。换解压目录不会迁移题库；跨机器移动数据使用设置中的 Windows ZIP 备份与导入。
+Tauri 正常题库在 %LOCALAPPDATA%\MathecaTauriPreview，沿用迁移期间的独立资料目录；Electron 题库在 %APPDATA%\Matheca（旧版也可能使用 Mathector）。首次使用 Tauri 可通过顶部“复制原版题库”导入空目标库，或通过 ZIP 合并。不会自动接管或覆盖原版题库。题库与 EXE 分开，换解压目录不会迁移题库；跨机器移动数据使用设置中的 Windows ZIP 备份与导入。
 
 1. 首次可使用三道示例题，或从右下角加号手动录入。手动题先作为未保存草稿，离开或保存时询问；空白题不留在题库。
 2. 识别前在“设置与备份 → 题目识别与接口”填写地址、API Key、支持图片的模型名，保存并测试。该区域保留独立“图文配置教学”；简短说明中没有重复教程入口。
-3. 加号可导入图片/PDF、截图；也可把文件或图片拖到窗口，识别结果先保存为待校对。“手机联动”可扫码接收照片、查看本次识别状态，并将导出的 PDF／Word 发送回手机。
+3. 加号可导入图片/PDF、截图；也可把文件或图片拖到窗口，识别结果先保存为待校对。“手机联动”可扫码接收照片、查看本次识别状态，并把题目与题集发送到手机。
 4. 点击题卡展开：左侧是标签、题干预览、题干编辑与其他字段，右侧是原图。点击关闭按钮或题干预览保存并收起，核对后确认已校对并自动返回原题库或题集。
 5. 点击“加入题集”，选择已有题集或创建。题集内可继续选题、移除、排序、设置留白，预览后导出。
 
@@ -53,18 +53,18 @@ PDF/Word 默认 A4，支持主标题、说明、时间、满分、顺序、每�
 
 Android v0.1.0 的联动题库交换使用桌面标准 ZIP；手机本地完整备份继续兼容旧 Android 的图片附件格式，不应混同为电脑交换包。Android App 的离线待传队列和局域网题库交换位于“我的 → 连接电脑”，不提供账户或跨网络自动同步。
 
-## 浏览器扫码传图与文档回传
+## 浏览器扫码传图与题目资料回传
 
 1. 手机与电脑连接能互相访问的同一局域网，在右下角加号选择“手机联动”，用手机浏览器扫描二维码。
-2. 核对手机与电脑显示的六位核对码，在电脑点击“允许连接”。未确认的手机不能上传、读取照片或下载文档。
+2. 核对手机与电脑显示的六位核对码，在电脑点击“允许连接”。未确认的手机不能上传、读取照片或下载题目资料。
 3. 手机拍照或从相册选图，预览、移除、调整顺序后发送。失败可重试；照片已到电脑但回执丢失时，页面会自动核对接收记录，避免重复提交。
 4. 在电脑“收到的照片”中确认并点击“开始识别”。手机“本次识别”和电脑同名页签可查看等待、处理、完成、部分完成、失败或暂停状态；失败后在电脑任务页继续处理。
-5. 收起联动面板可继续保持连接，方便校对、组卷和导出。在题集中导出 PDF／Word 后，点击“发送到手机”，再点击“发送最近导出的文档”。手机在“电脑发来的文件”中下载，通过“保存／打开文件”交给系统查看或分享。
+5. 收起联动面板可继续保持连接，方便校对和组卷。需要把整理好的题目带到手机时，在“手机联动 → 题目与题库交换”勾选题目或题集，点击“发送所选资料到手机”，手机在“电脑发来的题目资料”中下载。
 6. 不再使用时点击“结束连接”；连接也会在 15 分钟到期后失效。结束、到期或退出应用均停止收发，旧链接失效。收起面板或按 Esc 仅隐藏面板。
 
-照片每批最多 20 张，单张最多 50 MB、合计最多 200 MB，支持 JPEG、PNG、WebP、HEIC/HEIF。每次连接最多接收 400 次新上传、准备 10 份回传文档，每份文档不超过 100 MB。文件以发送时的临时副本传输，原导出文件后续修改不影响该副本。仅可回传本次应用运行中导出的文档，不开放任意本地文件下载。
+照片每批最多 20 张，单张最多 50 MB、合计最多 200 MB，支持 JPEG、PNG、WebP、HEIC/HEIF。每次连接最多接收 400 次新上传、准备 10 份题库资料，每份不超过 512 MB。资料以发送时的临时副本传输，后续修改不影响已准备的副本。不开放任意本地文件下载。
 
-未识别照片保存在电脑，暂停或重启后可继续；手机刷新后可以查看电脑已接收的待识别照片。未发送的照片仅存在当前页面，刷新或关闭前请先发送。本次识别记录和文档下载列表仅属于当前临时连接，新连接需重新准备文件。每次连接支持一台手机，换手机请结束后重新开启。
+未识别照片保存在电脑，暂停或重启后可继续；手机刷新后可以查看电脑已接收的待识别照片。未发送的照片仅存在当前页面，刷新或关闭前请先发送。本次识别记录和题目资料下载列表仅属于当前临时连接，新连接需重新准备资料。每次连接支持一台手机，换手机请结束后重新开启。
 
 相机入口由浏览器与手机系统决定，可退回相册选图；没有网页实时取景和自动裁边。不需要安装 Android App，Android App 已支持局域网手动题库交换，跨网络访问尚未开放。Windows 若询问网络权限，请允许专用网络；校园 Wi-Fi 设备隔离可能阻止连接。
 
@@ -81,19 +81,19 @@ npm run test:portable
 npm run test:portable:full
 ```
 
-核心入口 test:portable，完整入口 test:portable:full。默认测试 releases/latest.txt 中的实际 EXE，也可使用 --exe 完整路径指定；加 --list 只列出脚本。
+核心入口 test:portable，完整入口 test:portable:full。默认优先测试 releases/latest-tauri.txt 中的实际 EXE，也可使用 --exe 完整路径指定；根据成品选择 Tauri/Electron 套件，加 --list 只列出脚本。Tauri 核心检查包括资源完整性、工作台、截图、数据、备份和导出，完整检查增加 AI 任务与手机网页。
 
-针对失败项复核可用 `npm run test:portable -- --only tree-ui`；多项以逗号分隔，原始失败报告保留。
+针对失败项复核可用 `npm run test:portable -- --only tauri-workbench-ui`；多项以逗号分隔，原始失败报告保留。Electron 专项需显式指定对应 EXE。
 
 入口串行运行，在 test-output/validation-时间-进程号/REPORT.md 中记录 EXE 哈希、系统/Node、各项退出码、耗时、日志及新数据目录。任一失败退出码非零，超时/中断停止后续测试。正常题库不会作为测试数据。
 
 完整接口套件需要 OpenSSL 与装有 reportlab/Pillow 的 Python，使用 MATHECA_OPENSSL、MATHECA_QA_PYTHON 指定；部分旧专项仍采用 Git for Windows 默认 OpenSSL 路径。使用本地模拟服务，不使用用户正常 Key。
 
-离线构建可将 MATHECA_ELECTRON_ZIP_DIR 指向缓存运行时 ZIP 所在目录。当前文件名为 electron-v44.7.0-win32-x64.zip；使用前按 node_modules/electron/checksums.json 核对 SHA256，不要用其他版本运行时拼接应用。
+Tauri 构建需要 Rust 工具链、Windows C++ 构建工具，以及 MATHECA_HEIF_BIN 指向经过校验的原生运行库目录，详见 docs/NATIVE_RUNTIME.md。MATHECA_CARGO_TARGET_DIR 可复用 Cargo 缓存；MATHECA_CARGO_OFFLINE=1 使用已有依赖离线构建。使用 `npm run make:portable -- --electron` 生成 Electron 回退版，MATHECA_ELECTRON_ZIP_DIR 可指向其已校验运行时缓存。
 
 verify 包含 TypeScript/Vitest；没有 ESLint，format:check 只是格式检查。旧 scripts/ui.mjs 等历史交互不包含在当前统一套件。
 
-src/domain 管理规则，src/main 管理 SQLite/文件/接口/任务/导出和临时手机接收，preload 提供受控 IPC，src/renderer 管理界面。题库单列采用自然 Flex 排版，移除了逐帧改写题卡宽度/滚动位置的测量动画；校对面板仅短暂透明度/位移动画，没有引入 Motion 或替换动画库。
+src-tauri/src 管理 Rust 数据、文件、任务、导出、截图与手机服务，src/platform/tauri-bridge.ts 适配 DesktopAPI，src/renderer 管理共享 React 界面。src/main 和 preload 保留 Electron 回退实现。题库单列采用自然 Flex 排版；校对面板仅短暂透明度/位移动画。
 
 图标与 React Bits 来源/许可在 assets/ant-design、assets/react-bits；发布包附 THIRD_PARTY_NOTICES.txt。
 
@@ -108,4 +108,7 @@ Android v0.1.0 在“我的 → 连接电脑”扫码，也可粘贴桌面“复
 - 双方若在预览后修改本机数据，确认会拒绝旧预览，需重新检查。收到资料不触发识别／解题，也不传播删除。
 - 题目、原图、PNG 插图、选项位置、宽度、题集留白与分页字段均以桌面格式保存。Android 将桌面插图和留白分页映射到原生编辑及导出流程；宽度元数据用于桌面回传，手机导出沿用其原生图片布局。
 
-每份题库 ZIP 最多 512 MB；电脑最多保留 10 份待处理资料，手机待传队列最多 100 项、合计 512 MB。文档仍为每份 100 MB。图片接收回执跨连接／重启保留最近 5,000 条；支持记住已配对设备及按内容摘要手动增量交换，不提供系统后台自动同步。
+每份题库 ZIP 最多 512 MB；电脑最多保留 10 份待处理资料，手机待传队列最多 100 项、合计 512 MB。图片接收回执跨连接／重启保留最近 5,000 条；支持记住已配对设备及按内容摘要手动增量交换，不提供系统后台自动同步。
+## 框架目录（2026-10-29）
+
+当前 Tauri 实现见 [tauri/README.md](tauri/README.md)，Electron 旧版实现见 [electron/README.md](electron/README.md)。公共 React 与业务类型继续放在 `src/`，根 `package.json` 和锁文件共用。新发布分别进入 `releases/tauri/` 和 `releases/electron/`。本文历史迁移说明中的 `src-tauri/` 已迁至 `tauri/native/`，`src/main/` 已迁至 `electron/main/`，旧配置已迁至各框架目录。

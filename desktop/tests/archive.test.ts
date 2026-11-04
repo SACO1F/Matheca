@@ -5,7 +5,7 @@ import path from "node:path";
 import { pipeline } from "node:stream/promises";
 import { createHash } from "node:crypto";
 import yazl from "yazl";
-import { inspectArchive } from "../src/main/archive";
+import { inspectArchive } from "../electron/main/archive";
 import { encodeBackup, type BackupData } from "../src/domain/backup";
 import { newQuestion, newCollection } from "../src/shared/types";
 async function fixture(entries: Record<string, Buffer>) {

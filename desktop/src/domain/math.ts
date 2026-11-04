@@ -16,6 +16,10 @@ export function formulaRanges(s: string) {
     end: m.index! + m[0].length,
   }));
 }
+// Fill-in blanks survive OCR as underscore runs; render them as an underline
+// instead of letting KaTeX reject a dangling subscript underscore.
+const fillBlank = (s: string) =>
+  s.replace(/(?:\\_|＿|_){2,}/g, "\\underline{\\hspace{2em}}");
 export function toLatex(s: string): string {
   const supers = "⁰¹²³⁴⁵⁶⁷⁸⁹",
     subs = "₀₁₂₃₄₅₆₇₈₉";
@@ -38,12 +42,16 @@ export function toLatex(s: string): string {
     "√": "\\sqrt",
     ₙ: "_{n}",
   };
-  return s.replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]+|[₀₁₂₃₄₅₆₇₈₉]+|[×÷·≤≥≠π∞∈∉∪∩−－＋√ₙ]/g, (m) =>
-    supers.includes(m[0])
-      ? "^{" + [...m].map((c) => supers.indexOf(c)).join("") + "}"
-      : subs.includes(m[0])
-        ? "_{" + [...m].map((c) => subs.indexOf(c)).join("") + "}"
-        : symbols[m],
+  return fillBlank(
+    s.replace(
+      /[⁰¹²³⁴⁵⁶⁷⁸⁹]+|[₀₁₂₃₄₅₆₇₈₉]+|[×÷·≤≥≠π∞∈∉∪∩−－＋√ₙ]/g,
+      (m) =>
+        supers.includes(m[0])
+          ? "^{" + [...m].map((c) => supers.indexOf(c)).join("") + "}"
+          : subs.includes(m[0])
+            ? "_{" + [...m].map((c) => subs.indexOf(c)).join("") + "}"
+            : symbols[m],
+    ),
   );
 }
 function legacy(text: string): MathPart[] {
@@ -65,13 +73,14 @@ function legacy(text: string): MathPart[] {
   return out;
 }
 export function parseMath(s: string): MathPart[] {
+  s = s.replace(/＿/g, "_");
   const out: MathPart[] = [];
   let offset = 0;
   for (const m of s.matchAll(delimiters())) {
     out.push(...legacy(s.slice(offset, m.index)));
     out.push({
       type: "formula",
-      latex: trim(m[1] ?? m[2] ?? m[3] ?? m[4]),
+      latex: fillBlank(trim(m[1] ?? m[2] ?? m[3] ?? m[4])),
       display: m[1] != null || m[2] != null,
     });
     offset = m.index! + m[0].length;

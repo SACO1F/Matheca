@@ -4,12 +4,13 @@ import type { MobileImportState } from "../shared/types";
 import "./mobile-import.css";
 import { LibraryExchangePanel } from "./library-exchange";
 
+const mobileTabs = ["photos", "incoming", "library", "files", "tasks"] as const;
+type MobileTab = (typeof mobileTabs)[number];
+
 export function MobileImportDialog({
-  exportPath,
   onClose,
   onTasks,
 }: {
-  exportPath?: string;
   onClose: () => void;
   onTasks: () => void;
 }) {
@@ -17,9 +18,7 @@ export function MobileImportDialog({
   const [state, setState] = useState<MobileImportState>();
   const [network, setNetwork] = useState(0);
   const [busy, setBusy] = useState(true);
-  const [tab, setTab] = useState<"photos" | "tasks" | "files" | "library">(
-    exportPath ? "files" : "photos",
-  );
+  const [tab, setTab] = useState<MobileTab>("photos");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [libraryFooter, setLibraryFooter] = useState<HTMLDivElement | null>(
@@ -32,7 +31,11 @@ export function MobileImportDialog({
     void window.matheca
       .mobileStart()
       .then((value) => {
-        if (alive) setState(value);
+        if (alive) {
+          setState(value);
+          if (value.libraries.some((item) => item.status === "received"))
+            setTab("incoming");
+        }
       })
       .catch((e) => {
         if (alive) setError(e.message);
@@ -94,7 +97,7 @@ export function MobileImportDialog({
         <div>
           <h2 id="mobile-import-title">手机联动</h2>
           <p>
-            同一局域网扫码连接：接收照片、查看识别进度，把导出文件传回手机。
+            连接同一网络，接收手机资料，或将题目与题集发送到手机。
           </p>
         </div>
         <button
@@ -129,32 +132,10 @@ export function MobileImportDialog({
       )}
       <div className="mobile-import-body">
         <section className="mobile-pairing" aria-label="手机配对">
-          {!!state?.pairedDevices?.length && (
-            <details>
-              <summary>已配对手机（{state.pairedDevices.length}）</summary>
-              <p className="hint">
-                仅在电脑开启手机联动时允许再次连接。移除会立即撤销此手机的连接权限。
-              </p>
-              {state.pairedDevices.map((device) => (
-                <div key={device.id} className="mobile-activity">
-                  <strong>{device.name}</strong>
-                  <p>核对码 {device.id.slice(-6).toUpperCase()}</p>
-                  <button
-                    disabled={busy}
-                    onClick={() =>
-                      void action(async () => {
-                        setState(
-                          await window.matheca.mobileForgetDevice(device.id),
-                        );
-                      })
-                    }
-                  >
-                    移除配对 · {device.id.slice(-6).toUpperCase()}
-                  </button>
-                </div>
-              ))}
-            </details>
-          )}
+          <div className="mobile-pairing-intro">
+            <h3>连接手机</h3>
+            <p className="hint">Android 打开“我的 → 连接电脑”扫码。</p>
+          </div>
           {state?.status === "receiving" && state.qrCodes[address] ? (
             <img
               className="mobile-qr"
@@ -166,7 +147,10 @@ export function MobileImportDialog({
               {busy ? "正在开启接收…" : "接收已暂停"}
             </div>
           )}
-          <strong>
+          <strong
+            className="mobile-connection-status"
+            data-connected={state?.connected && state?.pairing?.approved}
+          >
             {state?.status === "receiving"
               ? state.connected
                 ? state.pairing?.approved
@@ -237,7 +221,11 @@ export function MobileImportDialog({
           )}
           {state?.urls[address] && state.status === "receiving" && (
             <>
-              <p className="mobile-host">{new URL(state.urls[address]).host}</p>
+              {state.urls.length === 1 && (
+                <p className="mobile-host">
+                  {new URL(state.urls[address]).host}
+                </p>
+              )}
               <button
                 disabled={busy}
                 onClick={() =>
@@ -272,6 +260,32 @@ export function MobileImportDialog({
               重新开启接收
             </button>
           )}
+          {!!state?.pairedDevices?.length && (
+            <details>
+              <summary>已配对手机（{state.pairedDevices.length}）</summary>
+              <p className="hint">
+                仅在电脑开启手机联动时允许再次连接。移除会立即撤销此手机的连接权限。
+              </p>
+              {state.pairedDevices.map((device) => (
+                <div key={device.id} className="mobile-activity">
+                  <strong>{device.name}</strong>
+                  <p>核对码 {device.id.slice(-6).toUpperCase()}</p>
+                  <button
+                    disabled={busy}
+                    onClick={() =>
+                      void action(async () => {
+                        setState(
+                          await window.matheca.mobileForgetDevice(device.id),
+                        );
+                      })
+                    }
+                  >
+                    移除配对 · {device.id.slice(-6).toUpperCase()}
+                  </button>
+                </div>
+              ))}
+            </details>
+          )}
           <p className="hint">
             若系统询问网络权限，请允许专用网络访问。校园 Wi-Fi
             若隔离设备，可换用允许设备互通的网络。
@@ -283,17 +297,17 @@ export function MobileImportDialog({
             role="tablist"
             aria-label="联动内容"
             onKeyDown={(event) => {
-              const keys = ["photos", "tasks", "files", "library"] as const;
+              const keys = mobileTabs;
               const index = keys.indexOf(tab);
               const next =
                 event.key === "ArrowRight"
-                  ? (index + 1) % 4
+                  ? (index + 1) % keys.length
                   : event.key === "ArrowLeft"
-                    ? (index + 3) % 4
+                    ? (index + keys.length - 1) % keys.length
                     : event.key === "Home"
                       ? 0
                       : event.key === "End"
-                        ? 3
+                        ? keys.length - 1
                         : -1;
               if (next >= 0) {
                 event.preventDefault();
@@ -302,10 +316,17 @@ export function MobileImportDialog({
               }
             }}
           >
-            {(["photos", "tasks", "files", "library"] as const).map((key) => (
+            {mobileTabs.map((key) => (
               <button
                 key={key}
                 role="tab"
+                aria-label={
+                  key === "incoming"
+                    ? "来自手机"
+                    : key === "library"
+                      ? "题目与题库交换"
+                      : undefined
+                }
                 tabIndex={tab === key ? 0 : -1}
                 aria-selected={tab === key}
                 aria-controls="mobile-tab-panel"
@@ -317,8 +338,22 @@ export function MobileImportDialog({
                   : key === "tasks"
                     ? "本次识别"
                     : key === "files"
-                      ? "发往手机"
-                      : "题库交换"}
+                      ? "题目资料"
+                      : key === "incoming"
+                        ? "来自手机"
+                        : "题目与题库交换"}
+                {key === "incoming" &&
+                  !!state?.libraries.filter(
+                    (item) => item.status === "received",
+                  ).length && (
+                    <span className="mobile-tab-count">
+                      {
+                        state.libraries.filter(
+                          (item) => item.status === "received",
+                        ).length
+                      }
+                    </span>
+                  )}
               </button>
             ))}
           </div>
@@ -328,8 +363,16 @@ export function MobileImportDialog({
             role="tabpanel"
             aria-labelledby={`mobile-tab-${tab}`}
           >
-            {tab === "library" && (
+            {(tab === "library" || tab === "incoming") && (
               <LibraryExchangePanel
+                key={tab}
+                mode={tab === "incoming" ? "incoming" : "outgoing"}
+                onPrepared={() => {
+                  setMessage(
+                    "题库已准备好。请在手机的“连接电脑 → 接收题库”中点击下载并预览，再确认接收。",
+                  );
+                  setTab("files");
+                }}
                 footerHost={libraryFooter}
                 state={state}
                 busy={busy}
@@ -371,51 +414,39 @@ export function MobileImportDialog({
             )}
             {tab === "files" && (
               <>
-                <h3>发送导出文档</h3>
+                <h3>题目资料</h3>
                 <p className="hint">
-                  仅发送本次应用生成的 PDF／Word，每份最多 100
-                  MB。结束连接后下载链接失效。
+                  已准备好发到手机的题目与题集。手机确认连接后即可下载，结束连接后下载链接失效。
                 </p>
-                {exportPath && (
+                {!state?.transfers.filter(
+                  (file) =>
+                    file.kind === "library" || /^题库资料-/.test(file.name),
+                ).length && (
                   <p className="hint">
-                    最近导出：{exportPath.split(/[/\\]/).pop()}
+                    还没有发送的资料。请在“题目与题库交换”中选择题目或题集发送。
                   </p>
                 )}
-                {exportPath ? (
-                  <button
-                    disabled={busy || state?.status !== "receiving"}
-                    onClick={() =>
-                      void action(async () => {
-                        setState(await window.matheca.mobileShare(exportPath));
-                        setMessage(
-                          "文件已准备好，请在已确认连接的手机页面下载。",
-                        );
-                      })
-                    }
-                  >
-                    发送最近导出的文档
-                  </button>
-                ) : (
-                  <p className="hint">
-                    先在题集中导出 PDF 或 Word，再从导出提示进入此处。
-                  </p>
-                )}
-                {state?.transfers.map((file) => (
-                  <article className="mobile-activity" key={file.id}>
-                    <strong>{file.name}</strong>
-                    <p>
-                      {(file.size / 1024 / 1024).toFixed(1)} MB ·{" "}
-                      {
+                {state?.transfers
+                  .filter(
+                    (file) =>
+                      file.kind === "library" || /^题库资料-/.test(file.name),
+                  )
+                  .map((file) => (
+                    <article className="mobile-activity" key={file.id}>
+                      <strong>{file.name}</strong>
+                      <p>
+                        {(file.size / 1024 / 1024).toFixed(1)} MB ·{" "}
                         {
-                          ready: "等待手机下载",
-                          downloading: "正在传输",
-                          transferred: "已传到手机浏览器",
-                          failed: "传输失败，可在手机重试",
-                        }[file.status]
-                      }
-                    </p>
-                  </article>
-                ))}
+                          {
+                            ready: "等待手机下载",
+                            downloading: "正在传输",
+                            transferred: "已传到手机浏览器",
+                            failed: "传输失败，可在手机重试",
+                          }[file.status]
+                        }
+                      </p>
+                    </article>
+                  ))}
               </>
             )}
             {tab === "photos" && (
@@ -469,10 +500,7 @@ export function MobileImportDialog({
         </section>
       </div>
       <footer className="mobile-import-footer">
-        <p>
-          结束连接会停止收发并撤销下载链接。每张照片最多 50 MB，每批合计最多 200
-          MB。收起面板可继续收发；未识别照片会保留。
-        </p>
+        <p>收起面板可继续收发；结束连接将停止收发。待接收资料会保留。</p>
         <div className="button-row">
           <button disabled={busy} onClick={() => void close()}>
             结束连接
@@ -484,7 +512,7 @@ export function MobileImportDialog({
           )}
           {tab === "library" ? (
             <div ref={setLibraryFooter} />
-          ) : (
+          ) : tab === "photos" ? (
             <button
               className="primary"
               disabled={
@@ -504,7 +532,7 @@ export function MobileImportDialog({
                 ? "正在处理…"
                 : `开始识别${state?.files.length ? `（${state.files.length} 张）` : ""}`}
             </button>
-          )}
+          ) : null}
         </div>
       </footer>
     </dialog>,

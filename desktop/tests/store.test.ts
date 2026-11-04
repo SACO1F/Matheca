@@ -2,14 +2,14 @@ import { it, expect } from "vitest";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { Store } from "../src/main/store";
+import { Store } from "../electron/main/store";
 import {
   restoreArchive,
   exportArchive,
   inspectArchive,
-} from "../src/main/archive";
+} from "../electron/main/archive";
 import { newQuestion, newCollection } from "../src/shared/types";
-import { fingerprint } from "../src/main/fingerprint";
+import { fingerprint } from "../electron/main/fingerprint";
 import type { BackupData } from "../src/domain/backup";
 function fixture() {
   const folder = fs.mkdtempSync(path.join(os.tmpdir(), "matheca-store-"));

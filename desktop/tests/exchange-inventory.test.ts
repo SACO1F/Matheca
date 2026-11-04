@@ -3,7 +3,7 @@ import {
   inventory,
   framed,
   validateInventory,
-} from "../src/main/exchange-inventory";
+} from "../electron/main/exchange-inventory";
 import { newQuestion } from "../src/shared/types";
 import type { BackupData } from "../src/domain/backup";
 import { createHash } from "node:crypto";

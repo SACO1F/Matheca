@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-worker-reply"
+description = "Enables the worker_reply command without any pre-configured scope."
+commands.allow = ["worker_reply"]
+
+[[permission]]
+identifier = "deny-worker-reply"
+description = "Denies the worker_reply command without any pre-configured scope."
+commands.deny = ["worker_reply"]

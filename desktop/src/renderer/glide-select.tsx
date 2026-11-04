@@ -17,6 +17,7 @@ export function GlideSelect({
   portalHost,
   className,
   filtered = true,
+  disabled = false,
 }: {
   label: string;
   value: string;
@@ -32,6 +33,7 @@ export function GlideSelect({
    * so it must be able to opt out.
    */
   filtered?: boolean;
+  disabled?: boolean;
 }) {
   const id = useId();
   const trigger = useRef<HTMLButtonElement>(null);
@@ -39,6 +41,9 @@ export function GlideSelect({
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [highlight, setHighlight] = useState(0);
+  useEffect(() => {
+    if (disabled) setOpen(false);
+  }, [disabled]);
   const [position, setPosition] = useState({
     left: 0,
     top: 0,
@@ -162,6 +167,7 @@ export function GlideSelect({
         ref={trigger}
         type="button"
         role="combobox"
+        disabled={disabled}
         className="glide-trigger"
         aria-label={label}
         aria-expanded={open}

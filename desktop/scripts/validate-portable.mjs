@@ -47,10 +47,52 @@ function option(name, fallback) {
     throw Error(`${name} 需要参数`);
   return args[index + 1];
 }
+const latestFile = fs.existsSync("releases/latest-tauri.txt")
+  ? "releases/latest-tauri.txt"
+  : "releases/latest.txt";
+const latest = fs.existsSync(latestFile)
+  ? fs
+      .readFileSync(latestFile, "utf8")
+      .match(/^EXE: (.+)$/m)?.[1]
+      .trim()
+  : undefined;
+const executable = path.resolve(
+  option("--exe", process.env.MATHECA_EXE || latest || ""),
+);
+const payload = path.join(path.dirname(executable), "resources", "app.asar");
+const isTauri =
+  !fs.existsSync(payload) &&
+  !fs.existsSync(path.join(path.dirname(executable), "icudtl.dat"));
+const tauriCore = [
+  "tauri-release-audit",
+  "tauri-titlebar-ui",
+  "tauri-save-race-ui",
+  "tauri-workbench-ui",
+  "tauri-capture-ui",
+  "tauri-phase8-data-ui",
+  "tauri-phase8-backup-ui",
+  "tauri-phase8-export-ui",
+];
+const tauriFull = [
+  ...tauriCore,
+  "tauri-phase8-jobs-ui",
+  "tauri-phase8-mobile-ui",
+  "tauri-navigation-acceptance",
+  "tauri-collections-acceptance",
+  "tauri-scroll-acceptance",
+  "tauri-toast-acceptance",
+  "tauri-final-ui",
+];
 const suite = option("--suite", "core");
 if (!["core", "full"].includes(suite))
   throw Error("--suite 仅支持 core 或 full");
-const available = suite === "core" ? core : full;
+const available = isTauri
+  ? suite === "core"
+    ? tauriCore
+    : tauriFull
+  : suite === "core"
+    ? core
+    : full;
 const selected = option("--only", "").split(",").filter(Boolean);
 if (selected.some((name) => !available.includes(name)))
   throw Error("--only 包含当前套件没有的脚本，请使用 --list 查看。");
@@ -68,15 +110,6 @@ if (![22, 24].includes(major) && major < 26)
   throw Error(
     `当前 Node ${process.version} 不在项目支持范围，请使用 Node 22、24 或 26 及以上。`,
   );
-const latest = fs.existsSync("releases/latest.txt")
-  ? fs
-      .readFileSync("releases/latest.txt", "utf8")
-      .match(/^EXE: (.+)$/m)?.[1]
-      .trim()
-  : undefined;
-const executable = path.resolve(
-  option("--exe", process.env.MATHECA_EXE || latest || ""),
-);
 if (
   path.extname(executable).toLowerCase() !== ".exe" ||
   !fs.existsSync(executable)
@@ -85,11 +118,10 @@ if (
 const hash = createHash("sha256")
   .update(fs.readFileSync(executable))
   .digest("hex");
-const payload = path.join(path.dirname(executable), "resources", "app.asar");
-if (!fs.existsSync(payload))
+if (!isTauri && !fs.existsSync(payload))
   throw Error("EXE 旁缺少 resources/app.asar，请保留完整便携目录。");
 const payloadHash = createHash("sha256")
-  .update(fs.readFileSync(payload))
+  .update(fs.readFileSync(isTauri ? executable : payload))
   .digest("hex");
 const run = path.resolve(
   "test-output",
@@ -117,7 +149,7 @@ function save() {
             `| ${result.name} | ${escape(result.status)} | ${result.seconds}s | [日志](./${result.name}.log) | ${result.folders.map((folder) => `[${folder}](../${folder}/)`).join("、")} |`,
         )
         .join("\n") +
-      `\n\n应用代码 app.asar SHA256：${payloadHash}\n`,
+      `\n\n应用代码载荷（${isTauri ? "Tauri 内嵌 EXE" : "Electron app.asar"}）SHA256：${payloadHash}\n`,
   );
 }
 const started = new Intl.DateTimeFormat("sv-SE", {
@@ -140,12 +172,19 @@ for (const name of cases) {
   const log = fs.createWriteStream(path.join(run, `${name}.log`));
   let timeout = false;
   const status = await new Promise((resolve) => {
-    child = spawn(process.execPath, [path.join("scripts", `${name}.mjs`)], {
-      cwd: root,
-      env: { ...process.env, MATHECA_EXE: executable },
-      windowsHide: true,
-      stdio: ["ignore", "pipe", "pipe"],
-    });
+    child = spawn(
+      process.execPath,
+      [
+        path.join("scripts", `${name}.mjs`),
+        ...(isTauri ? ["--exe", executable] : []),
+      ],
+      {
+        cwd: root,
+        env: { ...process.env, MATHECA_EXE: executable },
+        windowsHide: true,
+        stdio: ["ignore", "pipe", "pipe"],
+      },
+    );
     child.stdout.pipe(log, { end: false });
     child.stderr.pipe(log, { end: false });
     const timer = setTimeout(() => {

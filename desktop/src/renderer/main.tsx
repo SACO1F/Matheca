@@ -44,6 +44,8 @@ import { MobileImportDialog } from "./mobile-import";
 import { CloseChoiceDialog } from "./close-choice-dialog";
 import { PrivacyPolicy } from "./privacy-policy";
 import { ManualSaveDialog, type ManualSaveChoice } from "./manual-save-dialog";
+import { Modal } from "./modal";
+import { WindowControls } from "./window-controls";
 import { KnowledgeTree } from "./knowledge-tree";
 import type {
   State,
@@ -85,6 +87,12 @@ const emptyFilter: Filter = {
   favorite: false,
 };
 function App() {
+  useEffect(() => {
+    const listener = (event: Event) =>
+      setError((event as CustomEvent<string>).detail);
+    window.addEventListener("matheca:bridge-error", listener);
+    return () => window.removeEventListener("matheca:bridge-error", listener);
+  }, []);
   const filterHistoryTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const pickerHistoryTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(
@@ -115,6 +123,7 @@ function App() {
     [guideOpen, setGuideOpen] = useState(false),
     [privacyOpen, setPrivacyOpen] = useState(false),
     [mobileOpen, setMobileOpen] = useState(false),
+    [mobilePending, setMobilePending] = useState(false),
     [collectionDialog, setCollectionDialog] = useState(false),
     [joinQuestionId, setJoinQuestionId] = useState<string>(),
     [joinTitle, setJoinTitle] = useState(""),
@@ -301,6 +310,32 @@ function App() {
   const manualDraftId = useRef<string | undefined>(undefined);
   const [closeChoicePrompt, setCloseChoicePrompt] = useState(false);
   useEffect(() => api.onCloseChoice(setCloseChoicePrompt), []);
+  useEffect(() => {
+    let alive = true,
+      polling = false;
+    const poll = async () => {
+      if (polling) return;
+      polling = true;
+      try {
+        const received = await api.mobileStatus();
+        if (alive)
+          setMobilePending(
+            received.files.length > 0 ||
+              received.libraries.some((item) => item.status === "received"),
+          );
+      } catch {
+        /* The link panel reports connection errors when opened. */
+      } finally {
+        polling = false;
+      }
+    };
+    void poll();
+    const timer = window.setInterval(() => void poll(), 1500);
+    return () => {
+      alive = false;
+      window.clearInterval(timer);
+    };
+  }, []);
   const [manualSavePrompt, setManualSavePrompt] = useState<{
     hasContent: boolean;
   }>();
@@ -329,6 +364,7 @@ function App() {
     paperRef = useRef(paper),
     paperDirty = useRef(false),
     settingsDirty = useRef(false);
+  const questionSaveQueue = useRef<Promise<void>>(Promise.resolve());
   draftRef.current = draft;
   dirtyRef.current = dirty;
   paperRef.current = paper;
@@ -402,12 +438,31 @@ function App() {
       }
     }
     if (q && (dirtyRef.current || confirm || manual)) {
-      const saved = await api.saveQuestion(q, confirm && !manual);
-      if (manual) manualDraftId.current = undefined;
-      draftRef.current = saved;
-      dirtyRef.current = false;
-      setDraft(saved);
-      setDirty(false);
+      const saveLatest = async () => {
+        let saving = draftRef.current;
+        while (saving?.id === q.id && (dirtyRef.current || confirm || manual)) {
+          const saved = await api.saveQuestion(saving, confirm && !manual);
+          if (manual) manualDraftId.current = undefined;
+          const latest = draftRef.current;
+          if (latest?.id !== saving.id) return;
+          if (latest !== saving) {
+            // Input remains editable during disk I/O. Persist the newer draft
+            // before navigation or closing can complete; never replace it with
+            // an older response.
+            saving = latest;
+            continue;
+          }
+          draftRef.current = saved;
+          dirtyRef.current = false;
+          setDraft(saved);
+          setDirty(false);
+          return;
+        }
+      };
+      // Ctrl+S, blur and navigation may overlap. Keep their writes ordered.
+      const pending = questionSaveQueue.current.then(saveLatest);
+      questionSaveQueue.current = pending.catch(() => {});
+      await pending;
     }
     if (paperDirty.current && paperRef.current) {
       const saving = paperRef.current;
@@ -550,6 +605,11 @@ function App() {
   }, [searchOpen, section]);
   useEffect(() => {
     const listener = (e: KeyboardEvent) => {
+      if (
+        e.defaultPrevented ||
+        (e.target instanceof Element && e.target.closest("dialog[open]"))
+      )
+        return;
       if (
         manualSavePrompt ||
         closeChoicePrompt ||
@@ -737,6 +797,12 @@ function App() {
       setNotice("文档已保存，可点击打开查看。");
     }
   };
+  useEffect(() => {
+    const receive = (event: Event) =>
+      setPreview((event as CustomEvent<BackupPreview>).detail);
+    window.addEventListener("matheca:backup-preview", receive);
+    return () => window.removeEventListener("matheca:backup-preview", receive);
+  }, []);
   const inspect = async () => {
     const p = await api.inspectBackup();
     if (p) setPreview(p);
@@ -757,7 +823,22 @@ function App() {
   };
   if (!state)
     return (
-      <div className="loading">正在打开本机题库…{error && <p>{error}</p>}</div>
+      <>
+        <div className="loading">
+          正在打开本机题库…{error && <p>{error}</p>}
+        </div>
+        {closeChoicePrompt && (
+          <CloseChoiceDialog
+            onDecision={(choice, remember) => {
+              setCloseChoicePrompt(false);
+              void api.resolveCloseChoice(choice, remember).catch((error) => {
+                setError(error.message);
+                setCloseChoicePrompt(true);
+              });
+            }}
+          />
+        )}
+      </>
     );
   const moveCollectionQuestion = async (index: number, direction: -1 | 1) => {
     const ids = collectionQuestions.map((q) => q.id);
@@ -1126,7 +1207,6 @@ function App() {
     <div className="app">
       {mobileOpen && (
         <MobileImportDialog
-          exportPath={lastExport || undefined}
           onClose={() => setMobileOpen(false)}
           onTasks={() => {
             setMobileOpen(false);
@@ -1160,6 +1240,7 @@ function App() {
       />
       <header
         className="window-titlebar"
+        data-tauri-drag-region=""
         aria-label="窗口标题栏"
         inert={
           pendingKnowledge !== undefined ||
@@ -1236,6 +1317,7 @@ function App() {
           <RecentHistory onViewAll={() => void run(() => nav("history"))} />
         </div>
         <div className="workbench-wordmark">Matheca</div>
+        <WindowControls onError={setError} />
       </header>
       <aside
         className="sidebar icon-rail"
@@ -1277,6 +1359,25 @@ function App() {
                 )}
             </button>
           ))}
+          <button
+            className={mobileOpen ? "nav-active" : ""}
+            aria-label="手机联动"
+            title={mobilePending ? "手机联动 · 有待接收资料" : "手机联动"}
+            aria-haspopup="dialog"
+            aria-expanded={mobileOpen}
+            onClick={() => setMobileOpen(true)}
+          >
+            <span aria-hidden="true">
+              <NavIcon name="phone" selected={mobileOpen} />
+            </span>
+            {mobilePending && (
+              <b
+                className="dot mobile-pending-dot"
+                role="status"
+                aria-label="有手机发来的待接收资料"
+              />
+            )}
+          </button>
         </nav>
         <div className="sidebar-bottom">
           <button
@@ -1520,11 +1621,6 @@ function App() {
               />
             )}
           </header>
-          {lastExport && (
-            <div className="mobile-export-action">
-              <button onClick={() => setMobileOpen(true)}>发送到手机</button>
-            </div>
-          )}
           {error && (
             <div className="banner error" role="alert">
               <span>{error}</span>
@@ -2805,6 +2901,9 @@ function App() {
                     onChange={(e) => changeSettings({ apiKey: e.target.value })}
                   />
                 </label>
+                {state.settings.keyWarning && (
+                  <p role="status">{state.settings.keyWarning}</p>
+                )}
                 <label className="check">
                   <input
                     type="checkbox"
@@ -3072,214 +3171,204 @@ function App() {
         />
       )}
       {pendingKnowledge !== undefined && knowledgeConfirmationReady && (
-        <div className="modal-backdrop">
-          <section
-            className="modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="knowledge-switch-title"
-            onKeyDown={(event) => {
-              if (event.key === "Escape" && !busy) {
-                event.stopPropagation();
-                setPendingKnowledge(undefined);
+        <Modal
+          titleId="knowledge-switch-title"
+          busy={busy}
+          onCancel={() => setPendingKnowledge(undefined)}
+        >
+          <h2 id="knowledge-switch-title">保存当前题目？</h2>
+          <p>
+            保存后结束当前校对，
+            {pendingKnowledge
+              ? `查看“${pendingKnowledge}”的题目`
+              : "查看全部题目"}
+            。取消则继续校对当前题目。
+          </p>
+          <div className="button-row">
+            <button
+              disabled={busy}
+              onClick={() => setPendingKnowledge(undefined)}
+            >
+              取消
+            </button>
+            <button
+              autoFocus
+              className="primary"
+              disabled={busy}
+              onClick={() =>
+                void run(async () => {
+                  await saveDraft();
+                  setEditorOpen(false);
+                  finishEditorClose();
+                  setF({ knowledge: pendingKnowledge });
+                  setPendingKnowledge(undefined);
+                })
               }
-            }}
-          >
-            <h2 id="knowledge-switch-title">保存当前题目？</h2>
-            <p>
-              保存后结束当前校对，
-              {pendingKnowledge
-                ? `查看“${pendingKnowledge}”的题目`
-                : "查看全部题目"}
-              。取消则继续校对当前题目。
-            </p>
-            <div className="button-row">
-              <button
-                disabled={busy}
-                onClick={() => setPendingKnowledge(undefined)}
-              >
-                取消
-              </button>
-              <button
-                autoFocus
-                className="primary"
-                disabled={busy}
-                onClick={() =>
-                  void run(async () => {
-                    await saveDraft();
-                    setEditorOpen(false);
-                    finishEditorClose();
-                    setF({ knowledge: pendingKnowledge });
-                    setPendingKnowledge(undefined);
-                  })
-                }
-              >
-                保存并切换
-              </button>
-            </div>
-          </section>
-        </div>
+            >
+              保存并切换
+            </button>
+          </div>
+        </Modal>
       )}
       {joinQuestionId && (
-        <div className="modal-backdrop">
-          <section
-            className="modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="join-collection-title"
-            onKeyDown={(event) => {
-              if (event.key === "Escape" && !busy) {
-                event.stopPropagation();
-                setJoinQuestionId(undefined);
-              }
-            }}
-          >
-            <h2 id="join-collection-title">加入题集</h2>
-            <p>选择已有题集，或创建一个新题集。已加入的题目会自动去重。</p>
-            <div className="collection-choices">
-              {state.collections.map((c) => (
-                <button
-                  key={c.id}
-                  disabled={busy}
-                  onClick={() =>
-                    void run(async () => {
-                      await addToCollection(c.id, [joinQuestionId]);
-                      setJoinQuestionId(undefined);
-                    })
-                  }
-                >
-                  {c.title}
-                </button>
-              ))}
-              {!state.collections.length && (
-                <p className="hint">暂无题集，可在下方创建。</p>
-              )}
-            </div>
-            <label className="field">
-              <span>新题集名称</span>
-              <input
-                autoFocus
-                aria-label="新题集名称"
-                value={joinTitle}
-                maxLength={200}
-                onChange={(event) => setJoinTitle(event.target.value)}
-              />
-            </label>
-            <div className="button-row">
+        <Modal
+          titleId="join-collection-title"
+          busy={busy}
+          onCancel={() => setJoinQuestionId(undefined)}
+        >
+          <h2 id="join-collection-title">加入题集</h2>
+          <p>选择已有题集，或创建一个新题集。已加入的题目会自动去重。</p>
+          <div className="collection-choices">
+            {state.collections.map((c) => (
               <button
+                key={c.id}
                 disabled={busy}
-                onClick={() => setJoinQuestionId(undefined)}
-              >
-                取消
-              </button>
-              <button
-                className="primary"
-                disabled={busy || !joinTitle.trim()}
                 onClick={() =>
                   void run(async () => {
-                    const collection = newCollection(
-                      crypto.randomUUID(),
-                      joinTitle.trim(),
-                    );
-                    await api.saveCollection(collection);
-                    await addToCollection(
-                      collection.id,
-                      [joinQuestionId],
-                      `已创建“${collection.title}”并加入题目`,
-                    );
+                    await addToCollection(c.id, [joinQuestionId]);
                     setJoinQuestionId(undefined);
                   })
                 }
               >
-                创建并加入
+                {c.title}
               </button>
-            </div>
-          </section>
-        </div>
+            ))}
+            {!state.collections.length && (
+              <p className="hint">暂无题集，可在下方创建。</p>
+            )}
+          </div>
+          <label className="field">
+            <span>新题集名称</span>
+            <input
+              autoFocus
+              aria-label="新题集名称"
+              value={joinTitle}
+              maxLength={200}
+              onChange={(event) => setJoinTitle(event.target.value)}
+            />
+          </label>
+          <div className="button-row">
+            <button
+              disabled={busy}
+              onClick={() => setJoinQuestionId(undefined)}
+            >
+              取消
+            </button>
+            <button
+              className="primary"
+              disabled={busy || !joinTitle.trim()}
+              onClick={() =>
+                void run(async () => {
+                  const collection = newCollection(
+                    crypto.randomUUID(),
+                    joinTitle.trim(),
+                  );
+                  await api.saveCollection(collection);
+                  await addToCollection(
+                    collection.id,
+                    [joinQuestionId],
+                    `已创建“${collection.title}”并加入题目`,
+                  );
+                  setJoinQuestionId(undefined);
+                })
+              }
+            >
+              创建并加入
+            </button>
+          </div>
+        </Modal>
       )}
       {collectionDialog && (
-        <div className="modal-backdrop">
-          <section className="modal">
-            <h2>创建题集</h2>
-            <p>给这份练习起一个名字。</p>
-            <input
-              aria-label="题集名称"
-              autoFocus
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              maxLength={200}
-            />
-            <div className="button-row">
-              <button onClick={() => setCollectionDialog(false)}>取消</button>
-              <button
-                className="primary"
-                disabled={!newTitle.trim() || busy}
-                onClick={() =>
-                  void run(async () => {
-                    await saveDraft();
-                    const c = newCollection(
-                      crypto.randomUUID(),
-                      newTitle.trim(),
-                    );
-                    await api.saveCollection(c);
-                    setCollectionId(c.id);
-                    setPaper(c);
-                    visitSection("collections");
-                    setCollectionDialog(false);
-                    setNewTitle("");
-                  })
-                }
-              >
-                创建题集
-              </button>
-            </div>
-          </section>
-        </div>
+        <Modal
+          titleId="create-collection-title"
+          busy={busy}
+          onCancel={() => setCollectionDialog(false)}
+        >
+          <h2 id="create-collection-title">创建题集</h2>
+          <p>给这份练习起一个名字。</p>
+          <input
+            aria-label="题集名称"
+            autoFocus
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+            maxLength={200}
+          />
+          <div className="button-row">
+            <button disabled={busy} onClick={() => setCollectionDialog(false)}>
+              取消
+            </button>
+            <button
+              className="primary"
+              disabled={!newTitle.trim() || busy}
+              onClick={() =>
+                void run(async () => {
+                  await saveDraft();
+                  const c = newCollection(crypto.randomUUID(), newTitle.trim());
+                  await api.saveCollection(c);
+                  setCollectionId(c.id);
+                  setPaper(c);
+                  visitSection("collections");
+                  setCollectionDialog(false);
+                  setNewTitle("");
+                })
+              }
+            >
+              创建题集
+            </button>
+          </div>
+        </Modal>
       )}
       {preview && (
-        <div className="modal-backdrop">
-          <section className="modal">
-            <h2>题库导入预览</h2>
-            <p>
-              包含 {preview.questions} 道题、{preview.collections} 个题集、
-              {preview.images} 张原图和 {preview.knowledgePoints}{" "}
-              个自定义知识点。
+        <Modal
+          titleId="backup-preview-title"
+          busy={busy}
+          onCancel={() =>
+            void run(async () => {
+              await api.dismissBackup(preview.token);
+              setPreview(undefined);
+            })
+          }
+        >
+          <h2 id="backup-preview-title">题库导入预览</h2>
+          <p>
+            包含 {preview.questions} 道题、{preview.collections} 个题集、
+            {preview.images} 张原图和 {preview.knowledgePoints} 个自定义知识点。
+          </p>
+          {preview.missingImages > 0 && (
+            <p className="pending">
+              备份前已缺失 {preview.missingImages} 张原图。
             </p>
-            {preview.missingImages > 0 && (
-              <p className="pending">
-                备份前已缺失 {preview.missingImages} 张原图。
-              </p>
-            )}
-            <p>相同编号保留本机版本。取消预览不会写入题库。</p>
-            <div className="button-row">
-              <button
-                onClick={() =>
-                  void run(async () => {
-                    await api.dismissBackup(preview.token);
-                    setPreview(undefined);
-                  })
-                }
-              >
-                取消
-              </button>
-              <button
-                className="primary"
-                disabled={busy}
-                onClick={() =>
-                  void run(async () => {
-                    const r = await api.restoreBackup(preview.token);
-                    setNotice(
-                      `新增 ${r.questions} 道题、${r.collections} 个题集；保留本机 ${r.skippedQuestions} 道题`,
-                    );
-                    setPreview(undefined);
-                  })
-                }
-              >
-                确认合并导入
-              </button>
-            </div>
-          </section>
-        </div>
+          )}
+          <p>相同编号保留本机版本。取消预览不会写入题库。</p>
+          <div className="button-row">
+            <button
+              disabled={busy}
+              onClick={() =>
+                void run(async () => {
+                  await api.dismissBackup(preview.token);
+                  setPreview(undefined);
+                })
+              }
+            >
+              取消
+            </button>
+            <button
+              className="primary"
+              disabled={busy}
+              onClick={() =>
+                void run(async () => {
+                  const r = await api.restoreBackup(preview.token);
+                  setNotice(
+                    `新增 ${r.questions} 道题、${r.collections} 个题集；保留本机 ${r.skippedQuestions} 道题`,
+                  );
+                  setPreview(undefined);
+                })
+              }
+            >
+              确认合并导入
+            </button>
+          </div>
+        </Modal>
       )}
     </div>
   );

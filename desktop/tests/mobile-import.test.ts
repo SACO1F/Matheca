@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { randomBytes, createHash } from "node:crypto";
-import { MobileImport, photoExtension } from "../src/main/mobile-import";
+import { MobileImport, photoExtension } from "../electron/main/mobile-import";
 const services: MobileImport[] = [],
   folders: string[] = [];
 const png = fs.readFileSync(path.resolve("assets/vision-test.png"));

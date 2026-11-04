@@ -7,3 +7,10 @@ coverage/
 public/pdfjs/
 *.log
 releases/
+tauri-dist/
+src-tauri/target/
+src-tauri/gen/
+tauri/native/target/
+tauri/native/gen/
+electron/.check-renderer/
+electron/.check-main/

@@ -1091,6 +1091,14 @@ small {
   width: 430px;
   box-shadow: 0 20px 70px #16253e30;
 }
+dialog.modal {
+  margin: auto;
+  color: var(--text);
+}
+dialog.modal::backdrop {
+  background: #1c2a454f;
+  backdrop-filter: blur(5px);
+}
 .modal p {
   font-size: 13px;
   color: var(--muted);
@@ -1638,6 +1646,12 @@ input.inline-search {
   position: absolute;
   top: 10px;
   right: 9px;
+}
+.sidebar.icon-rail .mobile-pending-dot {
+  top: 2px;
+  right: 2px;
+  outline: 2px solid var(--bg);
+  pointer-events: none;
 }
 .window-titlebar {
   position: fixed;
@@ -3534,4 +3548,47 @@ input.inline-search {
 .knowledge-field > span {
   display: block;
   margin-bottom: 7px;
+}
+
+/* One shared title row, with Tauri controls occupying the native caption area. */
+.window-controls {
+  -webkit-app-region: no-drag;
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  height: 36px;
+}
+.window-controls button {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+  transition: background 120ms;
+}
+.window-controls button:hover {
+  background: var(--hover);
+}
+.window-controls button:active {
+  transform: none;
+}
+.window-controls button:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -3px;
+}
+.window-controls .window-close:hover {
+  color: #ffffff;
+  background: #c42b1c;
+}
+.window-controls svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
 }

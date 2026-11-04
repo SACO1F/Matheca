@@ -22,7 +22,11 @@
     "test:portable": "node scripts/validate-portable.mjs",
     "test:portable:full": "node scripts/validate-portable.mjs --suite full",
     "format:check": "prettier --check src tests \"scripts/*.{ts,mjs}\" *.ts *.html *.json",
-    "format": "prettier --write src tests scripts/*.{ts,mjs} *.ts *.html *.json"
+    "format": "prettier --write src tests scripts/*.{ts,mjs} *.ts *.html *.json",
+    "start:electron": "electron-forge start",
+    "make:portable:electron": "node scripts/portable.mjs --electron",
+    "make:portable:tauri": "node scripts/portable.mjs --tauri",
+    "make:setup": "node scripts/make-setup.cjs"
   },
   "dependencies": {
     "better-sqlite3": "13.0.3",
@@ -69,5 +73,8 @@
     "url": "git+https://github.com/SACO1F/Matheca.git",
     "directory": "desktop"
   },
-  "homepage": "https://github.com/SACO1F/Matheca"
+  "homepage": "https://github.com/SACO1F/Matheca",
+  "config": {
+    "forge": "./electron/config/forge.config.ts"
+  }
 }

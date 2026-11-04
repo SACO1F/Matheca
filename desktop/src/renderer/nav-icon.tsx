@@ -1,5 +1,9 @@
 // Original Matheca icons: 24-unit grid, 18-unit optical field, 1.7-unit stroke.
 const icons = {
+  phone: {
+    body: "M8 2.5h8a2 2 0 0 1 2 2v15a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-15a2 2 0 0 1 2-2Z",
+    detail: "M10 5h4M11 18.5h2",
+  },
   database: {
     body: "M6 3.5h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2Z",
     detail: "M4 9h16M4 15h16M7.5 6.3h.1M7.5 12h.1M7.5 17.7h.1",

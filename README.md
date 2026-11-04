@@ -1,22 +1,32 @@
 # Matheca v0.1.0
 
-面向高中数学备课的本地题库工具，提供 Windows 桌面版与 Android App。支持收集题目、AI 识别、人工校对、知识点分类、选题组卷，以及 PDF／Word 导出。
+Matheca 是一款面向老师和学生的本地题库工具，提供 Windows 桌面版与 Android App，支持收集题目、AI 识别、人工校对、分类整理，以及 PDF／Word 导出。
+
+## 开发初衷
+
+开发这个软件，是希望让老师和学生都能更方便地留下值得反复使用的好题。
+
+对于老师，平时遇到的好题可以随时收集，之后集中整理、选题组卷，打印并分发给学生，减少备课时反复找题、复制和排版的工作。
+
+对于学生，可以把错题、薄弱知识点对应的题目，以及需要重点温习的题目收集起来，按自己的学习需要整理成题集，方便后续复习、打印和反复练习。
+
+## 平台
 
 | 平台 | 当前版本 | 工程 | 使用说明 |
 | --- | --- | --- | --- |
-| Windows x64 | **v0.1.0** | Electron / React / TypeScript · [desktop/](desktop/) | [桌面版使用与构建](desktop/README.md) |
+| Windows x64 | **v0.1.0** | Tauri / Rust / React · [desktop/](desktop/) | [桌面版使用与构建](desktop/README.md) |
 | Android 8.0+ | **v0.1.0** | Kotlin / Jetpack Compose · [app/](app/) | [安装与快速开始](#android-安装与快速开始) |
 
 两端分别保存本地题库，通过局域网手动交换题目与题集。首次连接需确认，接收资料需预览；支持记住设备、再次连接与仅发送内容不同的资料。
 
 ## 获取与运行
 
-本机已构建文件的位置记录在 `desktop/releases/latest.txt` 与 `app/releases/latest.txt`。从源码构建的方法见下文。安装文件不提交到 Git，公开附件以 [GitHub Releases](https://github.com/SACO1F/Matheca/releases) 中实际标注的版本为准。
+Windows 当前公开发布采用 **Tauri + Rust + React**。请从 [Tauri Windows 发布页](https://github.com/SACO1F/Matheca/releases/tag/tauri-v0.1.0) 获取安装包或便携包。Electron 旧版下载已撤回；历史实现保留在 `desktop/electron/` 供参考。Android 下载见 [Android 发布页](https://github.com/SACO1F/Matheca/releases/tag/android-v0.1.0)。
 
 两端设置页均可离线查看[隐私政策](PRIVACY.md)。正文统一维护于 `app/src/main/assets/privacy-policy.json`；运行 `python scripts/export-privacy-policy.py` 可生成相同内容的 Markdown 与可独立托管的 `docs/privacy-policy.html`。网页文件需要部署后才能作为应用商店的公开政策网址。
 
-- **Windows**：完整解压 `Matheca-win32-x64-0.1.0.zip`，运行目录中的 `Matheca.exe`，保留 DLL、`resources/` 等运行资源。
-- **Android**：安装 `Matheca-android-0.1.0-debug.apk`。目前提供 Debug 签名构建；覆盖安装需要包名和签名一致。卸载前请先导出题库备份。
+- **Windows**：推荐运行 `Matheca-Tauri-0.1.0-x64-Setup.exe`，按向导选择安装位置。也可完整解压 `Matheca-Tauri-win32-x64.zip`，运行目录中的 `Matheca.exe`，保留 DLL、许可和文件校验清单，需要系统 WebView2。Tauri 资料目录独立，已有题库通过 ZIP 导入；详见[运行说明](desktop/docs/TAURI_PREVIEW.md)。
+- **Android**：从 Android 发布页下载 Release APK 安装。覆盖安装需要包名和签名一致。卸载前请先导出题库备份。
 
 ## 核心功能
 
@@ -45,7 +55,7 @@
 
 ## 连接手机与电脑
 
-1. 手机与电脑接入能互相访问的同一局域网，在桌面右下角加号打开“手机联动”。
+1. 手机与电脑接入能互相访问的同一局域网，点击桌面左侧“手机联动”按钮。
 2. Android 进入“我的 → 连接电脑”，扫码或粘贴完整连接地址。也可使用手机浏览器扫码传图，无需安装 App。
 3. 核对两端显示的核对码，在电脑允许连接。Android 可选择记住电脑；再次连接时电脑仍需开启联动。网络地址变化时重新扫码。
 4. 在“连接与待传”管理连接和待传队列，在“选择资料”选择题目与题集，在“接收题库”校验并预览电脑发来的资料。
@@ -83,7 +93,7 @@
 
 本地完整备份保留题目、原图、解答、自定义知识点、题集顺序与文档设置，不包含 API Key、接口配置或后台任务。手机本地完整备份与桌面交换 ZIP 使用各自对应的格式，请使用对应入口。详细规则见 [备份与恢复](docs/library-backup.md)。
 
-题库保存在本机，应用卸载会删除其私有数据。Android API Key 使用 Keystore 加密；识别向配置的服务发送题目图片，解题发送题目内容及可用原图。请自行选择可信服务并保存备份。
+题库保存在本机；Android 卸载会删除其私有数据，Windows 安装版卸载保留独立的本地题库目录。Android API Key 使用 Keystore 加密；识别向配置的服务发送题目图片，解题发送题目内容及可用原图。请自行选择可信服务并保存备份。
 
 ## 开发与构建
 
@@ -103,10 +113,11 @@ Windows 使用 Node.js 24，在 `desktop/` 执行：
 npm ci
 npm run verify
 npm run make:portable
+npm run make:setup
 npm run test:portable
 ```
 
-完整应用目录、ZIP 与校验文件输出到 `desktop/releases/v0.1.0/构建时间/`。发布验证使用独立测试数据，不操作正常题库。
+完整应用目录、ZIP 与校验文件输出到 `desktop/releases/tauri/v0.1.0/构建时间/`。发布验证使用独立测试数据，不操作正常题库。
 
 Android 使用 Android Studio 打开根目录，安装 Android SDK 37，并使用内置 JBR。在根目录执行：
 

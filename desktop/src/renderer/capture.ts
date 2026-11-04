@@ -1,9 +1,10 @@
 import "./capture.css";
-import type { CaptureRect } from "../main/screen-capture";
+import type { CaptureRect } from "../../electron/main/screen-capture";
 declare global {
   interface Window {
     screenCapture: {
       ready(): Promise<string>;
+      loaded?(): Promise<void>;
       confirm(rect: CaptureRect): Promise<void>;
       cancel(): void;
     };
@@ -113,6 +114,7 @@ try {
   image.src = await window.screenCapture.ready();
   await image.decode();
   loaded = true;
+  await window.screenCapture.loaded?.();
 } catch {
   help.textContent = "屏幕图像加载失败，请按 Esc 返回应用";
 }

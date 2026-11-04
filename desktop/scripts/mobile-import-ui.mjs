@@ -250,7 +250,7 @@ try {
     "receiving",
     "collapsing the panel keeps the connection alive for editing/export",
   );
-  const collectionId = await desktop.evaluate(async () => {
+  await desktop.evaluate(async () => {
     const state = await window.matheca.state();
     for (const q of state.questions)
       await window.matheca.saveQuestion({ ...q, reviewed: true }, true);
@@ -268,77 +268,38 @@ try {
       id,
       state.questions.map((q) => q.id),
     );
-    return id;
   });
-  for (const format of ["pdf", "docx"]) {
-    const file = path.join(output, `手机练习.${format}`);
-    await app.evaluate(({ dialog }, file) => {
-      dialog.showSaveDialog = async () => ({ canceled: false, filePath: file });
-    }, file);
-    if (format === "pdf") {
-      await desktop
-        .locator(".sidebar")
-        .getByRole("button", { name: "题集", exact: true })
-        .click();
-      await desktop
-        .locator(".collection-card")
-        .filter({ hasText: "手机联动练习" })
-        .click();
-    }
-    await desktop
-      .getByRole("button", {
-        name: format === "pdf" ? "导出 PDF" : "导出 Word",
-        exact: true,
-      })
-      .click();
-    await desktop
-      .getByRole("button", {
-        name: format === "pdf" ? "确认导出 PDF" : "确认导出 Word",
-        exact: true,
-      })
-      .click();
-    await desktop
-      .getByRole("button", { name: "发送到手机", exact: true })
-      .click();
-    const shareModal = desktop.getByRole("dialog", {
-      name: "手机联动",
+  const sendModal = await open();
+  await sendModal
+    .getByRole("tab", { name: "题目与题库交换", exact: true })
+    .click();
+  await sendModal.getByLabel("手机联动练习").check();
+  await sendModal
+    .getByRole("button", { name: "发送所选资料到手机", exact: true })
+    .click();
+  await sendModal
+    .getByText("资料已准备好，请在 Android 的“接收题库”中下载。", {
       exact: true,
-    });
-    await shareModal
-      .getByRole("button", { name: "发送最近导出的文档", exact: true })
-      .click();
-    await shareModal
-      .getByText("文件已准备好，请在已确认连接的手机页面下载。", {
-        exact: true,
-      })
-      .waitFor();
-    await shareModal
-      .getByRole("button", { name: "收起手机联动面板", exact: true })
-      .click();
-    await phone
-      .locator("#downloads .download")
-      .filter({ hasText: `手机练习.${format}` })
-      .waitFor();
-    const row = phone
-      .locator("#downloads .download")
-      .filter({ hasText: `手机练习.${format}` });
-    if (format === "pdf") {
-      await phone.route("**/api/download/**", (route) => route.abort("failed"));
-      await row.getByRole("button", { name: "下载文件", exact: true }).click();
-      await row
-        .getByRole("button", { name: "重试下载", exact: true })
-        .waitFor();
-      await phone.unroute("**/api/download/**");
-    }
-    const downloadPromise = phone.waitForEvent("download");
-    await row.getByRole("button", { name: /下载/ }).click();
-    const download = await downloadPromise;
-    const target = path.join(output, `downloaded.${format}`);
-    await download.saveAs(target);
-    assert.deepEqual(fs.readFileSync(target), fs.readFileSync(file));
-    await row.getByText(/已传到浏览器/).waitFor();
-  }
-  assert.equal((await status()).transfers.length, 2);
+    })
+    .waitFor();
+  const transfer = (await status()).transfers[0];
+  assert.ok(transfer.name.endsWith(".zip"));
+  const row = phone
+    .locator("#downloads .download")
+    .filter({ hasText: transfer.name });
+  await row.waitFor();
+  await phone.route("**/api/download/**", (route) => route.abort("failed"));
+  await row.getByRole("button", { name: "下载文件", exact: true }).click();
+  await row.getByRole("button", { name: "重试下载", exact: true }).waitFor();
+  await phone.unroute("**/api/download/**");
+  const downloadPromise = phone.waitForEvent("download");
+  await row.getByRole("button", { name: /下载/ }).click();
+  const download = await downloadPromise;
+  const target = path.join(output, "downloaded.zip");
+  await download.saveAs(target);
+  assert.equal(fs.readFileSync(target).subarray(0, 2).toString(), "PK");
+  await row.getByText(/已传到浏览器/).waitFor();
+  assert.equal((await status()).transfers.length, 1);
   await assert.rejects(
     () =>
       desktop.evaluate(
@@ -347,15 +308,16 @@ try {
       ),
     /仅可发送/,
   );
-  const activeModal = await open();
-  await activeModal.getByRole("tab", { name: "发往手机", exact: true }).click();
-  await activeModal.getByText("手机练习.pdf", { exact: true }).waitFor();
+  await sendModal
+    .getByRole("tab", { name: "题目资料", exact: true })
+    .click();
+  await sendModal.getByText(transfer.name, { exact: true }).waitFor();
   await desktop.screenshot({ path: path.join(output, "desktop-files.png") });
   await phone.screenshot({
     path: path.join(output, "phone-results.png"),
     fullPage: true,
   });
-  await activeModal.getByRole("tab", { name: /收到的照片/ }).click();
+  await sendModal.getByRole("tab", { name: /收到的照片/ }).click();
   // Receive another batch, pause, and restart the actual portable EXE.
   const session = await status(),
     url = new URL(phoneUrl(session));

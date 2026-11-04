@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-capture-confirm"
+description = "Enables the capture_confirm command without any pre-configured scope."
+commands.allow = ["capture_confirm"]
+
+[[permission]]
+identifier = "deny-capture-confirm"
+description = "Denies the capture_confirm command without any pre-configured scope."
+commands.deny = ["capture_confirm"]

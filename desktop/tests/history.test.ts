@@ -2,8 +2,8 @@ import { it, expect } from "vitest";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { Store, type StoredJob } from "../src/main/store";
-import { describeOperation } from "../src/main/history";
+import { Store, type StoredJob } from "../electron/main/store";
+import { describeOperation } from "../electron/main/history";
 import { newQuestion, newCollection } from "../src/shared/types";
 function fixture() {
   const folder = fs.mkdtempSync(path.join(os.tmpdir(), "matheca-history-"));

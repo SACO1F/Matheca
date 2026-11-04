@@ -39,8 +39,9 @@ import {
   decodeDrafts,
   decodeSolution,
   decodePagedDrafts,
+  extractionPrompt,
 } from "../src/domain/vision";
-import { fingerprint, kotlinUtf8 } from "../src/main/fingerprint";
+import { fingerprint, kotlinUtf8 } from "../electron/main/fingerprint";
 const q = {
   ...newQuestion("q"),
   title: "函数练习",
@@ -92,6 +93,24 @@ describe("Kotlin domain compatibility", () => {
       true,
     );
     expect(toLatex("a₁₂+x²³≤π")).toBe("a_{12}+x^{23}\\le \\pi ");
+  });
+  it("renders fill-in blanks as underlines instead of invalid subscripts", () => {
+    expect(
+      parseMath("已知 f(x)=____，则 f(1)=____。")
+        .filter((p) => p.type === "formula")
+        .map((p) => p.type === "formula" && p.latex),
+    ).toEqual([
+      "f(x)=\\underline{\\hspace{2em}}",
+      "f(1)=\\underline{\\hspace{2em}}",
+    ]);
+    expect(
+      parseMath("\\(x=\\_\\_\\_\\_\\)").map((p) =>
+        p.type === "formula" ? p.latex : p.value,
+      ),
+    ).toEqual(["x=\\underline{\\hspace{2em}}"]);
+    expect(parseMath("请在 ＿＿＿＿ 处填写")).toEqual([
+      { type: "text", value: "请在 ____ 处填写" },
+    ]);
   });
   it("preserves UTF16 and Kotlin whitespace", () => {
     expect(trim("\u00a0题\u00a0")).toBe("题");
@@ -292,6 +311,13 @@ describe("ZIP v1 manifest compatibility", () => {
   });
 });
 describe("Vision contract", () => {
+  it("keeps fill-in blanks and leaves image positions empty without text", () => {
+    const prompt = extractionPrompt([]);
+    expect(prompt).toContain("____");
+    expect(prompt).toContain("\\underline{\\hspace{2em}}");
+    expect(prompt).toContain("只在原有位置留空");
+    expect(prompt).not.toContain("转写为对应位置的 LaTeX");
+  });
   it.each([
     ["https://example.invalid", "https://example.invalid/v1/chat/completions"],
     [

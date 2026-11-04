@@ -1,0 +1,41 @@
+[package]
+name = "matheca"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
+
+[build-dependencies]
+tauri-build = { version = "=2.7.0", features = [] }
+
+[dependencies]
+tauri = { version = "=2.12.0", features = ["tray-icon"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rusqlite = { version = "=0.39.0", features = ["bundled", "backup"] }
+percent-encoding = "2"
+sha2 = "0.10"
+uuid = { version = "1", features = ["v4"] }
+regex = "1"
+httparse = "=1.10.1"
+getrandom = "=0.3.4"
+base64 = "=0.22.1"
+url = "2"
+fs2 = "=0.4.3"
+reqwest = { version = "=0.13.5", default-features = false, features = ["native-tls", "json"] }
+tokio = { version = "=1.53.1", features = ["time", "macros"] }
+image = { version = "=0.25.10", default-features = false, features = ["png", "jpeg", "webp", "bmp"] }
+libloading = "=0.7.4"
+zip = { version = "=2.4.2", default-features = false, features = ["deflate"] }
+webview2-com = "=0.39.1"
+tauri-plugin-dialog = "=2.8.0"
+windows = { version = "=0.62.2", features = ["Win32_Foundation", "Win32_Graphics_Gdi", "Win32_Graphics_Dwm", "Win32_UI_HiDpi", "Win32_NetworkManagement_IpHelper", "Win32_Networking_WinSock", "Win32_Security_Cryptography", "Win32_System_DataExchange", "Win32_System_Memory", "Win32_System_Com", "Win32_UI_Shell", "Win32_Storage_FileSystem", "Win32_UI_WindowsAndMessaging"] }
+
+[profile.release]
+strip = true
+opt-level = "s"
+lto = "thin"
+codegen-units = 1

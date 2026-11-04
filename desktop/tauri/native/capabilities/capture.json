@@ -1,0 +1,13 @@
+{
+  "identifier": "capture-overlay",
+  "description": "Frozen local screenshot selection only; no library, network or filesystem commands",
+  "windows": [
+    "capture-*"
+  ],
+  "permissions": [
+    "allow-capture-ready",
+    "allow-capture-loaded",
+    "allow-capture-confirm",
+    "allow-capture-cancel"
+  ]
+}

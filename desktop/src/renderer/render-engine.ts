@@ -65,9 +65,10 @@ const mathHtml = (parts: MathPart[]) =>
     .join("");
 const ready = async () => {
   await document.fonts.ready;
-  await new Promise((r) =>
-    requestAnimationFrame(() => requestAnimationFrame(r)),
-  );
+  await Promise.race([
+    new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))),
+    new Promise((r) => setTimeout(r, 100)),
+  ]);
 };
 const css = document.createElement("style");
 css.textContent = `@page{size:A4;margin:40pt}body{margin:0;background:white;color:#000;font-family:"SimSun","Microsoft YaHei",sans-serif;font-size:12pt}#document{width:515pt}.paper-title{text-align:center;font-size:20pt;font-weight:bold;margin:0 0 12pt}.summary{text-align:center;font-size:11pt;margin-bottom:12pt}.instructions{font-size:11pt;white-space:pre-wrap;margin-bottom:24pt}.question{margin-bottom:0;break-inside:avoid}.answer-space{break-inside:avoid}.stem{orphans:3;widows:3;break-after:avoid}.options,.question-figure{break-after:avoid}.stem{white-space:pre-wrap;line-height:1.55}.options{width:515pt;table-layout:fixed;border-collapse:collapse;margin-top:6pt}.options td{vertical-align:top;padding:0 0 6pt;overflow-wrap:anywhere;line-height:1.55}.katex{font-size:1em}.katex-display{margin:.7em 0;overflow:visible}.measure{display:inline-block;white-space:nowrap;max-width:none}.formula-only{display:inline-block;font-size:48px;padding:6px}.long-question{break-inside:auto}.question-figure{display:block;max-width:360pt;max-height:270pt;object-fit:contain;margin:10pt 0}.options .question-figure{max-width:100%;height:auto;max-height:none;break-inside:avoid;margin:6pt 0}`;
@@ -170,7 +171,10 @@ window.renderEngine = {
     for (const formula of container.querySelectorAll(
       ".katex-display .katex-html",
     ))
-      if (formula.getBoundingClientRect().width > (515 * 4) / 3 + 1)
+      if (
+        Math.max(formula.getBoundingClientRect().width, formula.scrollWidth) >
+        (515 * 4) / 3 + 1
+      )
         throw Error("公式超出页面宽度，请修正后导出");
     return { parts };
   },
