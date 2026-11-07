@@ -207,14 +207,34 @@ class DesktopLinkService(private val context: Context) {
         require(Regex("[a-f0-9-]{36}").matches(id) && size in 1..BackupPolicy.MAX_ARCHIVE_BYTES) { "资料编号或大小无效" }
         val target = File.createTempFile("desktop-received-", ".zip", context.cacheDir)
         try {
-            client.newCall(request("/api/download/$id").build()).execute().use { response ->
-                require(response.isSuccessful) { "下载失败，请检查连接后重试" }
-                val input = response.body?.byteStream() ?: error("文件为空")
-                input.use { source -> target.outputStream().use { output -> val bytes = ByteArray(16384); var total = 0L
-                    while(true) { currentCoroutineContext().ensureActive(); val n = source.read(bytes); if(n < 0) break; total += n; require(total <= size) { "资料超出申报大小" }; output.write(bytes, 0, n); progress.value = "接收题库 · ${total*100/size}%" }
-                    require(total == size) { "文件未完整收到，请重试" }
-                } }
-            }; target
+            for (attempt in 0..2) {
+                currentCoroutineContext().ensureActive()
+                try {
+                    client.newCall(request("/api/download/$id").build()).execute().use { response ->
+                        require(response.isSuccessful) { "下载失败（${response.code}），请检查连接后重试" }
+                        val input = response.body?.byteStream() ?: error("文件为空")
+                        input.use { source -> target.outputStream().use { output ->
+                            val bytes = ByteArray(16384); var total = 0L
+                            while(true) {
+                                currentCoroutineContext().ensureActive()
+                                val n = source.read(bytes); if(n < 0) break
+                                total += n; require(total <= size) { "资料超出申报大小" }
+                                output.write(bytes, 0, n); progress.value = "接收题库 · ${total*100/size}%"
+                            }
+                            if(total != size) throw java.io.EOFException("文件未完整收到")
+                        } }
+                    }
+                    return@withContext target
+                } catch(error: java.io.IOException) {
+                    currentCoroutineContext().ensureActive()
+                    if(attempt == 2) throw java.io.IOException("题库传输中断，请保持两端在同一网络后重试", error)
+                    progress.value = "连接中断，正在重新接收（${attempt+1}/2）"
+                    // Each attempt opens/truncates the same temporary file. Partial
+                    // downloads are never passed to backup preview or restoration.
+                    kotlinx.coroutines.delay(1000L * (attempt + 1))
+                }
+            }
+            error("题库下载未完成")
         } catch(error: Throwable) { target.delete(); throw error }
     }
 }

@@ -80,7 +80,7 @@ import org.json.JSONObject
     BackHandler { if(scanning) scanning = false else if(camera) camera = false else onBack() }
     if(scanning) { DesktopQrScanner(onClose = { scanning = false }, onResult = { scanning = false; connectToComputer(it) }, onError = model::message); return }
     if(camera) { CameraScreen(onClose = { camera = false }, onCaptured = { camera = false; model.desktopPhotos(listOf(it)) }, onError = model::message); return }
-    Scaffold(snackbarHost = { SnackbarHost(snackbar) }, topBar = { TopAppBar(title = { Text("连接电脑",fontSize=24.sp,fontWeight=FontWeight.Bold) }, colors=TopAppBarDefaults.topAppBarColors(containerColor=MaterialTheme.colorScheme.background), navigationIcon = { IconButton(onBack) { Icon(Icons.AutoMirrored.Rounded.ArrowBack, "返回") } }) }) { padding ->
+    Scaffold(snackbarHost = { IosToastHost(snackbar) }, topBar = { TopAppBar(title = { Text("连接电脑",fontSize=24.sp,fontWeight=FontWeight.Bold) }, colors=TopAppBarDefaults.topAppBarColors(containerColor=MaterialTheme.colorScheme.background), navigationIcon = { IconButton(onBack) { Icon(Icons.AutoMirrored.Rounded.ArrowBack, "返回") } }) }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).imePadding()) {
             DesktopLinkTabs(tab) { tab=it }
             if(error != null) Text(error!!, Modifier.padding(16.dp).testTag("desktop-link-error"), color = MaterialTheme.colorScheme.error)

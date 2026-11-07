@@ -173,7 +173,7 @@ fun MathectorApp(model: AppViewModel) {
         BackHandler(enabled = previewFile != null || editorId != null || collectionId != null || tab != 0) {
             when { previewFile != null -> previewFile = null; editorId != null -> editorId = null; collectionId != null -> collectionId = null; else -> tab = 0 }
         }
-        Scaffold(containerColor = MaterialTheme.colorScheme.background, snackbarHost = { SnackbarHost(snackbar, Modifier.padding(bottom = 82.dp)) }) { insets ->
+        Scaffold(containerColor = MaterialTheme.colorScheme.background, snackbarHost = { IosToastHost(snackbar, Modifier.padding(bottom = 82.dp)) }) { insets ->
             Box(Modifier.fillMaxSize()) {
                 Box(Modifier.fillMaxSize().hazeSource(haze).padding(top = insets.calculateTopPadding())) {
                     val destination = when {

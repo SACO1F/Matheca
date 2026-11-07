@@ -21,7 +21,7 @@ Matheca 是一款面向老师和学生的本地题库工具，提供 Windows 桌
 
 ## 获取与运行
 
-Windows 当前公开发布采用 **Tauri + Rust + React**。请从 [Tauri Windows 发布页](https://github.com/SACO1F/Matheca/releases/tag/tauri-v0.1.0) 获取安装包或便携包。Electron 旧版下载已撤回；历史实现保留在 `desktop/electron/` 供参考。Android 下载见 [Android 发布页](https://github.com/SACO1F/Matheca/releases/tag/android-v0.1.0)。
+Windows 当前公开发布采用 **Tauri + Rust + React**。请从 [Tauri Windows 发布页](https://github.com/SACO1F/Matheca/releases/tag/tauri-v0.1.0) 获取安装包或便携包。Electron 旧版下载已撤回；历史实现保留在 `desktop/electron/` 供参考。Android 下载见 [Android 发布页](https://github.com/SACO1F/Matheca/releases/tag/android-v0.1.0-b33)。
 
 两端设置页均可离线查看[隐私政策](PRIVACY.md)。正文统一维护于 `app/src/main/assets/privacy-policy.json`；运行 `python scripts/export-privacy-policy.py` 可生成相同内容的 Markdown 与可独立托管的 `docs/privacy-policy.html`。网页文件需要部署后才能作为应用商店的公开政策网址。
 

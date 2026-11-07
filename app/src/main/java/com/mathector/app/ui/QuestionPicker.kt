@@ -120,14 +120,14 @@ import kotlinx.coroutines.launch
     }
 }
 
-@Composable private fun PickerFilter(title: String, id: String, value: String?, options: List<String?>, tint: Color, modifier: Modifier,
-    allLabel: (String?) -> String, valueLabel: (String) -> String, onSelect: (String?) -> Unit) {
+@Composable internal fun PickerFilter(title: String, id: String, value: String?, options: List<String?>, tint: Color, modifier: Modifier,
+    allLabel: (String?) -> String, valueLabel: (String) -> String, enabled: Boolean = true, onSelect: (String?) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     val label = value?.let(valueLabel) ?: allLabel(null)
     val windowWidth = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.width.toDp() }
     val menuWidth = minOf(if(id == "knowledge") 280.dp else 208.dp, (windowWidth - 40.dp).coerceAtLeast(0.dp))
     BoxWithConstraints(modifier) {
-        Surface(onClick = { expanded = true }, Modifier.fillMaxWidth().testTag("picker-filter-$id"), shape = RoundedCornerShape(15.dp), color = tint.copy(alpha = .09f)) {
+        Surface(onClick = { expanded = true }, Modifier.fillMaxWidth().testTag("picker-filter-$id"), enabled = enabled, shape = RoundedCornerShape(15.dp), color = tint.copy(alpha = .09f)) {
             Row(Modifier.padding(horizontal = 10.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text(title, fontSize = 11.sp, color = tint)
@@ -137,7 +137,7 @@ import kotlinx.coroutines.launch
             }
         }
         val menuOffset = if(id == "knowledge") DpOffset((maxWidth - menuWidth) / 2, 0.dp) else DpOffset.Zero
-        RoundedPopupMenu(expanded, { expanded = false }, Modifier.testTag("picker-menu-$id"), width = menuWidth, offset = menuOffset) {
+        RoundedPopupMenu(expanded && enabled, { expanded = false }, Modifier.testTag("picker-menu-$id"), width = menuWidth, offset = menuOffset) {
             options.forEachIndexed { index, option ->
                 RoundedMenuItem(option?.let(valueLabel) ?: allLabel(null),
                     onClick = { onSelect(option); expanded = false }, selected = option == value, selectionColor = tint,

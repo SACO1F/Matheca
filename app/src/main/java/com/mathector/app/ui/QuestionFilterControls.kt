@@ -5,6 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mathector.app.data.*
@@ -38,13 +39,12 @@ internal class QuestionFilterState {
 
 @Composable internal fun QuestionCategoryFilters(state: QuestionFilterState, enabled: Boolean = true) {
     Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
-        GlideSelect("grade","年级",state.grade,listOf(GlideGroup("",KnowledgeCatalog.grades)),Modifier.weight(1f),enabled=enabled) {state.grade=it}
-        GlideSelect("kind","题型",state.kind,listOf(GlideGroup("",KnowledgeCatalog.kinds)),Modifier.weight(1f),enabled=enabled) {state.kind=it}
-        GlideSelect("difficulty","难度",state.difficulty,listOf(GlideGroup("",KnowledgeCatalog.difficulties+"待评估")),Modifier.weight(1f),enabled=enabled) {state.difficulty=it}
+        PickerFilter("年级", "grade", state.grade, listOf<String?>(null) + KnowledgeCatalog.grades, MaterialTheme.colorScheme.primary, Modifier.weight(1f).testTag("glide-select-grade"), { "全部年级" }, { it }, enabled) {state.grade=it}
+        PickerFilter("题型", "kind", state.kind, listOf<String?>(null) + KnowledgeCatalog.kinds, MaterialTheme.colorScheme.primary, Modifier.weight(1f).testTag("glide-select-kind"), { "全部题型" }, { it }, enabled) {state.kind=it}
+        PickerFilter("难度", "difficulty", state.difficulty, listOf<String?>(null) + KnowledgeCatalog.difficulties + "待评估", LocalMathecaPalette.current.warning, Modifier.weight(1f).testTag("glide-select-difficulty"), { "全部难度" }, { it }, enabled) {state.difficulty=it}
     }
 }
 
 @Composable internal fun QuestionKnowledgeFilter(state: QuestionFilterState, groups: List<GlideGroup>, enabled: Boolean = true) {
-    GlideSelect("knowledge",if(groups.isEmpty()) "知识点（暂无）" else "知识点",state.knowledge,groups,Modifier.fillMaxWidth(),
-        menuWidth=280.dp,enabled=enabled && groups.isNotEmpty()) {state.knowledge=it}
+    PickerFilter("知识点", "knowledge", state.knowledge, listOf<String?>(null) + groups.flatMap {it.options}, MaterialTheme.colorScheme.primary, Modifier.fillMaxWidth().testTag("glide-select-knowledge"), { "全部知识点" }, { it }, enabled && groups.isNotEmpty()) {state.knowledge=it}
 }
